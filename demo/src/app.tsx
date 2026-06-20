@@ -33,7 +33,11 @@ export function App() {
 	}
 
 	if (!cluster) {
-		return <div className="text-muted text-sm">Booting simulated Kubernetes cluster...</div>;
+		return (
+			<div className="text-muted text-sm" role="status">
+				Booting simulated Kubernetes cluster...
+			</div>
+		);
 	}
 
 	return (
