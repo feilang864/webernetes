@@ -1,5 +1,11 @@
 # @ngrok/webernetes
 
+## 0.1.3
+
+### Patch Changes
+
+- [`c355517`](https://github.com/ngrok/webernetes/commit/c355517ef5baf65eb6673a3792ec7b275789119d) Thanks [@samwho](https://github.com/samwho)! - Temporarily schedule new workload Pods onto the node with the fewest active non-system Pods, ignoring kube-system control-plane components until the simulator has a proper scheduler implementation.
+
 ## 0.1.2
 
 ### Patch Changes
