@@ -4,6 +4,7 @@ import type { EventRecorder } from "../../client-go/tools/record/event";
 import { EventRecorderImpl } from "../events";
 import type { ProcessContext } from "../cri";
 import { BaseImage } from "./base";
+import { Mutex } from "../../go/sync/mutex";
 
 function podKey(pod: V1Pod): string {
 	return `${pod.metadata?.namespace ?? "default"}/${pod.metadata?.name ?? ""}`;
@@ -20,6 +21,7 @@ export class Scheduler extends BaseImage {
 	private informer: k8s.Informer<V1Pod> | undefined;
 	private readonly pending = new Set<string>();
 	private readonly pendingBindingsByNode = new Map<string, number>();
+	private readonly schedulingLock = new Mutex();
 
 	override async exec(ctx: ProcessContext, argv: readonly string[]): Promise<number> {
 		if (argv[0] !== "kube-scheduler") {
@@ -65,9 +67,12 @@ export class Scheduler extends BaseImage {
 	}
 
 	private async bindPod(ctx: ProcessContext, pod: V1Pod): Promise<void> {
-		const server = await this.nextServer(ctx);
+		const server = await this.schedulingLock.withLock(async () => {
+			const selected = await this.nextServer(ctx);
+			this.reserveBinding(selected.name);
+			return selected;
+		});
 		let bound: V1Pod | undefined;
-		this.reserveBinding(server.name);
 		try {
 			await retryConflicts(ctx, async () => {
 				const name = pod.metadata?.name ?? "";
