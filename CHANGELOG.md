@@ -1,5 +1,11 @@
 # @ngrok/webernetes
 
+## 0.1.4
+
+### Patch Changes
+
+- [`49733e2`](https://github.com/ngrok/webernetes/commit/49733e2b6cc2fba1424ed5024b3f58d8e30e7cc8) Thanks [@samwho](https://github.com/samwho)! - Keep temporary workload scheduling balanced during bursts by serializing node selection with in-flight reservations, and ignore terminating Pods when counting node workload.
+
 ## 0.1.3
 
 ### Patch Changes
