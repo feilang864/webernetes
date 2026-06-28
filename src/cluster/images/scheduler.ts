@@ -18,8 +18,8 @@ export class Scheduler extends BaseImage {
 	readonly defaultCommand = ["kube-scheduler"];
 	private events: EventRecorder | undefined;
 	private informer: k8s.Informer<V1Pod> | undefined;
-	private nextServerIndex = 0;
 	private readonly pending = new Set<string>();
+	private readonly pendingBindingsByNode = new Map<string, number>();
 
 	override async exec(ctx: ProcessContext, argv: readonly string[]): Promise<number> {
 		if (argv[0] !== "kube-scheduler") {
@@ -67,29 +67,34 @@ export class Scheduler extends BaseImage {
 	private async bindPod(ctx: ProcessContext, pod: V1Pod): Promise<void> {
 		const server = await this.nextServer(ctx);
 		let bound: V1Pod | undefined;
-		await retryConflicts(ctx, async () => {
-			const name = pod.metadata?.name ?? "";
-			const namespace = pod.metadata?.namespace ?? "default";
-			const current = await ctx.api.corev1.readNamespacedPod({ name, namespace });
-			if (current.spec?.nodeName) {
-				return;
-			}
-			await ctx.api.corev1.createNamespacedPodBinding({
-				name,
-				namespace,
-				body: {
-					apiVersion: "v1",
-					kind: "Binding",
-					metadata: { name, namespace },
-					target: {
+		this.reserveBinding(server.name);
+		try {
+			await retryConflicts(ctx, async () => {
+				const name = pod.metadata?.name ?? "";
+				const namespace = pod.metadata?.namespace ?? "default";
+				const current = await ctx.api.corev1.readNamespacedPod({ name, namespace });
+				if (current.spec?.nodeName) {
+					return;
+				}
+				await ctx.api.corev1.createNamespacedPodBinding({
+					name,
+					namespace,
+					body: {
 						apiVersion: "v1",
-						kind: "Node",
-						name: server.name,
+						kind: "Binding",
+						metadata: { name, namespace },
+						target: {
+							apiVersion: "v1",
+							kind: "Node",
+							name: server.name,
+						},
 					},
-				},
+				});
+				bound = await ctx.api.corev1.readNamespacedPod({ name, namespace });
 			});
-			bound = await ctx.api.corev1.readNamespacedPod({ name, namespace });
-		});
+		} finally {
+			this.releaseBinding(server.name);
+		}
 		if (bound) {
 			await this.events?.event(
 				bound,
@@ -107,8 +112,64 @@ export class Scheduler extends BaseImage {
 		if (nodeNames.length === 0) {
 			throw new Error("no schedulable servers are configured");
 		}
-		const name = nodeNames[this.nextServerIndex % nodeNames.length];
-		this.nextServerIndex += 1;
+		const podCountsByNode = await this.nonSystemPodCountsByNode(ctx, nodeNames);
+		let name = nodeNames[0] ?? "";
+		let count = podCountsByNode.get(name) ?? 0;
+		for (const nodeName of nodeNames.slice(1)) {
+			const nodeCount = podCountsByNode.get(nodeName) ?? 0;
+			if (nodeCount < count) {
+				name = nodeName;
+				count = nodeCount;
+			}
+		}
 		return { name };
 	}
+
+	private async nonSystemPodCountsByNode(
+		ctx: ProcessContext,
+		nodeNames: string[],
+	): Promise<Map<string, number>> {
+		const counts = new Map<string, number>();
+		for (const nodeName of nodeNames) {
+			counts.set(nodeName, this.pendingBindingsByNode.get(nodeName) ?? 0);
+		}
+		const pods = (await ctx.api.corev1.listPodForAllNamespaces()).items;
+		for (const pod of pods) {
+			if (isSystemPod(pod) || !isScheduledActivePod(pod)) {
+				continue;
+			}
+			const nodeName = pod.spec?.nodeName ?? "";
+			if (!counts.has(nodeName)) {
+				continue;
+			}
+			counts.set(nodeName, (counts.get(nodeName) ?? 0) + 1);
+		}
+		return counts;
+	}
+
+	private reserveBinding(nodeName: string): void {
+		this.pendingBindingsByNode.set(nodeName, (this.pendingBindingsByNode.get(nodeName) ?? 0) + 1);
+	}
+
+	private releaseBinding(nodeName: string): void {
+		const count = this.pendingBindingsByNode.get(nodeName) ?? 0;
+		if (count <= 1) {
+			this.pendingBindingsByNode.delete(nodeName);
+			return;
+		}
+		this.pendingBindingsByNode.set(nodeName, count - 1);
+	}
+}
+
+function isSystemPod(pod: V1Pod): boolean {
+	return (pod.metadata?.namespace ?? "default") === "kube-system";
+}
+
+function isScheduledActivePod(pod: V1Pod): boolean {
+	return (
+		!!pod.spec?.nodeName &&
+		pod.status?.phase !== "Succeeded" &&
+		pod.status?.phase !== "Failed" &&
+		!pod.metadata?.deletionTimestamp
+	);
 }
