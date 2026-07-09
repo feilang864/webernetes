@@ -106,6 +106,42 @@ browser.describe("Scheduler", () => {
 		}
 	});
 
+	it("schedules a large burst across all configured nodes", async () => {
+		const cluster = new Cluster({ nodes: 10 });
+		await cluster.init();
+		try {
+			await Promise.all(
+				Array.from({ length: 100 }, async (_, index) => {
+					await cluster.api.corev1.createNamespacedPod({
+						namespace: "default",
+						body: {
+							metadata: { name: `large-burst-workload-${index}` },
+							spec: {
+								containers: [{ name: "pause", image: "registry.k8s.io/pause:3.10" }],
+							},
+						},
+					});
+				}),
+			);
+
+			await waitFor(async () => {
+				const pods = await cluster.api.corev1.listNamespacedPod({ namespace: "default" });
+				const workloads = pods.items.filter((pod) =>
+					pod.metadata?.name?.startsWith("large-burst-workload-"),
+				);
+				const counts = podCountsByNode(workloads);
+
+				expect(workloads).toHaveLength(100);
+				expect(workloads.every((pod) => !!pod.spec?.nodeName)).toBe(true);
+				for (const server of cluster.servers) {
+					expect(counts[server.name]).toBeGreaterThan(0);
+				}
+			});
+		} finally {
+			await cluster.close();
+		}
+	});
+
 	it("does not count terminating workload pods when choosing a node", async () => {
 		const cluster = new Cluster();
 		await cluster.init();
