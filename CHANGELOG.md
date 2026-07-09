@@ -1,5 +1,11 @@
 # @ngrok/webernetes
 
+## 0.1.5
+
+### Patch Changes
+
+- [`56791d2`](https://github.com/ngrok/webernetes/commit/56791d281e9b62e99d730e3842fc1686c49c9080) Thanks [@samwho](https://github.com/samwho)! - Allow clusters to be created with a configurable number of initial nodes while keeping the default cluster size at three nodes.
+
 ## 0.1.4
 
 ### Patch Changes
