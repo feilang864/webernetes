@@ -156,8 +156,9 @@ fully implemented the things I believe I have.
 ### Nodes
 
 - `Cluster` spins up a 3-node cluster (`node-1`, `node-2`, `node-3`) and that
-  isn't configurable yet. I would like to suppose arbitrarily adding and
-  removing nodes in the future.
+  can be changed with a constructor param to the `Cluster` class. I would like
+  to support arbitrarily adding and removing nodes in the future, but it's not
+  there yet.
 
 ### Namespaces
 
