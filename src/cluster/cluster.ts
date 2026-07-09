@@ -40,6 +40,7 @@ const DEFAULT_NODE_PORT_RANGE: NodePortRange = {
 	from: 30000,
 	to: 32767,
 };
+const DEFAULT_NODE_COUNT = 3;
 
 export type ClusterInformerEventType = "add" | "update" | "delete";
 
@@ -66,9 +67,26 @@ export interface ClusterInformerResources {
 export type ClusterInformerResource = keyof ClusterInformerResources;
 
 export interface ClusterOptions {
+	/**
+	 * CIDR used by the service store when allocating Service clusterIP values.
+	 * Defaults to the simulator's Kubernetes service CIDR.
+	 */
 	serviceCIDR?: string;
+	/**
+	 * Inclusive port range used by the service store when allocating or validating
+	 * NodePort Service ports. Defaults to Kubernetes' standard 30000-32767 range.
+	 */
 	nodePortRange?: NodePortRange;
+	/**
+	 * Latency hooks stored on the cluster context and consulted by simulated
+	 * network requests, responses, and container termination.
+	 */
 	latencyProvider?: LatencyProvider;
+	/**
+	 * Number of initial Server/Node instances to create when the cluster is
+	 * constructed. Defaults to 3.
+	 */
+	nodes?: number;
 }
 
 export type {
@@ -156,30 +174,21 @@ export class Cluster extends EventEmitter {
 			searches: [],
 			options: [],
 		};
+		const nodes = options.nodes ?? DEFAULT_NODE_COUNT;
+		if (!Number.isInteger(nodes) || nodes < 1) {
+			throw new RangeError("Cluster nodes must be a positive integer");
+		}
 
-		this.servers = [
-			new Server(this, {
-				name: "node-1",
-				podCIDR: "10.0.0.0/24",
-				ipAddresses: ["192.168.1.1"],
+		this.servers = Array.from({ length: nodes }, (_, index) => {
+			const nodeNumber = index + 1;
+			return new Server(this, {
+				name: `node-${nodeNumber}`,
+				podCIDR: `10.${Math.floor(index / 256)}.${index % 256}.0/24`,
+				ipAddresses: [`192.168.${Math.floor(index / 254) + 1}.${(index % 254) + 1}`],
 				kubeletConfiguration,
 				dnsConfig: serverDNSConfig,
-			}),
-			new Server(this, {
-				name: "node-2",
-				podCIDR: "10.0.1.0/24",
-				ipAddresses: ["192.168.1.2"],
-				kubeletConfiguration,
-				dnsConfig: serverDNSConfig,
-			}),
-			new Server(this, {
-				name: "node-3",
-				podCIDR: "10.0.2.0/24",
-				ipAddresses: ["192.168.1.3"],
-				kubeletConfiguration,
-				dnsConfig: serverDNSConfig,
-			}),
-		];
+			});
+		});
 
 		this.imageRegistry.register(Scheduler);
 		this.imageRegistry.register(KubeProxy);

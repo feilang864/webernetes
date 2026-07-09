@@ -180,6 +180,37 @@ browser.describe("Cluster nodes", () => {
 		}
 	});
 
+	it("creates the configured number of initial nodes", async () => {
+		const cluster = new Cluster({ nodes: 5 });
+		await cluster.init();
+		try {
+			const nodes = await cluster.api.corev1.listNode();
+			expect(cluster.servers.map((server) => server.name)).toEqual([
+				"node-1",
+				"node-2",
+				"node-3",
+				"node-4",
+				"node-5",
+			]);
+			expect(nodes.items.map((node) => node.metadata?.name)).toEqual([
+				"node-1",
+				"node-2",
+				"node-3",
+				"node-4",
+				"node-5",
+			]);
+			expect(cluster.servers.map((server) => server.podCIDR)).toEqual([
+				"10.0.0.0/24",
+				"10.0.1.0/24",
+				"10.0.2.0/24",
+				"10.0.3.0/24",
+				"10.0.4.0/24",
+			]);
+		} finally {
+			await cluster.close();
+		}
+	});
+
 	it("creates informers for all resource kinds with field selectors", async () => {
 		const cluster = new Cluster();
 		await cluster.init();
