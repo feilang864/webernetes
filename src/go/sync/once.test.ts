@@ -17,7 +17,7 @@ browser.describe("Once", () => {
 
 		for (let i = 0; i < 10; i++) {
 			void (async () => {
-				await once.do(() => {
+				once.do(() => {
 					value++;
 				});
 				expect(value).toBe(1);
@@ -39,7 +39,7 @@ browser.describe("Once", () => {
 			}),
 		).toThrow("failed");
 
-		once.do(() => {
+		void once.do(() => {
 			throw new Error("Once.Do called twice");
 		});
 	});
