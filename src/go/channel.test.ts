@@ -10,6 +10,42 @@ browser.describe("Channel", () => {
 	//   import "fmt"
 	//
 	//   func main() {
+	//   	buffered := make(chan string, 2)
+	//   	unbuffered := make(chan string)
+	//   	buffered <- "first"
+	//   	buffered <- "second"
+	//   	fmt.Println(len(buffered))
+	//   	fmt.Println(len(unbuffered))
+	//   	<-buffered
+	//   	close(buffered)
+	//   	fmt.Println(len(buffered))
+	//   }
+	//
+	// Output:
+	//   2
+	//   0
+	//   1
+	it("length returns the number of buffered values", async () => {
+		const buffered = new Channel<string>(2);
+		const unbuffered = new Channel<string>();
+
+		expect(buffered.length).toBe(0);
+		expect(unbuffered.length).toBe(0);
+		expect(buffered.trySend("first")).toBe(true);
+		expect(buffered.trySend("second")).toBe(true);
+		expect(buffered.length).toBe(2);
+		await buffered.receive();
+		buffered.close();
+		expect(buffered.length).toBe(1);
+	});
+
+	// Go check:
+	//
+	//   package main
+	//
+	//   import "fmt"
+	//
+	//   func main() {
 	//   	ch := make(chan string, 1)
 	//   	select {
 	//   	case ch <- "first":
