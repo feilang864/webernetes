@@ -1,5 +1,11 @@
 # @ngrok/webernetes
 
+## 0.1.6
+
+### Patch Changes
+
+- [`e446c95`](https://github.com/ngrok/webernetes/commit/e446c95908f24c09b74e40db9d5c5526cff17082) Thanks [@samwho](https://github.com/samwho)! - Assign each simulated cluster a unique, read-only ID within the current page.
+
 ## 0.1.5
 
 ### Patch Changes
