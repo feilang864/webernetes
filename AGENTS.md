@@ -45,64 +45,9 @@ General rules for this repository:
 - For intentionally unused parameters, prefix the parameter name with an
   underscore, such as `_ctx`; do not add `void parameter;` statements just to
   silence unused-variable checks.
-- When transliterating Go functions into TypeScript, use TypeScript naming
-  conventions for function names. In particular, do not preserve Go's exported
-  initial capital; `GetPartialReference` should become `getPartialReference`.
-- When mirroring Go code that returns `(value, error)`, prefer explicit tuple
-  returns such as `[value, err]` over throwing exceptions. If you find
-  try/catch or thrown errors in mirrored code where upstream returns an error,
-  treat that as parity debt and convert it unless there is a clear local
-  boundary that requires exceptions.
-- Do not copy upstream comments when transliterating code. Keep local comments
-  only when they explain simulator-specific behavior or non-obvious local
-  constraints; readers can refer to the upstream source for upstream commentary.
-- Files that mirror upstream Kubernetes code should keep local source-mapping
-  comments in the form `// Models <upstream path> <name>` before mirrored
-  declarations. These comments are not copied upstream commentary; they are
-  required breadcrumbs for reviewing parity.
-- For Kubernetes `pkg/` paths, this repository's `src/` directory acts as the
-  package root. For example, upstream `pkg/util/parsers` should be mirrored
-  under `src/util/parsers`, not `src/pkg/util/parsers`.
-- When changing code that mimics real Kubernetes behavior, protect parity even
-  in conversation. If a requested change would move the implementation away
-  from the upstream structure or behavior being modeled, challenge the request,
-  explain the parity issue, and lay out the viable options before editing.
-- When mirroring Go `iota` enums in TypeScript, use string unions for the named
-  enum values. If code needs to model the Go zero value, use the first `iota`
-  enum value; do not add an empty string to the union to emulate a zero value.
-- When adding zero-value helper constructors in TypeScript, name them
-  `new<TypeName>`, such as `newContainerStatus`, accept a `DeepPartial` of the
-  type they create for overrides, and define them in the same file as the type
-  they construct.
-- Simulator behavior is currently targeting Kubernetes 1.36. A local checkout
-  of `kubernetes/kubernetes` at commit
-  `ecf6decece6a6de25a57aad9ba90b6ce580f6f78` is available at
-  `~/Developer/github.com/kubernetes/kubernetes` for upstream source reference.
-- When asked to copy, mirror, port, transliterate, audit, or compare against
-  upstream Kubernetes code, treat the upstream source as the specification.
-  Mechanical fidelity is more important than local cleanup or simplification.
-- For Kubernetes parity tasks, do not collapse, rename, combine, or omit
-  upstream constructs merely because the local behavior would be equivalent.
-  Preserve upstream control flow, test table shape, case names, helper names,
-  expected fields, and distinctions such as literal empty maps versus
-  helper-built maps unless an existing repository constraint explicitly prevents
-  it.
-- For Kubernetes parity tests that need access to upstream package-private
-  state, prefer making the corresponding TypeScript internal state
-  package-visible/exported over adding helper-only behavior or driving a
-  different public lifecycle. This keeps tests mechanically close to upstream
-  and avoids `any` casts.
-- Passing tests are necessary but not sufficient for upstream parity work. The
-  resulting implementation or test should remain reviewable side by side with
-  upstream.
-- If upstream code depends on simulator scope that is intentionally unsupported,
-  do not silently omit it. State the unsupported dependency, explain why it
-  cannot be copied directly, and either keep the closest explicit placeholder
-  shape or ask before skipping it.
-- Before finishing upstream parity work, do a line-by-line audit against the
-  upstream file and report any intentional deviations with concrete reasons.
-  If uncertain whether a shortcut is acceptable, assume it is not acceptable and
-  preserve the upstream structure.
+- Before porting, mirroring, transliterating, auditing, or comparing Kubernetes
+  Go code, read and follow [`porting.md`](porting.md). It is mandatory for any
+  Kubernetes Go-to-TypeScript port, including upstream-derived tests.
 - Shared tests should exercise the same calling code against the real client and
   the fake client. Favor changes that make the fake's public exported types line
   up with the real client's public exported types closely enough that unions and

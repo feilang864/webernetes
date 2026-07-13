@@ -99,7 +99,7 @@ export class Channel<T> implements AsyncIterable<T> {
 	private readonly values: T[] = [];
 	private readonly receivers: Array<(result: ChannelReceive<T>) => void> = [];
 	private readonly senders: Array<PendingSender<T>> = [];
-	private closed = false;
+	private isClosed = false;
 
 	readOnly(): ReadOnlyChannel<T> {
 		return new ReadOnlyChannel(this);
@@ -212,8 +212,12 @@ export class Channel<T> implements AsyncIterable<T> {
 		}
 	}
 
+	get length(): number {
+		return this.values.length;
+	}
+
 	trySend(value: T): boolean {
-		if (this.closed) {
+		if (this.isClosed) {
 			throw new Error("send on closed channel");
 		}
 
@@ -260,7 +264,7 @@ export class Channel<T> implements AsyncIterable<T> {
 			return result;
 		}
 
-		if (this.closed) {
+		if (this.isClosed) {
 			const result: ChannelReceive<T> = { ok: false, value: undefined };
 			this.notifyReceive(result);
 			return result;
@@ -270,11 +274,11 @@ export class Channel<T> implements AsyncIterable<T> {
 	}
 
 	private canReceive(): boolean {
-		return this.values.length > 0 || this.senders.length > 0 || this.closed;
+		return this.values.length > 0 || this.senders.length > 0 || this.isClosed;
 	}
 
 	private canSend(): boolean {
-		return !this.closed && (this.receivers.length > 0 || this.values.length < this.capacity);
+		return !this.isClosed && (this.receivers.length > 0 || this.values.length < this.capacity);
 	}
 
 	async receive(): Promise<ChannelReceive<T>> {
@@ -293,10 +297,10 @@ export class Channel<T> implements AsyncIterable<T> {
 	}
 
 	close(): void {
-		if (this.closed) {
+		if (this.isClosed) {
 			throw new Error("close of closed channel");
 		}
-		this.closed = true;
+		this.isClosed = true;
 
 		for (const sender of this.senders.splice(0)) {
 			sender.reject(new Error("send on closed channel"));
@@ -336,7 +340,7 @@ export class Channel<T> implements AsyncIterable<T> {
 	}
 
 	private drainSender(): void {
-		if (this.closed) {
+		if (this.isClosed) {
 			return;
 		}
 
@@ -370,6 +374,10 @@ export class Channel<T> implements AsyncIterable<T> {
 
 export class ReadOnlyChannel<T> implements AsyncIterable<T> {
 	constructor(private readonly channel: Channel<T>) {}
+
+	tryReceive(): ChannelReceive<T> | undefined {
+		return this.channel.tryReceive();
+	}
 
 	receive(): Promise<ChannelReceive<T>> {
 		return this.channel.receive();

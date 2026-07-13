@@ -11,6 +11,7 @@ import {
 	type V1Probe,
 } from "../../../client";
 import { getClock } from "../../../clock-context";
+import { poll as waitPoll } from "../../../apimachinery/pkg/util/wait/poll";
 import { Channel, select } from "../../../go/channel";
 import * as context from "../../../go/context";
 import { browser } from "../../../test/describe";
@@ -355,17 +356,13 @@ async function waitForWorkerExit(
 		if (condition()) {
 			continue;
 		}
-		await poll(ctx, interval, foreverTestTimeout, condition);
+		await pollWithClock(ctx, interval, foreverTestTimeout, condition);
 	}
 }
 
 // Models kubernetes/pkg/kubelet/prober/prober_manager_test.go cleanup.
 async function cleanup(ctx: context.Context, m: ProbeManagerImpl): Promise<void> {
 	m.cleanupPods(new Set());
-	const condition = () => m.workerCount() === 0;
-	if (!condition()) {
-		await poll(ctx, interval, foreverTestTimeout, condition);
-	}
 	await m.close();
 	expect(m.workerCount()).toBe(0);
 }
@@ -402,7 +399,7 @@ async function waitForReadyStatus(
 		}
 		return containerStatus.ready === ready;
 	};
-	await poll(ctx, interval, foreverTestTimeout, condition);
+	await pollWithClock(ctx, interval, foreverTestTimeout, condition);
 }
 
 function startReadinessHandling(m: ProbeManagerImpl): { stop(): Promise<void> } {
@@ -435,24 +432,35 @@ async function extractedReadinessHandling(m: ProbeManagerImpl, update: ProbeUpda
 	await m.statusManager.setContainerReadiness(update.podUid, update.containerId, ready);
 }
 
-async function poll(
+async function pollWithClock(
 	ctx: context.Context,
 	intervalMs: number,
 	timeoutMs: number,
 	condition: () => boolean | Promise<boolean>,
 ): Promise<void> {
 	const clock = getClock(ctx);
-	const deadline = clock.nowMs() + timeoutMs;
-	for (;;) {
-		if (await condition()) {
-			return;
+	let settled = false;
+	const result = waitPoll(ctx, intervalMs, timeoutMs, async () => [
+		await condition(),
+		undefined,
+	]).then((err) => {
+		settled = true;
+		return err;
+	});
+
+	for (let elapsedMs = 0; elapsedMs < timeoutMs; elapsedMs += intervalMs) {
+		await flushAsyncWork();
+		if (settled) {
+			break;
 		}
-		if (clock.nowMs() >= deadline) {
-			expect(await condition()).toBe(true);
-			return;
-		}
-		await Promise.resolve();
-		clock.step(Math.min(intervalMs, deadline - clock.nowMs()));
+		clock.step(Math.min(intervalMs, timeoutMs - elapsedMs));
+	}
+
+	expect(await result).toBeUndefined();
+}
+
+async function flushAsyncWork(): Promise<void> {
+	for (let i = 0; i < 10; i++) {
 		await Promise.resolve();
 	}
 }
