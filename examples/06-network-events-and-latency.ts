@@ -28,8 +28,8 @@ class CallerImage extends BaseImage {
 
 const cluster = new Cluster({
 	latencyProvider: newLatencyProvider({
-		clusterNetworkRequestLatency: () => 25,
-		clusterNetworkResponseLatency: () => 25,
+		clusterNetworkRequestLatency: (_ctx) => 25,
+		clusterNetworkResponseLatency: (_ctx) => 25,
 	}),
 });
 cluster.registerImage(CallerImage);

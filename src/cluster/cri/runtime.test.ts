@@ -8,6 +8,7 @@ import { errCommandTimedOut } from "../cri-client/pkg";
 import { ImageRegistry, type ImageSignal } from "./image";
 import { BaseImage } from "../images/base";
 import type { ProcessContext } from "./runtime";
+import { getCluster } from "../context";
 import { newLatencyProvider } from "../../latency";
 
 class TestImage extends BaseImage {
@@ -522,7 +523,8 @@ browser.describe("InProcessRuntimeService images", () => {
 		const sourceContainer = { name: "main", image: "busybox:1.36" };
 		const cluster = new Cluster({
 			latencyProvider: newLatencyProvider({
-				containerTerminationLatency: (event) => {
+				containerTerminationLatency: (ctx, event) => {
+					expect(getCluster(ctx)).toBe(cluster);
 					terminationEvents.push(event.container.name);
 					expect(event.container).toBe(sourceContainer);
 					expect(event.container.image).toBe("busybox:1.36");

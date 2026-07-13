@@ -6,7 +6,9 @@ import type {
 	PreNetworkResponseEvent,
 } from "./cluster/cni/network";
 import type { V1Container } from "./client";
+import { Cluster } from "./cluster/cluster";
 import * as context from "./go/context";
+import { getCluster } from "./cluster/context";
 import {
 	getLatencyProvider,
 	newLatencyProvider,
@@ -37,10 +39,11 @@ browser.describe("LatencyProvider", () => {
 
 	it("converts missing latency options to zero-returning functions", () => {
 		const provider = newLatencyProvider();
+		const ctx = context.background();
 
-		expect(provider.clusterNetworkRequestLatency(requestEvent)).toBe(0);
-		expect(provider.clusterNetworkResponseLatency(responseEvent)).toBe(0);
-		expect(provider.containerTerminationLatency(containerTerminationEvent)).toBe(0);
+		expect(provider.clusterNetworkRequestLatency(ctx, requestEvent)).toBe(0);
+		expect(provider.clusterNetworkResponseLatency(ctx, responseEvent)).toBe(0);
+		expect(provider.containerTerminationLatency(ctx, containerTerminationEvent)).toBe(0);
 	});
 
 	it("passes the network event to latency option functions", () => {
@@ -51,36 +54,53 @@ browser.describe("LatencyProvider", () => {
 		const responseEvents: PreNetworkResponseEvent[] = [];
 		const terminationEvents: ContainerTerminationLatencyEvent[] = [];
 		const provider = newLatencyProvider({
-			clusterNetworkRequestLatency: (event) => {
+			clusterNetworkRequestLatency: (_ctx, event) => {
 				requestEvents.push(event);
 				return requestLatency++;
 			},
-			clusterNetworkResponseLatency: (event) => {
+			clusterNetworkResponseLatency: (_ctx, event) => {
 				responseEvents.push(event);
 				return (responseLatency += 5);
 			},
-			containerTerminationLatency: (event) => {
+			containerTerminationLatency: (_ctx, event) => {
 				terminationEvents.push(event);
 				return (terminationLatency += 25);
 			},
 		});
 
-		expect(provider.clusterNetworkRequestLatency(requestEvent)).toBe(1);
-		expect(provider.clusterNetworkRequestLatency(requestEvent)).toBe(2);
-		expect(provider.clusterNetworkResponseLatency(responseEvent)).toBe(15);
-		expect(provider.clusterNetworkResponseLatency(responseEvent)).toBe(20);
-		expect(provider.containerTerminationLatency(containerTerminationEvent)).toBe(125);
-		expect(provider.containerTerminationLatency(containerTerminationEvent)).toBe(150);
+		const ctx = context.background();
+		expect(provider.clusterNetworkRequestLatency(ctx, requestEvent)).toBe(1);
+		expect(provider.clusterNetworkRequestLatency(ctx, requestEvent)).toBe(2);
+		expect(provider.clusterNetworkResponseLatency(ctx, responseEvent)).toBe(15);
+		expect(provider.clusterNetworkResponseLatency(ctx, responseEvent)).toBe(20);
+		expect(provider.containerTerminationLatency(ctx, containerTerminationEvent)).toBe(125);
+		expect(provider.containerTerminationLatency(ctx, containerTerminationEvent)).toBe(150);
 		expect(requestEvents).toEqual([requestEvent, requestEvent]);
 		expect(responseEvents).toEqual([responseEvent, responseEvent]);
 		expect(terminationEvents).toEqual([containerTerminationEvent, containerTerminationEvent]);
 	});
 
+	it("passes the cluster-owned context to latency option functions", async () => {
+		const cluster = new Cluster({ nodes: 1 });
+		const provider = newLatencyProvider({
+			clusterNetworkRequestLatency: (ctx, event) => {
+				expect(getCluster(ctx)).toBe(cluster);
+				expect(event).toBe(requestEvent);
+				return 12;
+			},
+		});
+		try {
+			expect(provider.clusterNetworkRequestLatency(cluster.ctx, requestEvent)).toBe(12);
+		} finally {
+			await cluster.close();
+		}
+	});
+
 	it("stores and retrieves providers through context", () => {
 		const provider = newLatencyProvider({
-			clusterNetworkRequestLatency: () => 12,
-			clusterNetworkResponseLatency: () => 34,
-			containerTerminationLatency: () => 56,
+			clusterNetworkRequestLatency: (_ctx) => 12,
+			clusterNetworkResponseLatency: (_ctx) => 34,
+			containerTerminationLatency: (_ctx) => 56,
 		});
 		const ctx = withLatencyProvider(context.background(), provider);
 
@@ -89,9 +109,10 @@ browser.describe("LatencyProvider", () => {
 
 	it("falls back to the no-op provider when context has no latency provider", () => {
 		const provider = getLatencyProvider(context.background());
+		const ctx = context.background();
 
-		expect(provider.clusterNetworkRequestLatency(requestEvent)).toBe(0);
-		expect(provider.clusterNetworkResponseLatency(responseEvent)).toBe(0);
-		expect(provider.containerTerminationLatency(containerTerminationEvent)).toBe(0);
+		expect(provider.clusterNetworkRequestLatency(ctx, requestEvent)).toBe(0);
+		expect(provider.clusterNetworkResponseLatency(ctx, responseEvent)).toBe(0);
+		expect(provider.containerTerminationLatency(ctx, containerTerminationEvent)).toBe(0);
 	});
 });

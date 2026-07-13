@@ -147,9 +147,9 @@ browser.describe("Cluster nodes", () => {
 					host: "example.com",
 				},
 			};
-			expect(l.clusterNetworkRequestLatency(requestEvent)).toBe(0);
+			expect(l.clusterNetworkRequestLatency(cluster.ctx, requestEvent)).toBe(0);
 			expect(
-				l.clusterNetworkResponseLatency({
+				l.clusterNetworkResponseLatency(cluster.ctx, {
 					...requestEvent,
 					response: { status: 200, body: "" },
 				}),
@@ -161,8 +161,8 @@ browser.describe("Cluster nodes", () => {
 
 	it("stores the configured latency provider on the cluster context", async () => {
 		const latencyProvider = newLatencyProvider({
-			clusterNetworkRequestLatency: () => 12,
-			clusterNetworkResponseLatency: () => 34,
+			clusterNetworkRequestLatency: (_ctx) => 12,
+			clusterNetworkResponseLatency: (_ctx) => 34,
 		});
 		const cluster = new Cluster({ latencyProvider });
 		try {
