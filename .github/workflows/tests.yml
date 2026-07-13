@@ -7,8 +7,93 @@ permissions:
   contents: read
 
 jobs:
+  changes:
+    name: Changed paths
+    runs-on: ubuntu-latest
+    outputs:
+      client_tests: ${{ steps.paths.outputs.client_tests }}
+      demo: ${{ steps.paths.outputs.demo }}
+      src: ${{ steps.paths.outputs.src }}
+      workflow: ${{ steps.paths.outputs.workflow }}
+
+    steps:
+      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
+        with:
+          fetch-depth: 0
+
+      - id: paths
+        name: Detect changed paths
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+        run: |
+          if git diff --quiet "$BASE_SHA" "$HEAD_SHA" -- demo; then
+            echo "demo=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "demo=true" >> "$GITHUB_OUTPUT"
+          fi
+
+          if git diff --quiet "$BASE_SHA" "$HEAD_SHA" -- src/client/tests; then
+            echo "client_tests=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "client_tests=true" >> "$GITHUB_OUTPUT"
+          fi
+
+          if git diff --quiet "$BASE_SHA" "$HEAD_SHA" -- src; then
+            echo "src=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "src=true" >> "$GITHUB_OUTPUT"
+          fi
+
+          if git diff --quiet "$BASE_SHA" "$HEAD_SHA" -- .github/workflows/tests.yml; then
+            echo "workflow=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "workflow=true" >> "$GITHUB_OUTPUT"
+          fi
+
+  demo:
+    name: Demo container
+    needs: changes
+    if: needs.changes.outputs.demo == 'true' || needs.changes.outputs.workflow == 'true'
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
+
+      - name: Build demo image
+        run: docker build --file demo/Dockerfile --tag webernetes-demo:ci .
+
+      - name: Start demo container
+        run: docker run --detach --name webernetes-demo --publish 8080:8080 webernetes-demo:ci
+
+      - name: Verify demo response
+        run: |
+          response_dir="$(mktemp -d)"
+          for _attempt in {1..30}; do
+            response_status="$(curl --silent --show-error --output "$response_dir/body.html" --dump-header "$response_dir/headers" --write-out '%{http_code}' http://127.0.0.1:8080/ || true)"
+            if [ "$response_status" = "200" ]; then
+              break
+            fi
+            sleep 1
+          done
+
+          test "$response_status" = "200"
+          grep -qi '^content-type: text/html' "$response_dir/headers"
+          grep -qi '<!doctype html>' "$response_dir/body.html"
+          grep -q '<div id="root"></div>' "$response_dir/body.html"
+
+      - name: Show demo container logs
+        if: always()
+        run: docker logs webernetes-demo || true
+
+      - name: Remove demo container
+        if: always()
+        run: docker rm --force webernetes-demo || true
+
   quality:
     name: Quality checks
+    needs: changes
+    if: needs.changes.outputs.src == 'true' || needs.changes.outputs.workflow == 'true'
     runs-on: ubuntu-latest
 
     steps:
@@ -42,6 +127,8 @@ jobs:
 
   k3s:
     name: K3S tests (${{ matrix.shard }}/5)
+    needs: changes
+    if: needs.changes.outputs.client_tests == 'true' || needs.changes.outputs.workflow == 'true'
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
@@ -70,6 +157,8 @@ jobs:
 
   browser:
     name: Browser tests
+    needs: changes
+    if: needs.changes.outputs.src == 'true' || needs.changes.outputs.workflow == 'true'
     runs-on: ubuntu-latest
 
     steps:
