@@ -121,6 +121,19 @@ async function createInformerFieldSelectorFixture(
 }
 
 browser.describe("Cluster nodes", () => {
+	it("assigns each cluster a unique incrementing ID", async () => {
+		const firstCluster = new Cluster();
+		const secondCluster = new Cluster();
+		try {
+			expect(firstCluster.id).toMatch(/^w8s-cluster-\d+$/);
+			expect(Number(secondCluster.id.slice("w8s-cluster-".length))).toBe(
+				Number(firstCluster.id.slice("w8s-cluster-".length)) + 1,
+			);
+		} finally {
+			await Promise.all([firstCluster.close(), secondCluster.close()]);
+		}
+	});
+
 	it("defaults to a no-op latency provider on the cluster context", async () => {
 		const cluster = new Cluster();
 		try {

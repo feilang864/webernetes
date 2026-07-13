@@ -41,6 +41,7 @@ const DEFAULT_NODE_PORT_RANGE: NodePortRange = {
 	to: 32767,
 };
 const DEFAULT_NODE_COUNT = 3;
+let nextClusterId = 1;
 
 export type ClusterInformerEventType = "add" | "update" | "delete";
 
@@ -112,6 +113,7 @@ export class KubeClient implements k8s.KubeClient {
 }
 
 export class Cluster extends EventEmitter {
+	readonly id: string;
 	readonly clock: Clock;
 	readonly etcd: Etcd;
 	readonly kubeConfig: k8s.KubeConfig;
@@ -128,6 +130,7 @@ export class Cluster extends EventEmitter {
 
 	public constructor(options: ClusterOptions = {}) {
 		super();
+		this.id = `w8s-cluster-${nextClusterId++}`;
 		this.clock = new Clock();
 		const [ctx, cancelContext] = context.withCancel(context.background());
 		this.ctx = withLatencyProvider(withClock(ctx, this.clock), options.latencyProvider);
