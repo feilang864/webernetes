@@ -71,8 +71,7 @@
     "test:browser:install": "playwright install chromium",
     "test:watch": "vitest watch",
     "test:coverage": "vitest run --coverage",
-    "typecheck": "tsc --noEmit",
-    "vibe-check": "pnpm run fmt:check && pnpm run lint && pnpm run build && pnpm run typecheck && pnpm run test"
+    "typecheck": "tsc --noEmit"
   },
   "dependencies": {
     "buffer": "^6.0.3",
