@@ -14,6 +14,7 @@ export {
 } from "./latency";
 export * from "./client";
 export type { ClusterApplyResource, ClusterApplyResult } from "./cluster/apply";
+export type { Context } from "./go/context";
 export type {
 	ClusterOptions,
 	ClusterInformerCallback,
