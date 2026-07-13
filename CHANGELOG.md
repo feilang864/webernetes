@@ -1,5 +1,11 @@
 # @ngrok/webernetes
 
+## 0.2.1
+
+### Patch Changes
+
+- [`85ab76c`](https://github.com/ngrok/webernetes/commit/85ab76c9cb2cd1140f6159d0f9795f1bc5873b17) Thanks [@samwho](https://github.com/samwho)! - Expose the `Context` type.
+
 ## 0.2.0
 
 ### Minor Changes
