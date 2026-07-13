@@ -871,7 +871,7 @@ export class ContainerInstance {
 				const timeoutMs = timeoutSeconds * 1000;
 				const latencyMs = Math.min(
 					latencyMillis(
-						getLatencyProvider(ctx).containerTerminationLatency({
+						getLatencyProvider(ctx).containerTerminationLatency(ctx, {
 							container: this.apiContainer,
 						}),
 					),

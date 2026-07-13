@@ -812,7 +812,7 @@ export class ClusterNetwork extends EventEmitter {
 		ctx: context.Context,
 		event: PreNetworkRequestEvent,
 	): Promise<void> {
-		const latencyMs = getLatencyProvider(ctx).clusterNetworkRequestLatency(event);
+		const latencyMs = getLatencyProvider(ctx).clusterNetworkRequestLatency(ctx, event);
 		this.emit("request", { ...event, latencyMs });
 		await this.waitForLatency(ctx, latencyMs);
 	}
@@ -821,7 +821,7 @@ export class ClusterNetwork extends EventEmitter {
 		ctx: context.Context,
 		event: PreNetworkResponseEvent,
 	): Promise<void> {
-		const latencyMs = getLatencyProvider(ctx).clusterNetworkResponseLatency(event);
+		const latencyMs = getLatencyProvider(ctx).clusterNetworkResponseLatency(ctx, event);
 		this.emit("response", { ...event, latencyMs });
 		await this.waitForLatency(ctx, latencyMs);
 	}

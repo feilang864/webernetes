@@ -7,9 +7,12 @@ const noopValue = () => 0;
 const noop = newLatencyProvider();
 
 export interface LatencyProvider {
-	clusterNetworkRequestLatency(event: PreNetworkRequestEvent): number;
-	clusterNetworkResponseLatency(event: PreNetworkResponseEvent): number;
-	containerTerminationLatency(event: ContainerTerminationLatencyEvent): number;
+	clusterNetworkRequestLatency(ctx: context.Context, event: PreNetworkRequestEvent): number;
+	clusterNetworkResponseLatency(ctx: context.Context, event: PreNetworkResponseEvent): number;
+	containerTerminationLatency(
+		ctx: context.Context,
+		event: ContainerTerminationLatencyEvent,
+	): number;
 }
 
 export interface ContainerTerminationLatencyEvent {

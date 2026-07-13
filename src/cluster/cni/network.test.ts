@@ -2,6 +2,7 @@ import { expect, it, vi } from "vitest";
 
 import { getClock } from "../../clock-context";
 import type { V1Node, V1Pod, V1Service } from "../../client";
+import type { Context } from "../../go/context";
 import { withLatencyProvider, newLatencyProvider } from "../../latency";
 import { browser } from "../../test/describe";
 import { waitFor } from "../../test/wait";
@@ -523,6 +524,7 @@ browser.describe("ClusterNetwork", ({ ctx }) => {
 			latencyMs: number;
 			chain: NetworkHop[];
 		}> = [];
+		const latencyContexts: Context[] = [];
 		network.on("request", (event) => {
 			events.push({
 				type: "request",
@@ -540,8 +542,14 @@ browser.describe("ClusterNetwork", ({ ctx }) => {
 		const latencyCtx = withLatencyProvider(
 			ctx,
 			newLatencyProvider({
-				clusterNetworkRequestLatency: (event) => event.chain.length * 10,
-				clusterNetworkResponseLatency: (event) => event.chain.length * 20,
+				clusterNetworkRequestLatency: (latencyCtx, event) => {
+					latencyContexts.push(latencyCtx);
+					return event.chain.length * 10;
+				},
+				clusterNetworkResponseLatency: (latencyCtx, event) => {
+					latencyContexts.push(latencyCtx);
+					return event.chain.length * 20;
+				},
 			}),
 		);
 
@@ -564,6 +572,7 @@ browser.describe("ClusterNetwork", ({ ctx }) => {
 				],
 			},
 		]);
+		expect(latencyContexts).toEqual([latencyCtx]);
 		expect(resolved).toBe(false);
 		await waitFor(() => expect(clock.pendingTaskCount()).toBe(1));
 
@@ -577,6 +586,7 @@ browser.describe("ClusterNetwork", ({ ctx }) => {
 				{ type: "pod", resource: { metadata: { uid: "client-uid" } } },
 			],
 		});
+		expect(latencyContexts).toEqual([latencyCtx, latencyCtx]);
 		expect(resolved).toBe(false);
 
 		clock.step(40);

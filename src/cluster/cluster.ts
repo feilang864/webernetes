@@ -28,6 +28,7 @@ import type { KubeletConfiguration } from "./kubelet/apis/config";
 import { buildPodFullName } from "./kubelet/container";
 import { withClock } from "../clock-context";
 import { type LatencyProvider, withLatencyProvider } from "../latency";
+import { withCluster } from "./context";
 import type {
 	NetworkHop,
 	NetworkRequestEvent,
@@ -133,7 +134,10 @@ export class Cluster extends EventEmitter {
 		this.id = `w8s-cluster-${nextClusterId++}`;
 		this.clock = new Clock();
 		const [ctx, cancelContext] = context.withCancel(context.background());
-		this.ctx = withLatencyProvider(withClock(ctx, this.clock), options.latencyProvider);
+		this.ctx = withCluster(
+			withLatencyProvider(withClock(ctx, this.clock), options.latencyProvider),
+			this,
+		);
 		this.cancelContext = cancelContext;
 		this.etcd = new Etcd(this.ctx);
 		this.serviceCIDR = options.serviceCIDR;
