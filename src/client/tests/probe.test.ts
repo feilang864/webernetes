@@ -6,8 +6,16 @@ const busyboxImage = "busybox:1.36";
 const pauseImage = "registry.k8s.io/pause:3.10";
 const probeObservationMs = 1_200;
 
-kubernetes.describe("Probes", ({ helpers }) => {
-	const { createAgnhostPod, createService, eventsFor, readPod, containerStatus, waitFor } = helpers;
+kubernetes.describe("Probes", ({ discovery, helpers }) => {
+	const {
+		createAgnhostPod,
+		createService,
+		eventsFor,
+		getTestNamespace,
+		readPod,
+		containerStatus,
+		waitFor,
+	} = helpers;
 
 	async function createPod(
 		name: string,
@@ -59,6 +67,46 @@ kubernetes.describe("Probes", ({ helpers }) => {
 			const pod = await readPod(created);
 			expect(containerStatus(pod, "server")).toMatchObject({ ready: true, started: true });
 			expect(conditionStatus(pod, "ContainersReady")).toBe("True");
+		});
+	});
+
+	it("pod with no probes is ready even when its declared port has no listener", async () => {
+		const name = "no-probes-unbound-port";
+		const labels = { app: name };
+		const created = await createPod(
+			"no-probes-unbound-port",
+			{
+				name: "busybox",
+				image: busyboxImage,
+				command: ["sleep", "3600"],
+				ports: [{ name: "http", containerPort: 8080 }],
+			},
+			labels,
+		);
+		await createService({
+			metadata: { name },
+			spec: {
+				selector: labels,
+				ports: [{ name: "http", port: 80, targetPort: "http" }],
+			},
+		});
+
+		await waitFor(async () => {
+			const pod = await readPod(created);
+			expect(containerStatus(pod, "busybox")).toMatchObject({ ready: true, started: true });
+			expect(conditionStatus(pod, "ContainersReady")).toBe("True");
+			expect(conditionStatus(pod, "Ready")).toBe("True");
+
+			const slices = await discovery.listNamespacedEndpointSlice({
+				namespace: await getTestNamespace(),
+				labelSelector: `kubernetes.io/service-name=${name}`,
+			});
+			expect(slices.items.flatMap((slice) => slice.endpoints)).toContainEqual(
+				expect.objectContaining({
+					conditions: expect.objectContaining({ ready: true }),
+					targetRef: expect.objectContaining({ name }),
+				}),
+			);
 		});
 	});
 
