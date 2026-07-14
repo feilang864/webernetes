@@ -549,7 +549,7 @@ browser.describe("ClusterNetwork", ({ ctx }) => {
 		expect(requests).toHaveLength(1);
 		expect(responses).toHaveLength(0);
 		expect(requests[0]?.latencyMs).toBe(0);
-		expect(requests[0]?.error?.message).toBe("dial tcp 10.1.2.3:8080: connect: connection refused");
+		expectConnectionRefusedEvent(requests[0]?.error, "10.1.2.3", 8080);
 		expect(requests[0]?.chain.map((hop) => hop.type)).toEqual(["node"]);
 	});
 
@@ -570,15 +570,13 @@ browser.describe("ClusterNetwork", ({ ctx }) => {
 		expect(responses).toEqual([]);
 		expect(requests).toEqual([
 			expect.objectContaining({
-				error: expect.objectContaining({
-					message: "dial tcp 10.96.0.10:80: connect: connection refused",
-				}),
 				request: expect.objectContaining({
 					method: "GET",
 					url: new URL("http://10.96.0.10:80/health"),
 				}),
 			}),
 		]);
+		expectConnectionRefusedEvent(requests[0]?.error, "10.96.0.10", 80);
 		expect(requests[0]?.chain.map((hop) => hop.type)).toEqual(["pod", "service"]);
 		expect(requests[0]?.chain[1]).toMatchObject({
 			type: "service",
@@ -619,15 +617,13 @@ browser.describe("ClusterNetwork", ({ ctx }) => {
 		expect(responses).toEqual([]);
 		expect(requests).toEqual([
 			expect.objectContaining({
-				error: expect.objectContaining({
-					message: `dial tcp ${registration.ip}:8080: connect: connection refused`,
-				}),
 				request: expect.objectContaining({
 					method: "GET",
 					url: new URL("http://10.96.0.10:80/health"),
 				}),
 			}),
 		]);
+		expectConnectionRefusedEvent(requests[0]?.error, registration.ip, 8080);
 		expect(requests[0]?.chain.map((hop) => hop.type)).toEqual(["pod", "service", "pod"]);
 		expect(requests[0]?.chain[2]).toMatchObject({
 			type: "pod",
@@ -797,13 +793,8 @@ browser.describe("ClusterNetwork", ({ ctx }) => {
 		expect(requests).toHaveLength(1);
 		expect(requests[0]?.error).toBeUndefined();
 		expect(requests[0]?.chain.map((hop) => hop.type)).toEqual(["pod", "service", "pod"]);
-		expect(responses).toEqual([
-			expect.objectContaining({
-				error: expect.objectContaining({
-					message: `dial tcp ${registration.ip}:8080: connect: connection refused`,
-				}),
-			}),
-		]);
+		expect(responses).toEqual([expect.objectContaining({})]);
+		expectConnectionRefusedEvent(responses[0]?.error, registration.ip, 8080);
 		expect(responses[0]?.chain.map((hop) => hop.type)).toEqual(["pod", "service", "pod"]);
 	});
 
@@ -942,6 +933,16 @@ async function expectConnectionRefused(
 		},
 		message: "fetch failed",
 		name: "TypeError",
+	});
+}
+
+function expectConnectionRefusedEvent(error: unknown, address: string, port: number): void {
+	expect(error).toMatchObject({
+		address,
+		code: "ECONNREFUSED",
+		message: `connect ECONNREFUSED ${address}:${port}`,
+		port,
+		syscall: "connect",
 	});
 }
 

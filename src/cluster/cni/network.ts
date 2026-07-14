@@ -69,6 +69,15 @@ export type NetworkHop =
 export interface PreNetworkRequestEvent {
 	request: http.Request;
 	chain: NetworkHop[];
+	/**
+	 * Set when routing or connection establishment fails before the target
+	 * accepts the request.
+	 *
+	 * Service requests with no ready target and requests to an unbound target
+	 * port use an Error with Node's `ECONNREFUSED` code and a `connect
+	 * ECONNREFUSED <ip>:<port>` message. Failures after the request event has
+	 * been emitted are reported by the corresponding response event instead.
+	 */
 	error?: Error;
 }
 
@@ -693,7 +702,7 @@ export class ClusterNetwork extends EventEmitter {
 		const target = this.targetListsByServicePort.get(key)?.next();
 		if (!target) {
 			const clusterIP = serviceClusterIP(service);
-			throw new Error(`dial tcp ${clusterIP}:${port.port}: connect: connection refused`);
+			throw nodeConnectionRefusedCause(clusterIP ?? "", port.port);
 		}
 		return parseEndpointTarget(target);
 	}
@@ -871,9 +880,7 @@ export class ClusterNetwork extends EventEmitter {
 	): Promise<http.Response> {
 		const request = this.httpRequest(requestURL, method, headers, body);
 		if (!this.httpListeners.has(listenerKey(route.endpoint.ip, route.endpoint.port))) {
-			const error = new Error(
-				`dial tcp ${route.endpoint.ip}:${route.endpoint.port}: connect: connection refused`,
-			);
+			const error = nodeConnectionRefusedCause(route.endpoint.ip, route.endpoint.port);
 			await this.emitRequestEvent(ctx, { request, chain: route.chain, error });
 			throw nodeConnectionRefusedError(requestURL);
 		}
@@ -907,7 +914,7 @@ export class ClusterNetwork extends EventEmitter {
 	): Promise<http.Response> {
 		const handler = this.httpListeners.get(listenerKey(endpoint.ip, endpoint.port));
 		if (!handler) {
-			throw new Error(`dial tcp ${endpoint.ip}:${endpoint.port}: connect: connection refused`);
+			throw nodeConnectionRefusedCause(endpoint.ip, endpoint.port);
 		}
 		const inFlight = this.registerInFlightHttpRequest(ctx, endpoint.ip);
 		try {
@@ -1068,14 +1075,17 @@ function nodeDnsLookupError(hostname: string): TypeError {
 function nodeConnectionRefusedError(url: URL): TypeError {
 	const address = url.hostname;
 	const port = Number(url.port || (url.protocol === "https:" ? 443 : 80));
-	const cause = Object.assign(new Error(`connect ECONNREFUSED ${address}:${port}`), {
+	return new TypeError("fetch failed", { cause: nodeConnectionRefusedCause(address, port) });
+}
+
+function nodeConnectionRefusedCause(address: string, port: number): Error {
+	return Object.assign(new Error(`connect ECONNREFUSED ${address}:${port}`), {
 		address,
 		code: "ECONNREFUSED",
 		errno: -61,
 		port,
 		syscall: "connect",
 	});
-	return new TypeError("fetch failed", { cause });
 }
 
 function nodeSocketClosedCause(): Error {
