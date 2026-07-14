@@ -1,5 +1,15 @@
 # @ngrok/webernetes
 
+## 0.3.0
+
+### Minor Changes
+
+- [`d3c4860`](https://github.com/ngrok/webernetes/commit/d3c48602e3cd2ec4511d6e10c7c9982cdc7c4655) Thanks [@samwho](https://github.com/samwho)! - Expose `setTimeout`, `setInterval`, `queueMicrotask`, and their timer-clearing
+  counterparts on `ProcessContext` for process-owned simulated work. Process
+  context operations now consistently reject work after a container has been
+  killed, preventing late listener registration and other post-termination work
+  from causing unhandled exceptions.
+
 ## 0.2.2
 
 ### Patch Changes
