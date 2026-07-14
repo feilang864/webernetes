@@ -37,9 +37,24 @@ interface PodCIDRAllocator {
 	cursor?: string;
 }
 
+interface InFlightHttpRequest {
+	ctx: context.Context;
+	cancel: context.CancelFunc;
+	closed: Channel<Error>;
+}
+
 type FetchDefaultResult =
 	| { type: "response"; response: http.Response }
 	| { type: "error"; error: Error };
+
+class SocketError extends Error {
+	readonly code = "UND_ERR_SOCKET";
+
+	constructor() {
+		super("other side closed");
+		this.name = "SocketError";
+	}
+}
 
 export type FetchOrigin = V1Pod | V1Node;
 
@@ -168,6 +183,7 @@ export class ClusterNetwork extends EventEmitter {
 	private nodeAliasesByName = new Map<string, Set<string>>();
 	private nodeIpsByAlias = new Map<string, Set<string>>();
 	private httpListeners = new Map<string, http.Handler>();
+	private inFlightHttpRequestsByPodSandboxId = new Map<string, Set<InFlightHttpRequest>>();
 	private dnsListeners = new Map<string, DnsHandler>();
 	private servicesByKey = new Map<string, V1Service>();
 	private servicesByClusterIp = new Map<string, V1Service>();
@@ -330,6 +346,11 @@ export class ClusterNetwork extends EventEmitter {
 				this.httpListeners.delete(key);
 			}
 		}
+		for (const request of this.inFlightHttpRequestsByPodSandboxId.get(podSandboxId) ?? []) {
+			request.closed.trySend(nodeSocketClosedCause());
+			request.cancel();
+		}
+		this.inFlightHttpRequestsByPodSandboxId.delete(podSandboxId);
 		for (const key of [...this.dnsListeners.keys()]) {
 			if (key.startsWith(`${pod.ip}:`)) {
 				this.dnsListeners.delete(key);
@@ -866,6 +887,9 @@ export class ClusterNetwork extends EventEmitter {
 				error: errorFromUnknown(error),
 				chain: route.chain.toReversed(),
 			});
+			if (isNodeSocketError(error)) {
+				throw nodeSocketClosedError();
+			}
 			throw nodeConnectionRefusedError(requestURL);
 		}
 		await this.emitResponseEvent(ctx, {
@@ -885,9 +909,10 @@ export class ClusterNetwork extends EventEmitter {
 		if (!handler) {
 			throw new Error(`dial tcp ${endpoint.ip}:${endpoint.port}: connect: connection refused`);
 		}
+		const inFlight = this.registerInFlightHttpRequest(ctx, endpoint.ip);
 		try {
 			const responseCh = new Channel<http.Response>(1);
-			void handler(ctx, request).then(
+			void handler(inFlight.ctx, request).then(
 				(response) => responseCh.trySend(response),
 				(error) => {
 					responseCh.trySend({
@@ -898,19 +923,59 @@ export class ClusterNetwork extends EventEmitter {
 			);
 			const selected = await select()
 				.case(responseCh, ({ value }) => ({ type: "response" as const, response: value }))
-				.case(ctx.done(), () => ({ type: "canceled" as const }));
+				.case(ctx.done(), () => ({ type: "canceled" as const }))
+				.case(inFlight.closed, ({ value }) => ({ type: "closed" as const, error: value }));
 			if (selected.type === "canceled") {
 				throw ctx.err() ?? new Error("context canceled");
+			}
+			if (selected.type === "closed") {
+				throw selected.error ?? nodeSocketClosedCause();
 			}
 			return selected.response ?? { status: 500, body: "handler error" };
 		} catch (error) {
 			if (ctx.err() && error === ctx.err()) {
 				throw error;
 			}
+			if (isNodeSocketError(error)) {
+				throw error;
+			}
 			return {
 				status: 500,
 				body: error instanceof Error ? error.message : "handler error",
 			};
+		} finally {
+			this.unregisterInFlightHttpRequest(endpoint.ip, inFlight);
+		}
+	}
+
+	private registerInFlightHttpRequest(
+		parent: context.Context,
+		endpointIP: string,
+	): InFlightHttpRequest {
+		const [ctx, cancel] = context.withCancel(parent);
+		const request = { ctx, cancel, closed: new Channel<Error>(1) };
+		const podSandboxId = this.podsByIp.get(endpointIP)?.id;
+		if (podSandboxId) {
+			const requests = this.inFlightHttpRequestsByPodSandboxId.get(podSandboxId) ?? new Set();
+			requests.add(request);
+			this.inFlightHttpRequestsByPodSandboxId.set(podSandboxId, requests);
+		}
+		return request;
+	}
+
+	private unregisterInFlightHttpRequest(endpointIP: string, request: InFlightHttpRequest): void {
+		request.cancel();
+		const podSandboxId = this.podsByIp.get(endpointIP)?.id;
+		if (!podSandboxId) {
+			return;
+		}
+		const requests = this.inFlightHttpRequestsByPodSandboxId.get(podSandboxId);
+		if (!requests) {
+			return;
+		}
+		requests.delete(request);
+		if (requests.size === 0) {
+			this.inFlightHttpRequestsByPodSandboxId.delete(podSandboxId);
 		}
 	}
 
@@ -1011,6 +1076,18 @@ function nodeConnectionRefusedError(url: URL): TypeError {
 		syscall: "connect",
 	});
 	return new TypeError("fetch failed", { cause });
+}
+
+function nodeSocketClosedCause(): Error {
+	return new SocketError();
+}
+
+function nodeSocketClosedError(): TypeError {
+	return new TypeError("fetch failed", { cause: nodeSocketClosedCause() });
+}
+
+function isNodeSocketError(error: unknown): error is Error {
+	return error instanceof SocketError;
 }
 
 function responseHeaders(headers: Headers): http.Header {

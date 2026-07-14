@@ -635,6 +635,178 @@ browser.describe("ClusterNetwork", ({ ctx }) => {
 		});
 	});
 
+	it("terminates an in-flight request when its target pod is removed during processing", async () => {
+		const network = new ClusterNetwork();
+		const pod = new PodSandboxInstance(
+			"sandbox-1",
+			{
+				metadata: {
+					name: "web",
+					uid: "pod-uid",
+					namespace: "default",
+					attempt: 0,
+				},
+				pod: podOrigin("pod-uid"),
+			},
+			0,
+		);
+		const registration = network.setupPodSandbox(pod, "10.244.0.0/24");
+		pod.setNetworkRegistration(registration);
+		network.registerService(clusterIPService());
+		network.setServiceTargets("default", "web", 80, [`${registration.ip}:8080`]);
+		let started = false;
+		let release: (() => void) | undefined;
+		const processing = new Promise<void>((resolve) => {
+			release = resolve;
+		});
+		registration.bindHttp(8080, async () => {
+			started = true;
+			await processing;
+			return { status: 200, body: "completed" };
+		});
+		const requests: NetworkRequestEvent[] = [];
+		const responses: NetworkResponseEvent[] = [];
+		network.on("request", (event) => requests.push(event));
+		network.on("response", (event) => responses.push(event));
+
+		const fetchPromise = network.fetch(ctx, podOrigin("client-uid"), "http://10.96.0.10:80/work");
+		await waitFor(() => expect(started).toBe(true));
+		registration.unregister();
+		release?.();
+
+		const error = await fetchPromise.catch((caught: unknown) => caught);
+		expect(error).toMatchObject({
+			message: "fetch failed",
+			name: "TypeError",
+			cause: {
+				code: "UND_ERR_SOCKET",
+				message: "other side closed",
+				name: "SocketError",
+			},
+		});
+		expect(socketErrorConstructorName(error)).toBe("SocketError");
+		expect(requests).toHaveLength(1);
+		expect(requests[0]?.error).toBeUndefined();
+		expect(requests[0]?.chain.map((hop) => hop.type)).toEqual(["pod", "service", "pod"]);
+		expect(responses).toHaveLength(1);
+		expect(responses[0]?.error).toMatchObject({
+			code: "UND_ERR_SOCKET",
+			message: "other side closed",
+			name: "SocketError",
+		});
+		expect(responses[0]?.chain.map((hop) => hop.type)).toEqual(["pod", "service", "pod"]);
+	});
+
+	it("terminates an in-flight request when its cancelled handler throws during pod removal", async () => {
+		const network = new ClusterNetwork();
+		const pod = new PodSandboxInstance(
+			"sandbox-1",
+			{
+				metadata: {
+					name: "web",
+					uid: "pod-uid",
+					namespace: "default",
+					attempt: 0,
+				},
+				pod: podOrigin("pod-uid"),
+			},
+			0,
+		);
+		const registration = network.setupPodSandbox(pod, "10.244.0.0/24");
+		pod.setNetworkRegistration(registration);
+		network.registerService(clusterIPService());
+		network.setServiceTargets("default", "web", 80, [`${registration.ip}:8080`]);
+		let started = false;
+		registration.bindHttp(8080, async (requestCtx) => {
+			started = true;
+			await requestCtx.done().receive();
+			throw new Error("handler context cancelled");
+		});
+		const requests: NetworkRequestEvent[] = [];
+		const responses: NetworkResponseEvent[] = [];
+		network.on("request", (event) => requests.push(event));
+		network.on("response", (event) => responses.push(event));
+		const fetchPromise = network.fetch(ctx, podOrigin("client-uid"), "http://10.96.0.10:80/work");
+		await waitFor(() => expect(started).toBe(true));
+		registration.unregister();
+
+		const error = await fetchPromise.catch((caught: unknown) => caught);
+		expect(error).toMatchObject({
+			message: "fetch failed",
+			name: "TypeError",
+			cause: {
+				code: "UND_ERR_SOCKET",
+				message: "other side closed",
+				name: "SocketError",
+			},
+		});
+		expect(socketErrorConstructorName(error)).toBe("SocketError");
+
+		expect(requests).toHaveLength(1);
+		expect(requests[0]?.error).toBeUndefined();
+		expect(responses).toHaveLength(1);
+		expect(responses[0]?.error).toMatchObject({
+			code: "UND_ERR_SOCKET",
+			message: "other side closed",
+			name: "SocketError",
+		});
+		expect(responses[0]?.response).toBeUndefined();
+	});
+
+	it("emits a connection-refused response when its target pod is removed during request latency", async () => {
+		const clock = getClock(ctx);
+		clock.pause();
+		const network = new ClusterNetwork();
+		const pod = new PodSandboxInstance(
+			"sandbox-1",
+			{
+				metadata: {
+					name: "web",
+					uid: "pod-uid",
+					namespace: "default",
+					attempt: 0,
+				},
+				pod: podOrigin("pod-uid"),
+			},
+			0,
+		);
+		const registration = network.setupPodSandbox(pod, "10.244.0.0/24");
+		pod.setNetworkRegistration(registration);
+		network.registerService(clusterIPService());
+		network.setServiceTargets("default", "web", 80, [`${registration.ip}:8080`]);
+		registration.bindHttp(8080, async () => ({ status: 200, body: "unexpected" }));
+		const requests: NetworkRequestEvent[] = [];
+		const responses: NetworkResponseEvent[] = [];
+		network.on("request", (event) => requests.push(event));
+		network.on("response", (event) => responses.push(event));
+		const latencyCtx = withLatencyProvider(
+			ctx,
+			newLatencyProvider({ clusterNetworkRequestLatency: () => 100 }),
+		);
+
+		const fetchPromise = network.fetch(
+			latencyCtx,
+			podOrigin("client-uid"),
+			"http://10.96.0.10:80/work",
+		);
+		await waitFor(() => expect(requests).toHaveLength(1));
+		registration.unregister();
+		clock.step(100);
+
+		await expectConnectionRefused(fetchPromise, "10.96.0.10", 80);
+		expect(requests).toHaveLength(1);
+		expect(requests[0]?.error).toBeUndefined();
+		expect(requests[0]?.chain.map((hop) => hop.type)).toEqual(["pod", "service", "pod"]);
+		expect(responses).toEqual([
+			expect.objectContaining({
+				error: expect.objectContaining({
+					message: `dial tcp ${registration.ip}:8080: connect: connection refused`,
+				}),
+			}),
+		]);
+		expect(responses[0]?.chain.map((hop) => hop.type)).toEqual(["pod", "service", "pod"]);
+	});
+
 	it("waits after request and response events using configured latency", async () => {
 		const clock = getClock(ctx);
 		clock.pause();
@@ -771,6 +943,13 @@ async function expectConnectionRefused(
 		message: "fetch failed",
 		name: "TypeError",
 	});
+}
+
+function socketErrorConstructorName(error: unknown): string | undefined {
+	if (!(error instanceof TypeError) || !(error.cause instanceof Error)) {
+		return undefined;
+	}
+	return error.cause.constructor.name;
 }
 
 function podOrigin(uid: string): V1Pod {
