@@ -13,6 +13,7 @@ jobs:
     outputs:
       client_tests: ${{ steps.paths.outputs.client_tests }}
       demo: ${{ steps.paths.outputs.demo }}
+      changelog: ${{ steps.paths.outputs.changelog }}
       src: ${{ steps.paths.outputs.src }}
       workflow: ${{ steps.paths.outputs.workflow }}
 
@@ -31,6 +32,12 @@ jobs:
             echo "demo=false" >> "$GITHUB_OUTPUT"
           else
             echo "demo=true" >> "$GITHUB_OUTPUT"
+          fi
+
+          if git diff --quiet "$BASE_SHA" "$HEAD_SHA" -- changelog.md; then
+            echo "changelog=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "changelog=true" >> "$GITHUB_OUTPUT"
           fi
 
           if git diff --quiet "$BASE_SHA" "$HEAD_SHA" -- src/client/tests; then
@@ -54,7 +61,7 @@ jobs:
   demo:
     name: Demo container
     needs: changes
-    if: needs.changes.outputs.demo == 'true' || needs.changes.outputs.workflow == 'true'
+    if: needs.changes.outputs.demo == 'true' || needs.changes.outputs.changelog == 'true' || needs.changes.outputs.workflow == 'true'
     runs-on: ubuntu-latest
 
     steps:
@@ -93,7 +100,7 @@ jobs:
   quality:
     name: Quality checks
     needs: changes
-    if: needs.changes.outputs.src == 'true' || needs.changes.outputs.workflow == 'true'
+    if: needs.changes.outputs.src == 'true' || needs.changes.outputs.changelog == 'true' || needs.changes.outputs.workflow == 'true'
     runs-on: ubuntu-latest
 
     steps:
@@ -128,7 +135,7 @@ jobs:
   k3s:
     name: K3S tests (${{ matrix.shard }}/5)
     needs: changes
-    if: needs.changes.outputs.client_tests == 'true' || needs.changes.outputs.workflow == 'true'
+    if: needs.changes.outputs.client_tests == 'true' || needs.changes.outputs.changelog == 'true' || needs.changes.outputs.workflow == 'true'
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
@@ -158,7 +165,7 @@ jobs:
   browser:
     name: Browser tests
     needs: changes
-    if: needs.changes.outputs.src == 'true' || needs.changes.outputs.workflow == 'true'
+    if: needs.changes.outputs.src == 'true' || needs.changes.outputs.changelog == 'true' || needs.changes.outputs.workflow == 'true'
     runs-on: ubuntu-latest
 
     steps:
