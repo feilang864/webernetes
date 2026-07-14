@@ -16,6 +16,45 @@ import {
 } from "./network";
 
 browser.describe("ClusterNetwork", ({ ctx }) => {
+	it("matches Node fetch errors for invalid and unreachable targets", async () => {
+		const network = new ClusterNetwork();
+		const origin = nodeOrigin("node-1");
+		const cases = [
+			{
+				target: "http://[:::1]/",
+				message: "Failed to parse URL from http://[:::1]/",
+				cause: { code: "ERR_INVALID_URL", message: "Invalid URL", name: "TypeError" },
+			},
+			{
+				target: "ftp://example.com/",
+				message: "fetch failed",
+				cause: { message: "unknown scheme", name: "Error" },
+			},
+			{
+				target: "http://10.1.2.3:8080/",
+				message: "fetch failed",
+				cause: {
+					address: "10.1.2.3",
+					code: "ECONNREFUSED",
+					message: "connect ECONNREFUSED 10.1.2.3:8080",
+					name: "Error",
+					port: 8080,
+					syscall: "connect",
+				},
+			},
+		] as const;
+
+		for (const { target, message, cause } of cases) {
+			let error: unknown;
+			try {
+				await network.fetch(ctx, origin, target);
+			} catch (caught) {
+				error = caught;
+			}
+			expect(error).toMatchObject({ cause, message, name: "TypeError" });
+		}
+	});
+
 	it("normalizes fetch init into HTTP requests", async () => {
 		const network = new ClusterNetwork();
 		const pod = new PodSandboxInstance(
@@ -263,9 +302,11 @@ browser.describe("ClusterNetwork", ({ ctx }) => {
 
 		network.unregisterNode("node-1");
 
-		await expect(
+		await expectConnectionRefused(
 			network.fetch(ctx, nodeOrigin("node-1"), "http://192.168.1.1:30080/"),
-		).rejects.toThrow("dial tcp 192.168.1.1:30080: connect: connection refused");
+			"192.168.1.1",
+			30080,
+		);
 	});
 
 	it("falls back to default fetch for public IP literals", async () => {
@@ -301,7 +342,11 @@ browser.describe("ClusterNetwork", ({ ctx }) => {
 		try {
 			await expect(
 				network.fetch(ctx, nodeOrigin("node-1"), "https://93.184.216.34/"),
-			).rejects.toThrow("Failed to fetch");
+			).rejects.toMatchObject({
+				cause: { message: "Failed to fetch", name: "TypeError" },
+				message: "fetch failed",
+				name: "TypeError",
+			});
 		} finally {
 			fetch.mockRestore();
 		}
@@ -311,15 +356,21 @@ browser.describe("ClusterNetwork", ({ ctx }) => {
 		const network = new ClusterNetwork();
 		const fetch = vi.spyOn(globalThis, "fetch").mockResolvedValue(new Response("external"));
 		try {
-			await expect(
+			await expectConnectionRefused(
 				network.fetch(ctx, nodeOrigin("node-1"), "http://10.1.2.3:8080/"),
-			).rejects.toThrow("dial tcp 10.1.2.3:8080: connect: connection refused");
-			await expect(
+				"10.1.2.3",
+				8080,
+			);
+			await expectConnectionRefused(
 				network.fetch(ctx, nodeOrigin("node-1"), "http://[fd12:3456::1]:8080/"),
-			).rejects.toThrow("dial tcp [fd12:3456::1]:8080: connect: connection refused");
-			await expect(
+				"[fd12:3456::1]",
+				8080,
+			);
+			await expectConnectionRefused(
 				network.fetch(ctx, nodeOrigin("node-1"), "http://[fe80::1]:8080/"),
-			).rejects.toThrow("dial tcp [fe80::1]:8080: connect: connection refused");
+				"[fe80::1]",
+				8080,
+			);
 			expect(fetch).not.toHaveBeenCalled();
 		} finally {
 			fetch.mockRestore();
@@ -360,8 +411,10 @@ browser.describe("ClusterNetwork", ({ ctx }) => {
 
 		listener.close();
 
-		await expect(network.fetch(ctx, podOrigin("pod-uid"), "http://10.96.0.10:80/")).rejects.toThrow(
-			`dial tcp ${registration.ip}:8080: connect: connection refused`,
+		await expectConnectionRefused(
+			network.fetch(ctx, podOrigin("pod-uid"), "http://10.96.0.10:80/"),
+			"10.96.0.10",
+			80,
 		);
 	});
 
@@ -487,8 +540,10 @@ browser.describe("ClusterNetwork", ({ ctx }) => {
 		network.on("request", (event) => requests.push(event));
 		network.on("response", (event) => responses.push(event));
 
-		await expect(network.fetch(ctx, nodeOrigin("node-1"), "http://10.1.2.3:8080/")).rejects.toThrow(
-			"dial tcp 10.1.2.3:8080: connect: connection refused",
+		await expectConnectionRefused(
+			network.fetch(ctx, nodeOrigin("node-1"), "http://10.1.2.3:8080/"),
+			"10.1.2.3",
+			8080,
 		);
 
 		expect(requests).toHaveLength(1);
@@ -594,16 +649,47 @@ browser.describe("ClusterNetwork", ({ ctx }) => {
 		expect(resolved).toBe(true);
 	});
 
-	it("rejects caller-provided network request IDs", async () => {
+	it("rejects caller-provided network request IDs with a Node-style cause", async () => {
 		const network = new ClusterNetwork();
 
 		await expect(
-			network.fetch(ctx, nodeOrigin("node-1"), "https://93.184.216.34/", {
+			network.fetch(ctx, nodeOrigin("node-1"), "http://10.1.2.3:8080/", {
 				headers: { [networkRequestIDHeader]: "mine" },
 			}),
-		).rejects.toThrow(`${networkRequestIDHeader} is managed by ClusterNetwork`);
+		).rejects.toMatchObject({
+			cause: {
+				message: `${networkRequestIDHeader} is managed by ClusterNetwork`,
+				name: "Error",
+			},
+			message: "fetch failed",
+			name: "TypeError",
+		});
 	});
 });
+
+async function expectConnectionRefused(
+	request: Promise<unknown>,
+	address: string,
+	port: number,
+): Promise<void> {
+	let error: unknown;
+	try {
+		await request;
+	} catch (caught) {
+		error = caught;
+	}
+	expect(error).toMatchObject({
+		cause: {
+			address,
+			code: "ECONNREFUSED",
+			message: `connect ECONNREFUSED ${address}:${port}`,
+			port,
+			syscall: "connect",
+		},
+		message: "fetch failed",
+		name: "TypeError",
+	});
+}
 
 function podOrigin(uid: string): V1Pod {
 	return {

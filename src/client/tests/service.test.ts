@@ -4,7 +4,7 @@ import { kubernetes } from "../../test/harnesses/kubernetes";
 import { apiErrorCode, apiStatusMessage } from "../../test/harnesses/helpers";
 
 kubernetes.describe("Services", ({ core, discovery, k8s, helpers, target }) => {
-	const { getSuiteNamespace, fetchNodePort, waitFor } = helpers;
+	const { exec, getSuiteNamespace, fetchNodePort, waitFor, waitForPodReady } = helpers;
 	const mergePatchOptions = k8s.setHeaderOptions("Content-Type", k8s.PatchStrategy.MergePatch);
 
 	async function createService(service: Partial<V1Service>): Promise<V1Service> {
@@ -642,6 +642,98 @@ kubernetes.describe("Services", ({ core, discovery, k8s, helpers, target }) => {
 			expect(bodies).toEqual(new Set([firstText, secondText]));
 		});
 	});
+
+	it("should refuse requests when a service has no ready endpoints", async () => {
+		const service = await createService({
+			metadata: { name: "no-ready-endpoints" },
+			spec: {
+				selector: { app: "no-ready-endpoints" },
+				ports: [{ name: "http", port: 80, targetPort: 8080 }],
+			},
+		});
+		const caller = await createBusyboxCaller("no-ready-endpoints-caller");
+		await expectServiceConnectionRefused(caller, service);
+	});
+
+	it("should refuse requests when a ready pod has not bound its service port", async () => {
+		await core.createNamespacedPod({
+			namespace: await getSuiteNamespace(),
+			body: {
+				metadata: {
+					name: "unbound-ready-pod",
+					labels: { app: "unbound-ready-pod" },
+				},
+				spec: {
+					containers: [
+						{
+							name: "server",
+							image: "busybox:1.36",
+							command: ["sleep", "3600"],
+							ports: [{ name: "http", containerPort: 8080 }],
+						},
+					],
+				},
+			},
+		});
+		const service = await createService({
+			metadata: { name: "unbound-ready-pod" },
+			spec: {
+				selector: { app: "unbound-ready-pod" },
+				ports: [{ name: "http", port: 80, targetPort: "http" }],
+			},
+		});
+
+		await waitFor(async () => {
+			expectPodReady(
+				await core.readNamespacedPod({
+					name: "unbound-ready-pod",
+					namespace: await getSuiteNamespace(),
+				}),
+			);
+			const slices = await discovery.listNamespacedEndpointSlice({
+				namespace: await getSuiteNamespace(),
+				labelSelector: "kubernetes.io/service-name=unbound-ready-pod",
+			});
+			expect(slices.items.flatMap((slice) => slice.endpoints)).toContainEqual(
+				expect.objectContaining({ conditions: expect.objectContaining({ ready: true }) }),
+			);
+		});
+
+		const caller = await createBusyboxCaller("unbound-ready-pod-caller");
+		await expectServiceConnectionRefused(caller, service);
+	});
+
+	async function createBusyboxCaller(name: string): Promise<V1Pod> {
+		const caller = await core.createNamespacedPod({
+			namespace: await getSuiteNamespace(),
+			body: {
+				metadata: { name },
+				spec: {
+					containers: [
+						{
+							name: "caller",
+							image: "busybox:1.36",
+							command: ["sleep", "3600"],
+						},
+					],
+				},
+			},
+		});
+		return await waitForPodReady(caller);
+	}
+
+	async function expectServiceConnectionRefused(caller: V1Pod, service: V1Service): Promise<void> {
+		const clusterIP = service.spec?.clusterIP;
+		if (!clusterIP) {
+			throw new Error("Expected Service to allocate a ClusterIP");
+		}
+		const result = await exec(caller, "caller", ["wget", "-qO-", `http://${clusterIP}`]);
+		expect(result).toEqual({
+			exitCode: 1,
+			stderr: `wget: can't connect to remote host (${clusterIP}): Connection refused\n`,
+			stdout: "",
+		});
+	}
 });
 
 function expectPodReady(pod: V1Pod): void {

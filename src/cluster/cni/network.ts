@@ -8,7 +8,6 @@ import {
 	type DnsRequest,
 	type DnsResponse,
 } from "./dns";
-import { NetworkError } from "./error";
 import * as http from "./http";
 import { Channel, select } from "../../go/channel";
 import * as context from "../../go/context";
@@ -40,7 +39,7 @@ interface PodCIDRAllocator {
 
 type FetchDefaultResult =
 	| { type: "response"; response: http.Response }
-	| { type: "error"; error: NetworkError };
+	| { type: "error"; error: Error };
 
 export type FetchOrigin = V1Pod | V1Node;
 
@@ -195,13 +194,15 @@ export class ClusterNetwork extends EventEmitter {
 
 	private rejectUserRequestIDHeader(headers: http.Header): void {
 		if (http.hasHeader(headers, networkRequestIDHeader)) {
-			throw new NetworkError(`${networkRequestIDHeader} is managed by ClusterNetwork`);
+			throw new TypeError("fetch failed", {
+				cause: new Error(`${networkRequestIDHeader} is managed by ClusterNetwork`),
+			});
 		}
 	}
 
 	setupPodSandbox(pod: PodSandboxInstance, podCIDR: string): NetworkRegistration {
 		if (this.podsBySandboxId.has(pod.id)) {
-			throw new NetworkError(`pod sandbox ${pod.id} is already registered`);
+			throw new Error(`pod sandbox ${pod.id} is already registered`);
 		}
 		const ip = this.allocatePodIp(podCIDR);
 		this.podsBySandboxId.set(pod.id, pod);
@@ -225,13 +226,13 @@ export class ClusterNetwork extends EventEmitter {
 			}
 			candidate = allocator.cidr.addressAfter(selected);
 		}
-		throw new NetworkError(`no free pod IPs in ${podCIDR}`);
+		throw new Error(`no free pod IPs in ${podCIDR}`);
 	}
 
 	registerNode(node: V1Node): void {
 		const name = node.metadata?.name;
 		if (!name) {
-			throw new NetworkError("node must have metadata.name");
+			throw new Error("node must have metadata.name");
 		}
 		this.unregisterNode(name);
 		const addresses = node.status?.addresses ?? [];
@@ -339,16 +340,16 @@ export class ClusterNetwork extends EventEmitter {
 	registerService(service: V1Service): void {
 		const name = serviceName(service);
 		if (!name) {
-			throw new NetworkError("service must have metadata.name");
+			throw new Error("service must have metadata.name");
 		}
 		const namespace = serviceNamespace(service);
 		const clusterIP = serviceClusterIP(service);
 		if (!clusterIP) {
-			throw new NetworkError(`Service ${namespace}/${name} must have a ClusterIP`);
+			throw new Error(`Service ${namespace}/${name} must have a ClusterIP`);
 		}
 		const type = serviceType(service);
 		if (!type) {
-			throw new NetworkError(`unsupported Service type ${service.spec?.type}`);
+			throw new Error(`unsupported Service type ${service.spec?.type}`);
 		}
 		const key = namespacedNameKey(namespace, name);
 		const previous = this.servicesByKey.get(key);
@@ -375,7 +376,7 @@ export class ClusterNetwork extends EventEmitter {
 						serviceName(existingRoute.service),
 					) !== key
 				) {
-					throw new NetworkError(`NodePort ${port.nodePort} is already registered`);
+					throw new Error(`NodePort ${port.nodePort} is already registered`);
 				}
 				currentNodePorts.add(port.nodePort);
 				this.servicesByNodePort.set(port.nodePort, { service, port });
@@ -454,7 +455,7 @@ export class ClusterNetwork extends EventEmitter {
 			const originalHost = url.host;
 			const resolved = this.originIP(origin);
 			if (!resolved) {
-				throw new NetworkError(`could not resolve ${url.hostname}`);
+				throw nodeDnsLookupError(url.hostname);
 			}
 			url.hostname = resolved;
 			withHostHeader(headers, originalHost);
@@ -463,7 +464,8 @@ export class ClusterNetwork extends EventEmitter {
 			const originalHost = url.host;
 			const resolved = this.nodeIPForAlias(url.hostname);
 			if (!resolved) {
-				throw new NetworkError(`could not resolve ${url.hostname}`);
+				// This should, in theory, never happen.
+				throw nodeDnsLookupError(url.hostname);
 			}
 			url.hostname = resolved;
 			withHostHeader(headers, originalHost);
@@ -509,7 +511,7 @@ export class ClusterNetwork extends EventEmitter {
 		if (!matchedClusterTarget) {
 			if (isInternalIPLiteral(url.hostname)) {
 				if (url.protocol !== "http:") {
-					throw new NetworkError(`requests to internal addresses must be http:// for now`);
+					throw nodeConnectionRefusedError(url);
 				}
 				const port = this.parseTargetPort(url, service);
 				return await this.dispatchResolvedHttp(
@@ -550,7 +552,7 @@ export class ClusterNetwork extends EventEmitter {
 			return response;
 		}
 		if (url.protocol !== "http:") {
-			throw new NetworkError(`unsupported protocol ${url.protocol}`);
+			throw nodeConnectionRefusedError(url);
 		}
 		const port = this.parseTargetPort(url, service);
 		let route: NetworkRoute;
@@ -563,7 +565,7 @@ export class ClusterNetwork extends EventEmitter {
 				chain,
 				error: networkError,
 			});
-			throw error;
+			throw nodeConnectionRefusedError(url);
 		}
 		return await this.dispatchResolvedHttp(ctx, route, url, method, headers, body, requestID);
 	}
@@ -577,7 +579,7 @@ export class ClusterNetwork extends EventEmitter {
 		const { endpoint } = this.routeEndpoint(parseEndpointTarget(target), []);
 		const listener = this.dnsListeners.get(listenerKey(endpoint.ip, endpoint.port));
 		if (!listener) {
-			throw new NetworkError(`no DNS listener on ${endpoint.ip}:${endpoint.port}`);
+			throw new Error(`no DNS listener on ${endpoint.ip}:${endpoint.port}`);
 		}
 		try {
 			return await listener(request);
@@ -607,11 +609,11 @@ export class ClusterNetwork extends EventEmitter {
 
 	bindHttp(podSandboxId: string, ip: string, port: number, handler: http.Handler): http.Listener {
 		if (!this.podsBySandboxId.has(podSandboxId)) {
-			throw new NetworkError(`pod sandbox ${podSandboxId} is not registered`);
+			throw new Error(`pod sandbox ${podSandboxId} is not registered`);
 		}
 		const key = listenerKey(ip, port);
 		if (this.httpListeners.has(key)) {
-			throw new NetworkError(`HTTP listener ${key} is already registered`);
+			throw new Error(`HTTP listener ${key} is already registered`);
 		}
 		this.httpListeners.set(key, handler);
 		return new http.Listener(ip, port, () => {
@@ -623,11 +625,11 @@ export class ClusterNetwork extends EventEmitter {
 
 	bindDns(podSandboxId: string, ip: string, port: number, handler: DnsHandler): DnsListener {
 		if (!this.podsBySandboxId.has(podSandboxId)) {
-			throw new NetworkError(`pod sandbox ${podSandboxId} is not registered`);
+			throw new Error(`pod sandbox ${podSandboxId} is not registered`);
 		}
 		const key = listenerKey(ip, port);
 		if (this.dnsListeners.has(key)) {
-			throw new NetworkError(`DNS listener ${key} is already registered`);
+			throw new Error(`DNS listener ${key} is already registered`);
 		}
 		this.dnsListeners.set(key, handler);
 		return new DnsListener(ip, port, () => {
@@ -641,11 +643,11 @@ export class ClusterNetwork extends EventEmitter {
 		let url: URL;
 		try {
 			url = new URL(target.toString());
-		} catch (error) {
-			throw new NetworkError(`invalid HTTP target ${target}`, { cause: error });
+		} catch {
+			throw nodeInvalidUrlError(target);
 		}
 		if (url.protocol !== "http:" && url.protocol !== "https:") {
-			throw new NetworkError(`unsupported protocol ${url.protocol}`);
+			throw new TypeError("fetch failed", { cause: new Error("unknown scheme") });
 		}
 		return url;
 	}
@@ -656,11 +658,11 @@ export class ClusterNetwork extends EventEmitter {
 			if (ports.length === 1) {
 				return ports[0].port;
 			}
-			throw new NetworkError(`target ${url.hostname} must include a port`);
+			throw nodeConnectionRefusedError(url);
 		}
 		const port = Number(url.port);
 		if (!Number.isInteger(port) || port <= 0 || port > 65535) {
-			throw new NetworkError(`invalid port ${url.port}`);
+			throw nodeConnectionRefusedError(url);
 		}
 		return port;
 	}
@@ -669,9 +671,8 @@ export class ClusterNetwork extends EventEmitter {
 		const key = servicePortKey(service, port);
 		const target = this.targetListsByServicePort.get(key)?.next();
 		if (!target) {
-			throw new NetworkError(
-				`Service ${serviceNamespace(service)}/${serviceName(service)} has no ready endpoints`,
-			);
+			const clusterIP = serviceClusterIP(service);
+			throw new Error(`dial tcp ${clusterIP}:${port.port}: connect: connection refused`);
 		}
 		return parseEndpointTarget(target);
 	}
@@ -771,7 +772,7 @@ export class ClusterNetwork extends EventEmitter {
 			}
 			const route = this.servicesByNodePort.get(endpoint.port);
 			if (!route) {
-				throw new NetworkError(`no Service for NodePort ${endpoint.port}`);
+				throw new Error(`no Service for NodePort ${endpoint.port}`);
 			}
 			chain.push(this.serviceHop(route.service));
 			const selected = this.selectEndpoint(route.service, route.port);
@@ -796,7 +797,7 @@ export class ClusterNetwork extends EventEmitter {
 		chain.push(this.serviceHop(service));
 		const port = service.spec?.ports?.find((candidate) => candidate.port === endpoint.port);
 		if (!port) {
-			throw new NetworkError(
+			throw new Error(
 				`Service ${serviceNamespace(service)}/${serviceName(service)} has no port ${endpoint.port}`,
 			);
 		}
@@ -849,11 +850,11 @@ export class ClusterNetwork extends EventEmitter {
 	): Promise<http.Response> {
 		const request = this.httpRequest(requestURL, method, headers, body);
 		if (!this.httpListeners.has(listenerKey(route.endpoint.ip, route.endpoint.port))) {
-			const error = new NetworkError(
+			const error = new Error(
 				`dial tcp ${route.endpoint.ip}:${route.endpoint.port}: connect: connection refused`,
 			);
 			await this.emitRequestEvent(ctx, { request, chain: route.chain, error });
-			throw error;
+			throw nodeConnectionRefusedError(requestURL);
 		}
 		await this.emitRequestEvent(ctx, { request, chain: route.chain });
 		let response: http.Response;
@@ -865,7 +866,7 @@ export class ClusterNetwork extends EventEmitter {
 				error: errorFromUnknown(error),
 				chain: route.chain.toReversed(),
 			});
-			throw error;
+			throw nodeConnectionRefusedError(requestURL);
 		}
 		await this.emitResponseEvent(ctx, {
 			request,
@@ -882,9 +883,7 @@ export class ClusterNetwork extends EventEmitter {
 	): Promise<http.Response> {
 		const handler = this.httpListeners.get(listenerKey(endpoint.ip, endpoint.port));
 		if (!handler) {
-			throw new NetworkError(
-				`dial tcp ${endpoint.ip}:${endpoint.port}: connect: connection refused`,
-			);
+			throw new Error(`dial tcp ${endpoint.ip}:${endpoint.port}: connect: connection refused`);
 		}
 		try {
 			const responseCh = new Channel<http.Response>(1);
@@ -945,9 +944,7 @@ export class ClusterNetwork extends EventEmitter {
 			.catch((error) => {
 				responseCh.trySend({
 					type: "error",
-					error: new NetworkError(error instanceof Error ? error.message : "fetch failed", {
-						cause: error,
-					}),
+					error: new TypeError("fetch failed", { cause: errorFromUnknown(error) }),
 				});
 				return undefined;
 			});
@@ -957,7 +954,7 @@ export class ClusterNetwork extends EventEmitter {
 					? value
 					: {
 							type: "error" as const,
-							error: new NetworkError("fetch failed"),
+							error: new TypeError("fetch failed", { cause: new Error("fetch failed") }),
 						},
 			)
 			.case(ctx.done(), () => ({ type: "canceled" as const }));
@@ -986,6 +983,34 @@ export class ClusterNetwork extends EventEmitter {
 			body,
 		};
 	}
+}
+
+function nodeInvalidUrlError(target: http.FetchInput): TypeError {
+	const cause = Object.assign(new TypeError("Invalid URL"), { code: "ERR_INVALID_URL" });
+	return new TypeError(`Failed to parse URL from ${target.toString()}`, { cause });
+}
+
+function nodeDnsLookupError(hostname: string): TypeError {
+	const cause = Object.assign(new Error(`getaddrinfo ENOTFOUND ${hostname}`), {
+		code: "ENOTFOUND",
+		errno: -3008,
+		hostname,
+		syscall: "getaddrinfo",
+	});
+	return new TypeError("fetch failed", { cause });
+}
+
+function nodeConnectionRefusedError(url: URL): TypeError {
+	const address = url.hostname;
+	const port = Number(url.port || (url.protocol === "https:" ? 443 : 80));
+	const cause = Object.assign(new Error(`connect ECONNREFUSED ${address}:${port}`), {
+		address,
+		code: "ECONNREFUSED",
+		errno: -61,
+		port,
+		syscall: "connect",
+	});
+	return new TypeError("fetch failed", { cause });
 }
 
 function responseHeaders(headers: Headers): http.Header {
@@ -1088,7 +1113,7 @@ function parseEndpointTarget(target: string): NetworkEndpoint {
 	const [ip, portValue, ...extra] = target.split(":");
 	const port = Number(portValue);
 	if (!ip || extra.length > 0 || !Number.isInteger(port) || port <= 0 || port > 65535) {
-		throw new NetworkError(`invalid Service endpoint target ${target}`);
+		throw new Error(`invalid Service endpoint target ${target}`);
 	}
 	return { ip, port };
 }

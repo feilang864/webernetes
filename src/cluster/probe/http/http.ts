@@ -6,7 +6,7 @@ import { Channel, select } from "../../../go/channel";
 import * as context from "../../../go/context";
 import * as time from "../../../go/time";
 import * as http from "../../cni/http";
-import { NetworkError, type ClusterNetwork, type FetchOrigin } from "../../cni";
+import { type ClusterNetwork, type FetchOrigin } from "../../cni";
 import type { ProbeResult } from "../probe";
 
 // Models kubernetes/pkg/probe/http/http.go maxRespBodyLength.
@@ -75,14 +75,7 @@ export async function doHTTPProbe(
 	try {
 		res = await client.do(ctx, origin, req);
 	} catch (error) {
-		if (
-			error instanceof NetworkError &&
-			error.message.startsWith("network fetch target ") &&
-			error.message.endsWith(" must be an IP address")
-		) {
-			throw error;
-		}
-		return ["failure", error instanceof Error ? error.message : String(error), undefined];
+		return ["failure", probeErrorMessage(error), undefined];
 	}
 	const body = res.body.slice(0, maxRespBodyLength);
 	if (res.status >= 200 && res.status < 400) {
@@ -92,6 +85,22 @@ export async function doHTTPProbe(
 		return ["success", body, undefined];
 	}
 	return ["failure", `HTTP probe failed with statuscode: ${res.status}`, undefined];
+}
+
+function probeErrorMessage(error: unknown): string {
+	if (
+		error instanceof TypeError &&
+		error.cause instanceof Error &&
+		"code" in error.cause &&
+		error.cause.code === "ECONNREFUSED" &&
+		"address" in error.cause &&
+		typeof error.cause.address === "string" &&
+		"port" in error.cause &&
+		typeof error.cause.port === "number"
+	) {
+		return `dial tcp ${error.cause.address}:${error.cause.port}: connect: connection refused`;
+	}
+	return error instanceof Error ? error.message : String(error);
 }
 
 class ClusterNetworkHTTPClient implements GetHTTPInterface {

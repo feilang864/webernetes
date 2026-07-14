@@ -320,6 +320,32 @@ browser.describe("Cluster images", () => {
 });
 
 browser.describe("Cluster network events", () => {
+	it("rejects connection refusals like Node fetch", async () => {
+		const cluster = new Cluster();
+		try {
+			let error: unknown;
+			try {
+				await cluster.fetch("http://10.1.2.3:8080/");
+			} catch (caught) {
+				error = caught;
+			}
+			expect(error).toBeInstanceOf(TypeError);
+			expect(error).toMatchObject({
+				cause: {
+					address: "10.1.2.3",
+					code: "ECONNREFUSED",
+					message: "connect ECONNREFUSED 10.1.2.3:8080",
+					port: 8080,
+					syscall: "connect",
+				},
+				message: "fetch failed",
+				name: "TypeError",
+			});
+		} finally {
+			await cluster.close();
+		}
+	});
+
 	it("exposes cluster pause and resume events", async () => {
 		const cluster = new Cluster();
 		try {

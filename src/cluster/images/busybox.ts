@@ -31,7 +31,22 @@ async function wget(ctx: ProcessContext, argv: readonly string[]): Promise<numbe
 		ctx.writeStdout(response.body ?? "");
 		return 0;
 	} catch (error) {
+		if (isConnectionRefused(error)) {
+			ctx.writeStderr(
+				`wget: can't connect to remote host (${new URL(target).hostname}): Connection refused\n`,
+			);
+			return 1;
+		}
 		ctx.writeStderr(error instanceof Error ? `${error.message}\n` : "wget failed\n");
 		return 1;
 	}
+}
+
+function isConnectionRefused(error: unknown): boolean {
+	return (
+		error instanceof TypeError &&
+		error.cause instanceof Error &&
+		"code" in error.cause &&
+		error.cause.code === "ECONNREFUSED"
+	);
 }
