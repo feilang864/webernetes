@@ -1361,6 +1361,10 @@ export class ProcessContext implements context.Context {
 	 * Register listeners during startup; calling this after cancellation throws
 	 * {@link context.Canceled}.
 	 *
+	 * If the handler throws or returns a rejected promise, the request receives
+	 * an HTTP 500 response whose body contains the error message. The failure does
+	 * not stop the process or close the listener.
+	 *
 	 * @example
 	 * ctx.listenHttp(8080, async (_requestCtx, request) => ({
 	 * 	status: request.url.pathname === "/health" ? 200 : 404,
@@ -1379,7 +1383,9 @@ export class ProcessContext implements context.Context {
 	 *
 	 * The listener is owned by this process and closes automatically on exit.
 	 * The handler receives each DNS request and returns the simulator DNS
-	 * response shape.
+	 * response shape. If the handler throws or returns a rejected promise, the
+	 * request receives a `SERVFAIL` response with no answers. The failure does not
+	 * stop the process or close the listener.
 	 *
 	 * @example
 	 * ctx.listenDns(53, async (request) => resolveDnsRequest(request));

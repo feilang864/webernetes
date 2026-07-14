@@ -77,6 +77,8 @@ export interface PreNetworkRequestEvent {
 	 * port use an Error with Node's `ECONNREFUSED` code and a `connect
 	 * ECONNREFUSED <ip>:<port>` message. Failures after the request event has
 	 * been emitted are reported by the corresponding response event instead.
+	 * If request latency is cancelled before dispatch, the corresponding response
+	 * event has a socket-closed error.
 	 */
 	error?: Error;
 }
@@ -845,7 +847,22 @@ export class ClusterNetwork extends EventEmitter {
 	): Promise<void> {
 		const latencyMs = getLatencyProvider(ctx).clusterNetworkRequestLatency(ctx, event);
 		this.emit("request", { ...event, latencyMs });
-		await this.waitForLatency(ctx, latencyMs);
+		try {
+			await this.waitForLatency(ctx, latencyMs);
+		} catch (error) {
+			if (!event.error) {
+				try {
+					await this.emitResponseEvent(ctx, {
+						request: event.request,
+						error: nodeSocketClosedCause(),
+						chain: event.chain.toReversed(),
+					});
+				} catch {
+					// Preserve the request-latency cancellation that interrupted dispatch.
+				}
+			}
+			throw error;
+		}
 	}
 
 	private async emitResponseEvent(

@@ -2,6 +2,7 @@ import { expect, it, vi } from "vitest";
 
 import { getClock } from "../../clock-context";
 import type { V1Node, V1Pod, V1Service } from "../../client";
+import * as context from "../../go/context";
 import type { Context } from "../../go/context";
 import { withLatencyProvider, newLatencyProvider } from "../../latency";
 import { browser } from "../../test/describe";
@@ -108,6 +109,95 @@ browser.describe("ClusterNetwork", ({ ctx }) => {
 			host: "example.test",
 			body: "hello",
 		});
+	});
+
+	it("returns HTTP 500 for handler failures and keeps the listener open", async () => {
+		const network = new ClusterNetwork();
+		const pod = new PodSandboxInstance(
+			"sandbox-1",
+			{
+				metadata: {
+					name: "web",
+					uid: "pod-uid",
+					namespace: "default",
+					attempt: 0,
+				},
+				pod: podOrigin("pod-uid"),
+			},
+			0,
+		);
+		const registration = network.setupPodSandbox(pod, "10.244.0.0/24");
+		pod.setNetworkRegistration(registration);
+
+		for (const [index, failure] of ["throw", "reject"].entries()) {
+			const port = 8080 + index;
+			const message = `handler ${failure}`;
+			let calls = 0;
+			registration.bindHttp(port, () => {
+				calls++;
+				if (calls === 1) {
+					if (failure === "throw") {
+						throw new Error(message);
+					}
+					return Promise.reject(new Error(message));
+				}
+				return Promise.resolve({ status: 200, body: "ok" });
+			});
+
+			await expect(
+				network.fetch(ctx, podOrigin("client-uid"), `http://${registration.ip}:${port}/`),
+			).resolves.toEqual({ status: 500, body: message });
+			await expect(
+				network.fetch(ctx, podOrigin("client-uid"), `http://${registration.ip}:${port}/`),
+			).resolves.toEqual({ status: 200, body: "ok" });
+		}
+	});
+
+	it("returns DNS SERVFAIL for handler failures and keeps the listener open", async () => {
+		const network = new ClusterNetwork();
+		const pod = new PodSandboxInstance(
+			"sandbox-1",
+			{
+				metadata: {
+					name: "dns",
+					uid: "pod-uid",
+					namespace: "default",
+					attempt: 0,
+				},
+				pod: podOrigin("pod-uid"),
+			},
+			0,
+		);
+		const registration = network.setupPodSandbox(pod, "10.244.0.0/24");
+		pod.setNetworkRegistration(registration);
+
+		for (const [index, failure] of ["throw", "reject"].entries()) {
+			const port = 53 + index;
+			let calls = 0;
+			registration.bindDns(port, (request) => {
+				calls++;
+				if (calls === 1) {
+					if (failure === "throw") {
+						throw new Error("handler failed");
+					}
+					return Promise.reject(new Error("handler failed"));
+				}
+				return Promise.resolve({
+					rcode: "NOERROR",
+					answers: [{ type: "A", name: request.name, address: "192.0.2.1", ttl: 30 }],
+				});
+			});
+
+			const target = `${registration.ip}:${port}`;
+			await expect(network.sendDns(target, { name: "example.test", type: "A" })).resolves.toEqual({
+				rcode: "SERVFAIL",
+				answers: [],
+			});
+			await expect(network.sendDns(target, { name: "example.test", type: "A" })).resolves.toEqual({
+				rcode: "NOERROR",
+				answers: [{ type: "A", name: "example.test", address: "192.0.2.1", ttl: 30 }],
+			});
+		}
 	});
 
 	it("resolves localhost to the origin pod IP", async () => {
@@ -685,6 +775,7 @@ browser.describe("ClusterNetwork", ({ ctx }) => {
 		expect(requests[0]?.error).toBeUndefined();
 		expect(requests[0]?.chain.map((hop) => hop.type)).toEqual(["pod", "service", "pod"]);
 		expect(responses).toHaveLength(1);
+		expect(responses[0]?.request).toBe(requests[0]?.request);
 		expect(responses[0]?.error).toMatchObject({
 			code: "UND_ERR_SOCKET",
 			message: "other side closed",
@@ -741,6 +832,7 @@ browser.describe("ClusterNetwork", ({ ctx }) => {
 		expect(requests).toHaveLength(1);
 		expect(requests[0]?.error).toBeUndefined();
 		expect(responses).toHaveLength(1);
+		expect(responses[0]?.request).toBe(requests[0]?.request);
 		expect(responses[0]?.error).toMatchObject({
 			code: "UND_ERR_SOCKET",
 			message: "other side closed",
@@ -794,8 +886,67 @@ browser.describe("ClusterNetwork", ({ ctx }) => {
 		expect(requests[0]?.error).toBeUndefined();
 		expect(requests[0]?.chain.map((hop) => hop.type)).toEqual(["pod", "service", "pod"]);
 		expect(responses).toEqual([expect.objectContaining({})]);
+		expect(responses[0]?.request).toBe(requests[0]?.request);
 		expectConnectionRefusedEvent(responses[0]?.error, registration.ip, 8080);
 		expect(responses[0]?.chain.map((hop) => hop.type)).toEqual(["pod", "service", "pod"]);
+	});
+
+	it("emits a socket-closed response when request latency is cancelled before dispatch", async () => {
+		const clock = getClock(ctx);
+		clock.pause();
+		const network = new ClusterNetwork();
+		const pod = new PodSandboxInstance(
+			"sandbox-1",
+			{
+				metadata: {
+					name: "web",
+					uid: "pod-uid",
+					namespace: "default",
+					attempt: 0,
+				},
+				pod: podOrigin("pod-uid"),
+			},
+			0,
+		);
+		const registration = network.setupPodSandbox(pod, "10.244.0.0/24");
+		pod.setNetworkRegistration(registration);
+		registration.bindHttp(8080, async () => ({ status: 200, body: "unexpected" }));
+		const requests: NetworkRequestEvent[] = [];
+		const responses: NetworkResponseEvent[] = [];
+		network.on("request", (event) => requests.push(event));
+		network.on("response", (event) => responses.push(event));
+		const latencyCtx = withLatencyProvider(
+			ctx,
+			newLatencyProvider({ clusterNetworkRequestLatency: () => 100 }),
+		);
+		const [requestCtx, cancel] = context.withCancel(latencyCtx);
+
+		const fetchPromise = network.fetch(
+			requestCtx,
+			podOrigin("client-uid"),
+			`http://${registration.ip}:8080/work`,
+		);
+		await waitFor(() => expect(requests).toHaveLength(1));
+		const requestID = requests[0]?.request.header[networkRequestIDHeader]?.[0];
+		expect(requests[0]?.error).toBeUndefined();
+		expect(requestID).toEqual(expect.any(String));
+
+		cancel();
+
+		await expect(fetchPromise).rejects.toBe(context.Canceled);
+		clock.step(100);
+		expect(requests).toHaveLength(1);
+		expect(responses).toHaveLength(1);
+		const matchingResponses = responses.filter(
+			(event) => event.request.header[networkRequestIDHeader]?.[0] === requestID,
+		);
+		expect(matchingResponses).toHaveLength(1);
+		expect(matchingResponses[0]?.error).toMatchObject({
+			code: "UND_ERR_SOCKET",
+			message: "other side closed",
+			name: "SocketError",
+		});
+		expect(matchingResponses[0]?.response).toBeUndefined();
 	});
 
 	it("waits after request and response events using configured latency", async () => {
@@ -823,6 +974,7 @@ browser.describe("ClusterNetwork", ({ ctx }) => {
 			type: string;
 			latencyMs: number;
 			chain: NetworkHop[];
+			requestID: string | undefined;
 		}> = [];
 		const latencyContexts: Context[] = [];
 		network.on("request", (event) => {
@@ -830,6 +982,7 @@ browser.describe("ClusterNetwork", ({ ctx }) => {
 				type: "request",
 				latencyMs: event.latencyMs,
 				chain: event.chain,
+				requestID: event.request.header[networkRequestIDHeader]?.[0],
 			});
 		});
 		network.on("response", (event) => {
@@ -837,6 +990,7 @@ browser.describe("ClusterNetwork", ({ ctx }) => {
 				type: "response",
 				latencyMs: event.latencyMs,
 				chain: event.chain,
+				requestID: event.request.header[networkRequestIDHeader]?.[0],
 			});
 		});
 		const latencyCtx = withLatencyProvider(
@@ -892,6 +1046,11 @@ browser.describe("ClusterNetwork", ({ ctx }) => {
 		clock.step(40);
 		await expect(responsePromise).resolves.toMatchObject({ status: 200, body: "ok" });
 		expect(resolved).toBe(true);
+		expect(events).toHaveLength(2);
+		expect(events.filter((event) => event.type === "request")).toHaveLength(1);
+		expect(events.filter((event) => event.type === "response")).toHaveLength(1);
+		expect(events[0]?.requestID).toEqual(expect.any(String));
+		expect(events[1]?.requestID).toBe(events[0]?.requestID);
 	});
 
 	it("rejects caller-provided network request IDs with a Node-style cause", async () => {
