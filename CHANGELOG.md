@@ -1,5 +1,14 @@
 # @ngrok/webernetes
 
+## 0.3.1
+
+### Patch Changes
+
+- [`6e71a2b`](https://github.com/ngrok/webernetes/commit/6e71a2b03e3d06b37132f6b1203f73bddf97840a) Thanks [@samwho](https://github.com/samwho)! - Ensure every network request event without an initial error is followed by
+  exactly one correlated response event. Requests canceled during simulated
+  request latency now emit a response with a socket-closed error instead of
+  leaving event consumers waiting indefinitely.
+
 ## 0.3.0
 
 ### Minor Changes
