@@ -104,6 +104,8 @@ class ProcessExit extends Error {
 	}
 }
 
+type ProcessTask = () => void | Promise<void>;
+
 function isMissingExecutable(cmd: readonly string[], exitCode: number, stderr: string): boolean {
 	const command = cmd[0];
 	return command !== undefined && exitCode === 127 && stderr === `${command}: not found\n`;
@@ -959,6 +961,8 @@ export class ProcessInstance {
 	private stderrBuffer = "";
 	readonly ctx: context.Context;
 	private readonly cancelContext: context.CancelFunc;
+	private readonly timeoutHandles = new Set<number>();
+	private readonly intervalHandles = new Set<number>();
 	private readonly listeners: Array<{ close(): void }> = [];
 	private resolveWait: (code: number) => void = () => {};
 	private readonly waitPromise = new Promise<number>((resolve) => {
@@ -1016,13 +1020,7 @@ export class ProcessInstance {
 		this.processContext = processContext;
 		void this.run(processContext, this.argv)
 			.then((code) => this.finish(code))
-			.catch((error: unknown) => {
-				if (error instanceof ProcessExit) {
-					this.finish(error.code);
-					return;
-				}
-				this.finish(1);
-			});
+			.catch((error: unknown) => this.fail(error));
 	}
 
 	wait(): Promise<number> {
@@ -1042,7 +1040,7 @@ export class ProcessInstance {
 				return;
 			}
 		}
-		this.cancelContext();
+		this.cancel();
 		if (signal === "SIGKILL") {
 			this.finish(exitCode);
 		}
@@ -1050,6 +1048,38 @@ export class ProcessInstance {
 
 	trackListener(listener: { close(): void }): void {
 		this.listeners.push(listener);
+	}
+
+	scheduleTimeout(callback: ProcessTask, delayMs: number): number {
+		let handle: number | undefined;
+		handle = this.runtime.clock.setTimeout(() => {
+			if (handle !== undefined) {
+				this.timeoutHandles.delete(handle);
+			}
+			this.runTask(callback);
+		}, delayMs);
+		this.timeoutHandles.add(handle);
+		return handle;
+	}
+
+	scheduleInterval(callback: ProcessTask, intervalMs: number): number {
+		const handle = this.runtime.clock.setInterval(() => this.runTask(callback), intervalMs);
+		this.intervalHandles.add(handle);
+		return handle;
+	}
+
+	scheduleMicrotask(callback: ProcessTask): void {
+		this.runtime.clock.queueMicrotask(() => this.runTask(callback));
+	}
+
+	clearTimeout(handle: number): void {
+		this.timeoutHandles.delete(handle);
+		this.runtime.clock.clearTimeout(handle);
+	}
+
+	clearInterval(handle: number): void {
+		this.intervalHandles.delete(handle);
+		this.runtime.clock.clearInterval(handle);
 	}
 
 	listenerCount(): number {
@@ -1073,9 +1103,37 @@ export class ProcessInstance {
 	}
 
 	exit(code: number): never {
-		this.cancelContext();
+		this.cancel();
 		this.finish(code);
 		throw new ProcessExit(code);
+	}
+
+	private fail(error: unknown): void {
+		if (error instanceof ProcessExit) {
+			this.finish(error.code);
+			return;
+		}
+		this.finish(this.killedExitCode ?? 1);
+	}
+
+	private cancel(): void {
+		this.cancelContext();
+		for (const handle of this.timeoutHandles) {
+			this.runtime.clock.clearTimeout(handle);
+		}
+		this.timeoutHandles.clear();
+		for (const handle of this.intervalHandles) {
+			this.runtime.clock.clearInterval(handle);
+		}
+		this.intervalHandles.clear();
+	}
+
+	private runTask(callback: ProcessTask): void {
+		try {
+			void Promise.resolve(callback()).catch((error: unknown) => this.fail(error));
+		} catch (error) {
+			this.fail(error);
+		}
 	}
 
 	private finish(code: number): void {
@@ -1085,7 +1143,7 @@ export class ProcessInstance {
 		this.processState = "Exited";
 		this.finishedAtMs = this.runtime.clock.nowMs();
 		this.processExitCode = code;
-		this.cancelContext();
+		this.cancel();
 		for (const listener of this.listeners.splice(0)) {
 			listener.close();
 		}
@@ -1093,6 +1151,22 @@ export class ProcessInstance {
 	}
 }
 
+/**
+ * Runtime services available to an image process.
+ *
+ * A process context is canceled when its container is stopped or exits. Image
+ * implementations should use its scheduling and side-effect methods instead
+ * of retaining cluster-level services. Those methods reject work after
+ * cancellation with {@link context.Canceled}.
+ *
+ * @example
+ * class ExampleImage extends BaseImage {
+ * 	async exec(ctx: ProcessContext): Promise<number> {
+ * 		ctx.listenHttp(8080, async () => ({ status: 200, body: "ok" }));
+ * 		return await ctx.waitUntilKilled();
+ * 	}
+ * }
+ */
 export class ProcessContext implements context.Context {
 	readonly pid: number;
 	readonly argv: readonly string[];
@@ -1102,7 +1176,6 @@ export class ProcessContext implements context.Context {
 	readonly fs: ContainerFileSystem;
 	readonly kubeConfig: KubeConfig;
 	readonly api: KubeClient;
-	readonly clock: Clock;
 	/**
 	 * Internal simulator network access for cluster components such as kube-proxy.
 	 * User images generally should not mutate this directly.
@@ -1125,47 +1198,211 @@ export class ProcessContext implements context.Context {
 			corev1: runtime.kubeConfig.makeApiClient(CoreV1Api),
 			discoveryv1: runtime.kubeConfig.makeApiClient(DiscoveryV1Api),
 		};
-		this.clock = runtime.clock;
 		this.network = runtime.network;
 	}
 
+	/**
+	 * Returns a channel that closes when this process is canceled.
+	 *
+	 * Await it to perform cooperative shutdown work, or use it with `select`.
+	 * The channel never sends a value.
+	 *
+	 * @example
+	 * await ctx.done().receive();
+	 * return 1;
+	 */
 	done(): ReadOnlyChannel<void> {
 		return this.process.ctx.done();
 	}
 
+	/**
+	 * Returns the cancellation error, or `undefined` while the process is active.
+	 *
+	 * A stopped container reports {@link context.Canceled}. Prefer calling a
+	 * process-context operation directly, which performs this check itself.
+	 *
+	 * @example
+	 * if (ctx.err()) {
+	 * 	return 1;
+	 * }
+	 */
 	err(): context.ContextError | undefined {
 		return this.process.ctx.err();
 	}
 
+	/**
+	 * Looks up a value inherited from the process's parent context.
+	 *
+	 * Generally speaking, you should not need to use this. If you find that you
+	 * do need to use it, please reach out and explain your use-case to me.
+	 */
 	value(key: unknown): unknown {
 		return this.process.ctx.value(key);
 	}
 
+	/**
+	 * Schedules one process-owned callback after `delayMs` simulated milliseconds.
+	 *
+	 * An unhandled exception or rejected promise from the callback is treated the
+	 * same as an unhandled exception from the image's main `exec` method: the
+	 * container is considered failed. Throws {@link context.Canceled} if called
+	 * after cancellation.
+	 *
+	 * @example
+	 * ctx.setTimeout(() => ctx.writeStdout("ready\\n"), 5_000);
+	 */
+	setTimeout(callback: ProcessTask, delayMs: number): number {
+		this.throwIfCanceled();
+		return this.process.scheduleTimeout(this.wrapTask(callback), delayMs);
+	}
+
+	/**
+	 * Schedules a repeating process-owned callback every `intervalMs` simulated
+	 * milliseconds.
+	 *
+	 * Call {@link clearInterval} when the work is no longer needed. The interval
+	 * is automatically cleared when the process exits or is canceled. An
+	 * unhandled exception or rejected promise from the callback is treated the
+	 * same as an unhandled exception from the image's main `exec` method: the
+	 * container is considered failed.
+	 *
+	 * @example
+	 * const handle = ctx.setInterval(() => ctx.writeStdout("tick\\n"), 1_000);
+	 * ctx.setTimeout(() => ctx.clearInterval(handle), 10_000);
+	 */
+	setInterval(callback: ProcessTask, intervalMs: number): number {
+		this.throwIfCanceled();
+		return this.process.scheduleInterval(this.wrapTask(callback), intervalMs);
+	}
+
+	/**
+	 * Queues a process-owned callback at the next simulator microtask checkpoint.
+	 *
+	 * Use this for deferred work that must run before the next timer. The callback
+	 * is guarded by the process context and is not allowed to mutate state after
+	 * cancellation. An unhandled exception or rejected promise from the callback
+	 * is treated the same as an unhandled exception from the image's main `exec`
+	 * method: the container is considered failed.
+	 *
+	 * @example
+	 * ctx.queueMicrotask(() => ctx.writeStdout("started\\n"));
+	 */
+	queueMicrotask(callback: ProcessTask): void {
+		this.throwIfCanceled();
+		this.process.scheduleMicrotask(this.wrapTask(callback));
+	}
+
+	/**
+	 * Cancels a timeout created by {@link setTimeout}.
+	 *
+	 * Clearing an already-fired or unknown handle has no effect.
+	 *
+	 * @example
+	 * const handle = ctx.setTimeout(retry, 1_000);
+	 * ctx.clearTimeout(handle);
+	 */
+	clearTimeout(handle: number): void {
+		this.process.clearTimeout(handle);
+	}
+
+	/**
+	 * Cancels an interval created by {@link setInterval}.
+	 *
+	 * @example
+	 * const handle = ctx.setInterval(reconcile, 30_000);
+	 * ctx.clearInterval(handle);
+	 */
+	clearInterval(handle: number): void {
+		this.process.clearInterval(handle);
+	}
+
+	/**
+	 * Starts a child process in the same container.
+	 *
+	 * The child inherits the container environment and process cancellation. Use
+	 * {@link ProcessInstance.wait} to observe its exit code. Throws
+	 * {@link context.Canceled} after the parent has been canceled.
+	 *
+	 * @example
+	 * const child = ctx.exec(["echo", "hello"]);
+	 * const exitCode = await child.wait();
+	 */
 	exec(argv: string[], options?: ExecOptions): ProcessInstance {
+		this.throwIfCanceled();
 		return this.process.container.exec(argv, options);
 	}
 
+	/**
+	 * Appends text to this process's captured standard output.
+	 *
+	 * @example
+	 * ctx.writeStdout("server started\\n");
+	 */
 	writeStdout(chunk: string): void {
+		this.throwIfCanceled();
 		this.process.writeStdout(chunk);
 	}
 
+	/**
+	 * Appends text to this process's captured standard error.
+	 *
+	 * @example
+	 * ctx.writeStderr("configuration is missing\\n");
+	 */
 	writeStderr(chunk: string): void {
+		this.throwIfCanceled();
 		this.process.writeStderr(chunk);
 	}
 
+	/**
+	 * Registers an HTTP listener in the pod network namespace.
+	 *
+	 * The returned listener is closed automatically when this process exits.
+	 * Register listeners during startup; calling this after cancellation throws
+	 * {@link context.Canceled}.
+	 *
+	 * @example
+	 * ctx.listenHttp(8080, async (_requestCtx, request) => ({
+	 * 	status: request.url.pathname === "/health" ? 200 : 404,
+	 * 	body: "ok",
+	 * }));
+	 */
 	listenHttp(port: number, handler: http.Handler): http.Listener {
+		this.throwIfCanceled();
 		const listener = this.pod.networkRegistration().bindHttp(port, handler);
 		this.process.trackListener(listener);
 		return listener;
 	}
 
+	/**
+	 * Registers a DNS listener in the pod network namespace.
+	 *
+	 * The listener is owned by this process and closes automatically on exit.
+	 * The handler receives each DNS request and returns the simulator DNS
+	 * response shape.
+	 *
+	 * @example
+	 * ctx.listenDns(53, async (request) => resolveDnsRequest(request));
+	 */
 	listenDns(port: number, handler: DnsHandler): DnsListener {
+		this.throwIfCanceled();
 		const listener = this.pod.networkRegistration().bindDns(port, handler);
 		this.process.trackListener(listener);
 		return listener;
 	}
 
+	/**
+	 * Fetches an HTTP resource as this pod.
+	 *
+	 * Requests use the pod identity and simulator network routing. The promise
+	 * rejects with {@link context.Canceled} if the process is already canceled.
+	 *
+	 * @example
+	 * const response = await ctx.fetch("http://api.default.svc/health");
+	 * if (response.status !== 200) throw new Error("API is unavailable");
+	 */
 	async fetch(target: http.FetchInput, init?: http.FetchInit): Promise<http.Response> {
+		this.throwIfCanceled();
 		if (!this.pod.config.pod) {
 			throw new Error(`pod origin is not registered for sandbox ${this.pod.id}`);
 		}
@@ -1177,16 +1414,60 @@ export class ProcessContext implements context.Context {
 		);
 	}
 
+	/**
+	 * Waits for simulated time to pass while remaining cancellation-aware.
+	 *
+	 * If the process is stopped before the delay expires, the returned promise
+	 * rejects and the process receives its termination exit code.
+	 *
+	 * @example
+	 * await ctx.sleep(1_000);
+	 * await ctx.fetch("http://api.default.svc/retry");
+	 */
 	sleep(ms: number): Promise<void> {
 		return this.runtime.sleep(this.process.ctx, ms, () => this.process.abortExitCode);
 	}
 
+	/**
+	 * Waits until the runtime stops this process and resolves to its exit code.
+	 *
+	 * This is the usual final operation for long-running server images.
+	 *
+	 * @example
+	 * ctx.listenHttp(8080, handler);
+	 * return await ctx.waitUntilKilled();
+	 */
 	waitUntilKilled(): Promise<number> {
 		return this.process.waitUntilKilled();
 	}
 
+	/**
+	 * Immediately exits the process with `code` and closes its listeners and
+	 * scheduled work.
+	 *
+	 * This method does not return.
+	 *
+	 * @example
+	 * if (!ctx.env.get("CONFIG_PATH")) {
+	 * 	ctx.writeStderr("CONFIG_PATH is required\\n");
+	 * 	ctx.exit(2);
+	 * }
+	 */
 	exit(code = 0): never {
 		return this.process.exit(code);
+	}
+
+	private throwIfCanceled(): void {
+		if (this.err()) {
+			throw this.err();
+		}
+	}
+
+	private wrapTask(callback: ProcessTask): ProcessTask {
+		return () => {
+			this.throwIfCanceled();
+			return callback();
+		};
 	}
 }
 

@@ -58,7 +58,7 @@ class SlowStopImage extends BaseImage {
 		SlowStopImage.processContext = context;
 		await context.done().receive();
 		await new Promise<void>((resolve) => {
-			context.clock.setTimeout(resolve, 5000);
+			context.setTimeout(resolve, 5000);
 		});
 		return 0;
 	}
@@ -73,6 +73,62 @@ class IgnoreStopImage extends BaseImage {
 			return await super.exec(context, argv);
 		}
 		return await new Promise<number>(() => {});
+	}
+}
+
+class DelayedListenerImage extends BaseImage {
+	static readonly imageName = "example/delayed-listener";
+	static readonly imageVersion = "1.0";
+	static callbackRan = false;
+	static listenError: unknown;
+	static processContext: ProcessContext | undefined;
+	static scheduled = false;
+
+	static reset(): void {
+		this.callbackRan = false;
+		this.listenError = undefined;
+		this.processContext = undefined;
+		this.scheduled = false;
+	}
+
+	override async exec(context: ProcessContext, argv: readonly string[]): Promise<number> {
+		if (argv[0] !== "delayed-listener") {
+			return await super.exec(context, argv);
+		}
+		DelayedListenerImage.processContext = context;
+		DelayedListenerImage.scheduled = true;
+		context.setTimeout(() => {
+			DelayedListenerImage.callbackRan = true;
+			try {
+				context.listenHttp(8080, async () => ({ status: 200, body: "ok" }));
+			} catch (error) {
+				DelayedListenerImage.listenError = error;
+				throw error;
+			}
+		}, 5000);
+		return await context.waitUntilKilled();
+	}
+}
+
+class AsyncTimerFailureImage extends BaseImage {
+	static readonly imageName = "example/async-timer-failure";
+	static readonly imageVersion = "1.0";
+	static callbackRan = false;
+
+	static reset(): void {
+		this.callbackRan = false;
+	}
+
+	override async exec(context: ProcessContext, argv: readonly string[]): Promise<number> {
+		if (argv[0] !== "async-timer-failure") {
+			return await super.exec(context, argv);
+		}
+		context.setTimeout(async () => {
+			AsyncTimerFailureImage.callbackRan = true;
+			await Promise.resolve();
+			throw new Error("timer failure");
+		}, 1000);
+		return await context.waitUntilKilled();
 	}
 }
 
@@ -102,7 +158,7 @@ class SignalHandlerImage extends BaseImage {
 	signalHandler(context: ProcessContext, signal: ImageSignal): void {
 		SignalHandlerImage.signals.push(signal);
 		if (signal === "SIGTERM") {
-			context.clock.setTimeout(() => SignalHandlerImage.release?.(), 5000);
+			context.setTimeout(() => SignalHandlerImage.release?.(), 5000);
 		}
 	}
 }
@@ -256,6 +312,153 @@ browser.describe("InProcessRuntimeService images", () => {
 			expect(response).toBeUndefined();
 			expect(err?.message).toBe("command timed out: command sleep 10 timed out");
 			expect((err as (Error & { cause?: unknown }) | undefined)?.cause).toBe(errCommandTimedOut);
+		} finally {
+			await cluster.close();
+		}
+	});
+
+	it("cancels delayed process work and rejects network registration after stopping a pod sandbox", async () => {
+		const cluster = new Cluster();
+		cluster.clock.pause();
+		DelayedListenerImage.reset();
+		try {
+			cluster.registerImage(DelayedListenerImage);
+			const runtime = cluster.servers[0].runtime;
+			const ctx = cluster.ctx;
+			const sandboxConfig = {
+				metadata: {
+					name: "delayed-listener-pod",
+					namespace: "default",
+					uid: "delayed-listener-pod",
+					attempt: 0,
+				},
+				pod: {
+					metadata: {
+						name: "delayed-listener-pod",
+						namespace: "default",
+						uid: "delayed-listener-pod",
+					},
+				},
+			};
+			const [sandboxId, sandboxErr] = await runtime.runPodSandbox(ctx, sandboxConfig);
+			expect(sandboxErr).toBeUndefined();
+			const [containerId, containerErr] = await runtime.createContainer(
+				ctx,
+				sandboxId,
+				{
+					metadata: { name: "main", attempt: 0 },
+					image: { image: "example/delayed-listener:latest" },
+					command: ["delayed-listener"],
+					sourceContainer: {
+						name: "main",
+						image: "example/delayed-listener:latest",
+						command: ["delayed-listener"],
+					},
+				},
+				sandboxConfig,
+			);
+			expect(containerErr).toBeUndefined();
+			expect(await runtime.startContainer(ctx, containerId)).toBeUndefined();
+			await waitFor(() => expect(DelayedListenerImage.scheduled).toBe(true));
+
+			expect(await runtime.stopPodSandbox(ctx, sandboxId)).toBeUndefined();
+			expect(DelayedListenerImage.processContext?.err()).toBe(context.Canceled);
+			cluster.clock.step(5000);
+
+			expect(DelayedListenerImage.callbackRan).toBe(false);
+			expect(DelayedListenerImage.listenError).toBeUndefined();
+			expect(() => DelayedListenerImage.processContext?.setTimeout(() => {}, 1)).toThrow(
+				context.Canceled,
+			);
+			expect(() => DelayedListenerImage.processContext?.setInterval(() => {}, 1)).toThrow(
+				context.Canceled,
+			);
+			expect(() => DelayedListenerImage.processContext?.queueMicrotask(() => {})).toThrow(
+				context.Canceled,
+			);
+			expect(() => DelayedListenerImage.processContext?.exec(["echo", "late"])).toThrow(
+				context.Canceled,
+			);
+			expect(() => DelayedListenerImage.processContext?.writeStdout("late\n")).toThrow(
+				context.Canceled,
+			);
+			expect(() => DelayedListenerImage.processContext?.writeStderr("late\n")).toThrow(
+				context.Canceled,
+			);
+			await expect(DelayedListenerImage.processContext?.fetch("http://example.test")).rejects.toBe(
+				context.Canceled,
+			);
+			expect(() =>
+				DelayedListenerImage.processContext?.listenHttp(8080, async () => ({
+					status: 200,
+					body: "ok",
+				})),
+			).toThrow(context.Canceled);
+			expect(() =>
+				DelayedListenerImage.processContext?.listenDns(53, async () => ({
+					rcode: "NOERROR",
+					answers: [],
+				})),
+			).toThrow(context.Canceled);
+		} finally {
+			await cluster.close();
+		}
+	});
+
+	it("fails a container when an asynchronous process timer callback fails", async () => {
+		const cluster = new Cluster();
+		cluster.clock.pause();
+		AsyncTimerFailureImage.reset();
+		try {
+			cluster.registerImage(AsyncTimerFailureImage);
+			const runtime = cluster.servers[0].runtime;
+			const ctx = cluster.ctx;
+			const sandboxConfig = {
+				metadata: {
+					name: "async-timer-failure-pod",
+					namespace: "default",
+					uid: "async-timer-failure-pod",
+					attempt: 0,
+				},
+				pod: {
+					metadata: {
+						name: "async-timer-failure-pod",
+						namespace: "default",
+						uid: "async-timer-failure-pod",
+					},
+				},
+			};
+			const [sandboxId, sandboxErr] = await runtime.runPodSandbox(ctx, sandboxConfig);
+			expect(sandboxErr).toBeUndefined();
+			const [containerId, containerErr] = await runtime.createContainer(
+				ctx,
+				sandboxId,
+				{
+					metadata: { name: "main", attempt: 0 },
+					image: { image: "example/async-timer-failure:latest" },
+					command: ["async-timer-failure"],
+					sourceContainer: {
+						name: "main",
+						image: "example/async-timer-failure:latest",
+						command: ["async-timer-failure"],
+					},
+				},
+				sandboxConfig,
+			);
+			expect(containerErr).toBeUndefined();
+			expect(await runtime.startContainer(ctx, containerId)).toBeUndefined();
+
+			cluster.clock.step(1000);
+			await waitFor(async () => {
+				const [status, statusErr] = await runtime.containerStatus(ctx, containerId);
+				expect(statusErr).toBeUndefined();
+				expect(status?.status?.state).toBe("Exited");
+			});
+
+			expect(AsyncTimerFailureImage.callbackRan).toBe(true);
+			const [status, statusErr] = await runtime.containerStatus(ctx, containerId);
+			expect(statusErr).toBeUndefined();
+			expect(status?.status?.exitCode).toBe(1);
 		} finally {
 			await cluster.close();
 		}
