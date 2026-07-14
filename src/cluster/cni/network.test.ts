@@ -553,6 +553,88 @@ browser.describe("ClusterNetwork", ({ ctx }) => {
 		expect(requests[0]?.chain.map((hop) => hop.type)).toEqual(["node"]);
 	});
 
+	it("emits a Service request error without a response when no targets are ready", async () => {
+		const network = new ClusterNetwork();
+		network.registerService(clusterIPService());
+		const requests: NetworkRequestEvent[] = [];
+		const responses: NetworkResponseEvent[] = [];
+		network.on("request", (event) => requests.push(event));
+		network.on("response", (event) => responses.push(event));
+
+		await expectConnectionRefused(
+			network.fetch(ctx, podOrigin("client-uid"), "http://10.96.0.10:80/health"),
+			"10.96.0.10",
+			80,
+		);
+
+		expect(responses).toEqual([]);
+		expect(requests).toEqual([
+			expect.objectContaining({
+				error: expect.objectContaining({
+					message: "dial tcp 10.96.0.10:80: connect: connection refused",
+				}),
+				request: expect.objectContaining({
+					method: "GET",
+					url: new URL("http://10.96.0.10:80/health"),
+				}),
+			}),
+		]);
+		expect(requests[0]?.chain.map((hop) => hop.type)).toEqual(["pod", "service"]);
+		expect(requests[0]?.chain[1]).toMatchObject({
+			type: "service",
+			resource: { metadata: { name: "web", namespace: "default", uid: "service-uid" } },
+		});
+	});
+
+	it("emits a pod connection refusal without a response when a ready target has no listener", async () => {
+		const network = new ClusterNetwork();
+		const pod = new PodSandboxInstance(
+			"sandbox-1",
+			{
+				metadata: {
+					name: "web",
+					uid: "pod-uid",
+					namespace: "default",
+					attempt: 0,
+				},
+				pod: podOrigin("pod-uid"),
+			},
+			0,
+		);
+		const registration = network.setupPodSandbox(pod, "10.244.0.0/24");
+		pod.setNetworkRegistration(registration);
+		network.registerService(clusterIPService());
+		network.setServiceTargets("default", "web", 80, [`${registration.ip}:8080`]);
+		const requests: NetworkRequestEvent[] = [];
+		const responses: NetworkResponseEvent[] = [];
+		network.on("request", (event) => requests.push(event));
+		network.on("response", (event) => responses.push(event));
+
+		await expectConnectionRefused(
+			network.fetch(ctx, podOrigin("client-uid"), "http://10.96.0.10:80/health"),
+			"10.96.0.10",
+			80,
+		);
+
+		expect(responses).toEqual([]);
+		expect(requests).toEqual([
+			expect.objectContaining({
+				error: expect.objectContaining({
+					message: `dial tcp ${registration.ip}:8080: connect: connection refused`,
+				}),
+				request: expect.objectContaining({
+					method: "GET",
+					url: new URL("http://10.96.0.10:80/health"),
+				}),
+			}),
+		]);
+		expect(requests[0]?.chain.map((hop) => hop.type)).toEqual(["pod", "service", "pod"]);
+		expect(requests[0]?.chain[2]).toMatchObject({
+			type: "pod",
+			resource: { metadata: { uid: "pod-uid" } },
+		});
+	});
+
 	it("waits after request and response events using configured latency", async () => {
 		const clock = getClock(ctx);
 		clock.pause();
