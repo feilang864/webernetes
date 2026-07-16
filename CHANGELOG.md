@@ -1,5 +1,11 @@
 # @ngrok/webernetes
 
+## 0.3.4
+
+### Patch Changes
+
+- [`8dc99e3`](https://github.com/ngrok/webernetes/commit/8dc99e3cc51605403e0314af3ea56e71a13d249e) Thanks [@samwho](https://github.com/samwho)! - Report built-in simulator nodes as ready by default, until we build in proper node readiness checking. Before this, they had no readiness status.
+
 ## 0.3.3
 
 ### Patch Changes
