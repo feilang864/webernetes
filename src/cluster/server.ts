@@ -50,6 +50,7 @@ export class Server {
 			options: [...options.dnsConfig.options],
 		};
 		this.cluster = cluster;
+		const now = cluster.clock.now();
 		this.node = {
 			metadata: { name: this.name },
 			spec: {
@@ -59,6 +60,17 @@ export class Server {
 				addresses: [
 					...this.ipAddresses.map((address) => ({ type: "InternalIP", address })),
 					{ type: "Hostname", address: this.name },
+				],
+				// TODO(samwho): Implement proper node readiness reporting.
+				conditions: [
+					{
+						type: "Ready",
+						status: "True",
+						reason: "KubeletReady",
+						message: "kubelet is posting ready status",
+						lastHeartbeatTime: now,
+						lastTransitionTime: now,
+					},
 				],
 			},
 		};

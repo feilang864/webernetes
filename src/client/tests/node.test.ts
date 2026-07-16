@@ -6,6 +6,20 @@ import { expectRecentCreationTimestamp, expectResourceUid } from "./assertions";
 kubernetes.describe("Nodes", ({ core, k8s }) => {
 	const mergePatchOptions = k8s.setHeaderOptions("Content-Type", k8s.PatchStrategy.MergePatch);
 
+	it("should report all existing nodes as ready", async () => {
+		const nodes = await core.listNode();
+
+		expect(nodes.items.length).toBeGreaterThan(0);
+		for (const node of nodes.items) {
+			expect(node.status?.conditions).toContainEqual(
+				expect.objectContaining({
+					type: "Ready",
+					status: "True",
+				}),
+			);
+		}
+	});
+
 	it("should set a recent creation timestamp when creating a node", async () => {
 		const node = await core.createNode({
 			body: { metadata: { generateName: "creation-timestamp-node-" } },
