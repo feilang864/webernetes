@@ -1,5 +1,6 @@
 import { EventEmitter } from "events";
 import { Watcher as EtcdWatcher } from "../etcd";
+import { parseStoredObject } from "./serialization";
 
 export type EventType = "ADDED" | "MODIFIED" | "DELETED";
 
@@ -14,7 +15,7 @@ export class Watcher<T> extends EventEmitter {
 		super();
 
 		this.watcher.on("put", (event, prev) => {
-			const value = JSON.parse(event.value.toString()) as T;
+			const value = parseStoredObject<T>(event.value.toString());
 			this.withResourceVersion(value, event.mod_revision);
 			if (prev) {
 				this.emit("event", "MODIFIED", value);
@@ -24,7 +25,7 @@ export class Watcher<T> extends EventEmitter {
 		});
 
 		this.watcher.on("delete", (event) => {
-			const value = JSON.parse(event.value.toString()) as T;
+			const value = parseStoredObject<T>(event.value.toString());
 			this.withResourceVersion(value, event.mod_revision);
 			this.emit("event", "DELETED", value);
 		});

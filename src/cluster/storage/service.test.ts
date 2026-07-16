@@ -15,7 +15,7 @@ fakeEtcd.describe("ServiceStore allocation transactions", ({ ctx, createEtcd }) 
 		etcd = (await createEtcd()) as Etcd;
 		await etcd.delete().all().exec();
 		await ServiceStore.initialize(ctx, etcd, { nodePortRange: { from: 30000, to: 30010 } });
-		await new NamespaceStore(etcd).create({ metadata: { name: "default" } });
+		await new NamespaceStore(ctx, etcd).create({ metadata: { name: "default" } });
 	});
 
 	afterEach(() => {

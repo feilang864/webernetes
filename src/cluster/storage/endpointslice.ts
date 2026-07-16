@@ -1,10 +1,11 @@
 import { V1EndpointSlice } from "../../client";
+import type * as context from "../../go/context";
 import { Etcd } from "../etcd";
 import { Store } from "./store";
 
 export class EndpointSliceStore extends Store<V1EndpointSlice> {
-	constructor(etcd: Etcd) {
-		super(etcd, {
+	constructor(ctx: context.Context, etcd: Etcd) {
+		super(ctx, etcd, {
 			apiVersion: "discovery.k8s.io/v1",
 			defaultQualifiedResource: "discovery.k8s.io/endpointslices",
 			kind: "EndpointSlice",

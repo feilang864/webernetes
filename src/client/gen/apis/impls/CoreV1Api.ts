@@ -89,10 +89,10 @@ export class CoreV1Api implements CoreV1ApiInterface {
 
 	public constructor(options: CoreV1ApiOptions) {
 		this.ctx = options.ctx;
-		this.namespaces = new NamespaceStore(options.etcd);
-		this.nodes = new NodeStore(options.etcd);
-		this.events = new EventStore(options.etcd);
-		this.pods = new PodStore(options.etcd);
+		this.namespaces = new NamespaceStore(this.ctx, options.etcd);
+		this.nodes = new NodeStore(this.ctx, options.etcd);
+		this.events = new EventStore(this.ctx, options.etcd);
+		this.pods = new PodStore(this.ctx, options.etcd);
 		this.services = new ServiceStore(this.ctx, options.etcd, {
 			serviceCIDR: options.serviceCIDR,
 			nodePortRange: options.nodePortRange,

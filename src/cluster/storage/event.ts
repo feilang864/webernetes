@@ -1,10 +1,11 @@
 import { CoreV1Event } from "../../client";
+import type * as context from "../../go/context";
 import { Etcd } from "../etcd";
 import { Store } from "./store";
 
 export class EventStore extends Store<CoreV1Event> {
-	constructor(etcd: Etcd) {
-		super(etcd, {
+	constructor(ctx: context.Context, etcd: Etcd) {
+		super(ctx, etcd, {
 			apiVersion: "v1",
 			defaultQualifiedResource: "events",
 			kind: "Event",

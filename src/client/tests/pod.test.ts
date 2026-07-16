@@ -3,6 +3,7 @@ import { expect, it } from "vitest";
 import { CIDR } from "../../net";
 import { kubernetes } from "../../test/harnesses/kubernetes";
 import { apiErrorCode, apiStatusMessage } from "../../test/harnesses/helpers";
+import { expectRecentCreationTimestamp, expectResourceUid } from "./assertions";
 
 kubernetes.describe("Pods", (context) => {
 	const { core, target, k8s } = context;
@@ -33,6 +34,18 @@ kubernetes.describe("Pods", (context) => {
 		expect(pod.apiVersion).toBe("v1");
 		expect(pod.kind).toBe("Pod");
 		expect(pod.metadata?.name).toBe("create-test");
+	});
+
+	it("should set a recent creation timestamp when creating a pod", async () => {
+		const pod = await createPod({ metadata: { name: "creation-timestamp-test" } });
+
+		expectRecentCreationTimestamp(pod);
+	});
+
+	it("should set a UID when creating a pod", async () => {
+		const pod = await createPod({ metadata: { name: "uid-test" } });
+
+		expectResourceUid(pod);
 	});
 
 	it("should reject pods created with a resourceVersion", async () => {

@@ -2,6 +2,7 @@ import { expect, it } from "vitest";
 import type { V1Endpoint, V1EndpointSlice, V1Pod } from "../gen/models";
 import { kubernetes } from "../../test/harnesses/kubernetes";
 import { apiErrorCode } from "../../test/harnesses/helpers";
+import { expectRecentCreationTimestamp, expectResourceUid } from "./assertions";
 
 const READY_IMAGE = "crccheck/hello-world:latest";
 
@@ -56,6 +57,30 @@ kubernetes.describe("EndpointSlices", ({ core, discovery, helpers }) => {
 			(slice) => slice.metadata?.labels?.["kubernetes.io/service-name"] === serviceName,
 		);
 	}
+
+	it("should set a recent creation timestamp when creating an endpoint slice", async () => {
+		const namespace = await getSuiteNamespace();
+		const slice = await discovery.createNamespacedEndpointSlice({
+			namespace,
+			body: endpointSlice(namespace, {
+				metadata: { name: "creation-timestamp-endpoint-slice" },
+			}),
+		});
+
+		expectRecentCreationTimestamp(slice);
+	});
+
+	it("should set a UID when creating an endpoint slice", async () => {
+		const namespace = await getSuiteNamespace();
+		const slice = await discovery.createNamespacedEndpointSlice({
+			namespace,
+			body: endpointSlice(namespace, {
+				metadata: { name: "uid-endpoint-slice" },
+			}),
+		});
+
+		expectResourceUid(slice);
+	});
 
 	function endpointAddresses(slice: V1EndpointSlice | undefined): string[] {
 		return (slice?.endpoints ?? []).flatMap((endpoint) => endpoint.addresses);

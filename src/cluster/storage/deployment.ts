@@ -6,13 +6,14 @@ import type { V1Deployment } from "../../client";
 import { labelSelectorAsSelector } from "../../apimachinery/pkg/apis/meta/v1/helpers";
 import { Set as LabelSet } from "../../apimachinery/pkg/labels/labels";
 import { Invalid } from "../../client/errors";
+import type * as context from "../../go/context";
 import { Etcd } from "../etcd";
 import { formatLabelSelector, formatStringMap } from "./helpers";
 import { Store } from "./store";
 
 export class DeploymentStore extends Store<V1Deployment> {
-	constructor(etcd: Etcd) {
-		super(etcd, {
+	constructor(ctx: context.Context, etcd: Etcd) {
+		super(ctx, etcd, {
 			apiVersion: "apps/v1",
 			defaultQualifiedResource: "deployments",
 			kind: "Deployment",

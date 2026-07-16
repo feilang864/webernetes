@@ -29,7 +29,7 @@ export class DiscoveryV1Api implements DiscoveryV1ApiInterface {
 
 	public constructor(options: DiscoveryV1ApiOptions) {
 		this.ctx = options.ctx;
-		this.endpointSlices = new EndpointSliceStore(options.etcd);
+		this.endpointSlices = new EndpointSliceStore(this.ctx, options.etcd);
 	}
 
 	public async createNamespacedEndpointSlice(

@@ -64,8 +64,8 @@ export class AppsV1Api implements AppsV1ApiInterface {
 
 	public constructor(options: AppsV1ApiOptions) {
 		this.ctx = options.ctx;
-		this.deployments = new DeploymentStore(options.etcd);
-		this.replicaSets = new ReplicaSetStore(options.etcd);
+		this.deployments = new DeploymentStore(this.ctx, options.etcd);
+		this.replicaSets = new ReplicaSetStore(this.ctx, options.etcd);
 	}
 
 	public async createNamespacedDeployment(

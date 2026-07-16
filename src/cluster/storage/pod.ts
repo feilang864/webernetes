@@ -1,11 +1,12 @@
 import { V1Binding, V1Pod } from "../../client";
 import { Invalid, NotFound } from "../../client/errors";
+import type * as context from "../../go/context";
 import { Etcd } from "../etcd";
 import { Store } from "./store";
 
 export class PodStore extends Store<V1Pod> {
-	constructor(etcd: Etcd) {
-		super(etcd, {
+	constructor(ctx: context.Context, etcd: Etcd) {
+		super(ctx, etcd, {
 			apiVersion: "v1",
 			defaultQualifiedResource: "pods",
 			kind: "Pod",

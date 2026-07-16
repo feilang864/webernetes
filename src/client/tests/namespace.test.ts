@@ -1,9 +1,42 @@
 import { expect, it } from "vitest";
 import { kubernetes } from "../../test/harnesses/kubernetes";
 import { apiErrorCode, apiStatusMessage } from "../../test/harnesses/helpers";
+import { expectRecentCreationTimestamp, expectResourceUid } from "./assertions";
 
 kubernetes.describe("Namespaces", ({ core, discovery, k8s, helpers }) => {
 	const { waitFor } = helpers;
+	it("should set a recent creation timestamp when creating a namespace", async () => {
+		const namespace = await core.createNamespace({
+			body: { metadata: { generateName: "creation-timestamp-namespace-" } },
+		});
+		const name = namespace.metadata?.name;
+		if (!name) {
+			throw new Error("Expected namespace name");
+		}
+
+		try {
+			expectRecentCreationTimestamp(namespace);
+		} finally {
+			await core.deleteNamespace({ name });
+		}
+	});
+
+	it("should set a UID when creating a namespace", async () => {
+		const namespace = await core.createNamespace({
+			body: { metadata: { generateName: "uid-namespace-" } },
+		});
+		const name = namespace.metadata?.name;
+		if (!name) {
+			throw new Error("Expected namespace name");
+		}
+
+		try {
+			expectResourceUid(namespace);
+		} finally {
+			await core.deleteNamespace({ name });
+		}
+	});
+
 	it("should be able to create a namespace", async () => {
 		const namespace = await core.createNamespace({
 			body: {

@@ -2,6 +2,7 @@ import { expect, it } from "vitest";
 import type { CoreV1Event } from "../gen/models";
 import { kubernetes } from "../../test/harnesses/kubernetes";
 import { apiErrorCode } from "../../test/harnesses/helpers";
+import { expectRecentCreationTimestamp, expectResourceUid } from "./assertions";
 
 kubernetes.describe("Events", ({ core, helpers }) => {
 	const { getSuiteNamespace } = helpers;
@@ -33,6 +34,18 @@ kubernetes.describe("Events", ({ core, helpers }) => {
 			},
 		});
 	}
+
+	it("should set a recent creation timestamp when creating an event", async () => {
+		const event = await createEvent({ metadata: { name: "creation-timestamp-event" } });
+
+		expectRecentCreationTimestamp(event);
+	});
+
+	it("should set a UID when creating an event", async () => {
+		const event = await createEvent({ metadata: { name: "uid-event" } });
+
+		expectResourceUid(event);
+	});
 
 	it("should create, read, list, replace, and delete events", async () => {
 		const namespace = await getSuiteNamespace();

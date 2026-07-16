@@ -1,6 +1,8 @@
 import { afterEach, beforeEach, expect, it } from "vitest";
 
+import { getClock } from "../../clock-context";
 import { fakeEtcd } from "../../test/harnesses/etcd";
+import type * as context from "../../go/context";
 import type { Etcd } from "../etcd";
 import { createBarrier } from "./helpers";
 import { Store, type Storable } from "./store";
@@ -15,6 +17,7 @@ interface TestObject extends Storable {
 		finalizers?: string[];
 		resourceVersion?: string;
 		uid?: string;
+		creationTimestamp?: Date;
 	};
 	value?: string;
 }
@@ -24,14 +27,14 @@ type StoreEvent = {
 	object: TestObject;
 };
 
-fakeEtcd.describe("Store resourceVersion", ({ createEtcd }) => {
+fakeEtcd.describe("Store resourceVersion", ({ ctx, createEtcd }) => {
 	let etcd: Etcd;
 	let store: Store<TestObject>;
 
 	beforeEach(async () => {
 		etcd = (await createEtcd()) as Etcd;
 		await etcd.delete().all().exec();
-		store = new Store<TestObject>(etcd, {
+		store = new Store<TestObject>(ctx, etcd, {
 			defaultQualifiedResource: "tests",
 			singularQualifiedResource: "test",
 			apiVersion: "test.k8s.io/v1",
@@ -41,6 +44,20 @@ fakeEtcd.describe("Store resourceVersion", ({ createEtcd }) => {
 
 	afterEach(() => {
 		etcd.close();
+	});
+
+	it("sets and persists the creation timestamp from the cluster clock", async () => {
+		const clock = getClock(ctx);
+		clock.pause();
+		const now = clock.now();
+
+		const created = await store.create({ metadata: { name: "timestamped" } });
+		const stored = await store.get("timestamped");
+
+		expect(created.metadata.creationTimestamp).toBeInstanceOf(Date);
+		expect(created.metadata.creationTimestamp?.getTime()).toBe(now.getTime());
+		expect(stored?.metadata.creationTimestamp).toBeInstanceOf(Date);
+		expect(stored?.metadata.creationTimestamp?.getTime()).toBe(now.getTime());
 	});
 
 	it("returns a list resourceVersion at least as new as every listed item", async () => {
@@ -113,7 +130,7 @@ fakeEtcd.describe("Store resourceVersion", ({ createEtcd }) => {
 	});
 
 	it("allows only one concurrent create for the same key", async () => {
-		const contendedStore = new ContendedCreateStore(etcd, createBarrier(2));
+		const contendedStore = new ContendedCreateStore(ctx, etcd, createBarrier(2));
 
 		const results = await Promise.allSettled([
 			contendedStore.create({ metadata: { name: "singleton" }, value: "first" }),
@@ -163,7 +180,7 @@ fakeEtcd.describe("Store resourceVersion", ({ createEtcd }) => {
 	});
 
 	it("does not delete an object that changes after delete preparation", async () => {
-		const contendedStore = new ContendedDeleteStore(etcd, createBarrier(1));
+		const contendedStore = new ContendedDeleteStore(ctx, etcd, createBarrier(1));
 		await contendedStore.create({ metadata: { name: "protected" }, value: "allowed" });
 
 		const deletion = contendedStore.delete("protected");
@@ -196,10 +213,11 @@ function nextStoreEvent(watcher: Watcher<TestObject>) {
 // is responsible for serializing same-key creates.
 class ContendedCreateStore extends Store<TestObject> {
 	constructor(
+		ctx: context.Context,
 		etcd: Etcd,
 		private readonly waitAtCreate: () => Promise<void>,
 	) {
-		super(etcd, {
+		super(ctx, etcd, {
 			defaultQualifiedResource: "contended-tests",
 			singularQualifiedResource: "contended-test",
 			apiVersion: "test.k8s.io/v1",
@@ -233,10 +251,11 @@ class ContendedDeleteStore extends Store<TestObject> {
 	});
 
 	constructor(
+		ctx: context.Context,
 		etcd: Etcd,
 		private readonly waitAtDelete: () => Promise<void>,
 	) {
-		super(etcd, {
+		super(ctx, etcd, {
 			defaultQualifiedResource: "contended-delete-tests",
 			singularQualifiedResource: "contended-delete-test",
 			apiVersion: "test.k8s.io/v1",

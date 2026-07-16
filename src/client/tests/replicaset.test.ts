@@ -4,6 +4,7 @@ import { kubernetes } from "../../test/harnesses/kubernetes";
 import { apiErrorCode, apiStatusMessage } from "../../test/harnesses/helpers";
 import type { DeepPartial } from "../../test/harnesses/helpers";
 import type { V1Pod, V1ReplicaSet } from "../gen/models";
+import { expectRecentCreationTimestamp, expectResourceUid } from "./assertions";
 
 const podImage = "registry.k8s.io/pause:3.10";
 const agnhostImage = "registry.k8s.io/e2e-test-images/agnhost:2.40";
@@ -78,6 +79,20 @@ kubernetes.describe("ReplicaSets", ({ apps, core, k8s, kubeConfig, helpers }) =>
 		}
 		return status.restartCount ?? 0;
 	}
+
+	it("should set a recent creation timestamp when creating a replica set", async () => {
+		const replicaSet = await createReplicaSet({
+			metadata: { name: "creation-timestamp-rs" },
+		});
+
+		expectRecentCreationTimestamp(replicaSet);
+	});
+
+	it("should set a UID when creating a replica set", async () => {
+		const replicaSet = await createReplicaSet({ metadata: { name: "uid-rs" } });
+
+		expectResourceUid(replicaSet);
+	});
 
 	it("should create, read, list, and delete a replicaset", async () => {
 		const namespace = await getTestNamespace();

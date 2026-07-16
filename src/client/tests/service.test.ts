@@ -2,6 +2,7 @@ import { expect, it } from "vitest";
 import type { V1Pod, V1Service } from "../gen/models";
 import { kubernetes } from "../../test/harnesses/kubernetes";
 import { apiErrorCode, apiStatusMessage } from "../../test/harnesses/helpers";
+import { expectRecentCreationTimestamp, expectResourceUid } from "./assertions";
 
 kubernetes.describe("Services", ({ core, discovery, k8s, helpers, target }) => {
 	const { exec, getSuiteNamespace, fetchNodePort, waitFor, waitForPodReady } = helpers;
@@ -45,6 +46,20 @@ kubernetes.describe("Services", ({ core, discovery, k8s, helpers, target }) => {
 			},
 		});
 	}
+
+	it("should set a recent creation timestamp when creating a service", async () => {
+		const service = await createService({
+			metadata: { name: "creation-timestamp-service" },
+		});
+
+		expectRecentCreationTimestamp(service);
+	});
+
+	it("should set a UID when creating a service", async () => {
+		const service = await createService({ metadata: { name: "uid-service" } });
+
+		expectResourceUid(service);
+	});
 
 	it("should allocate ClusterIP and NodePort values for NodePort services", async () => {
 		const service = await createService({

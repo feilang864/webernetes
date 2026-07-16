@@ -74,7 +74,7 @@ export class ServiceStore extends Store<V1Service> {
 	}
 
 	constructor(ctx: context.Context, etcd: Etcd, options: ServiceStoreOptions) {
-		super(etcd, {
+		super(ctx, etcd, {
 			apiVersion: "v1",
 			defaultQualifiedResource: "services",
 			kind: "Service",

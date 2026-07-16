@@ -1,9 +1,42 @@
 import { expect, it } from "vitest";
 import { kubernetes } from "../../test/harnesses/kubernetes";
 import { apiErrorCode } from "../../test/harnesses/helpers";
+import { expectRecentCreationTimestamp, expectResourceUid } from "./assertions";
 
 kubernetes.describe("Nodes", ({ core, k8s }) => {
 	const mergePatchOptions = k8s.setHeaderOptions("Content-Type", k8s.PatchStrategy.MergePatch);
+
+	it("should set a recent creation timestamp when creating a node", async () => {
+		const node = await core.createNode({
+			body: { metadata: { generateName: "creation-timestamp-node-" } },
+		});
+		const name = node.metadata?.name;
+		if (!name) {
+			throw new Error("Expected node name");
+		}
+
+		try {
+			expectRecentCreationTimestamp(node);
+		} finally {
+			await core.deleteNode({ name });
+		}
+	});
+
+	it("should set a UID when creating a node", async () => {
+		const node = await core.createNode({
+			body: { metadata: { generateName: "uid-node-" } },
+		});
+		const name = node.metadata?.name;
+		if (!name) {
+			throw new Error("Expected node name");
+		}
+
+		try {
+			expectResourceUid(node);
+		} finally {
+			await core.deleteNode({ name });
+		}
+	});
 
 	it("should be able to create a node", async () => {
 		const node = await core.createNode({

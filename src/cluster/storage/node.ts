@@ -1,10 +1,11 @@
 import { V1Node } from "../../client";
+import type * as context from "../../go/context";
 import { Etcd } from "../etcd";
 import { Store } from "./store";
 
 export class NodeStore extends Store<V1Node> {
-	public constructor(etcd: Etcd) {
-		super(etcd, {
+	public constructor(ctx: context.Context, etcd: Etcd) {
+		super(ctx, etcd, {
 			apiVersion: "v1",
 			defaultQualifiedResource: "nodes",
 			kind: "Node",

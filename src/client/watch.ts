@@ -52,24 +52,24 @@ function storeFromKind(kind: string, config: KubeConfig): Store<Storable> {
 	const etcd = config.etcd;
 	switch (kind) {
 		case "pods":
-			return new PodStore(etcd);
+			return new PodStore(config.options.ctx, etcd);
 		case "deployments":
-			return new DeploymentStore(etcd);
+			return new DeploymentStore(config.options.ctx, etcd);
 		case "replicasets":
-			return new ReplicaSetStore(etcd);
+			return new ReplicaSetStore(config.options.ctx, etcd);
 		case "services":
 			return new ServiceStore(config.options.ctx, etcd, {
 				serviceCIDR: config.serviceCIDR,
 				nodePortRange: config.nodePortRange,
 			});
 		case "endpointslices":
-			return new EndpointSliceStore(etcd);
+			return new EndpointSliceStore(config.options.ctx, etcd);
 		case "nodes":
-			return new NodeStore(etcd);
+			return new NodeStore(config.options.ctx, etcd);
 		case "events":
-			return new EventStore(etcd);
+			return new EventStore(config.options.ctx, etcd);
 		case "namespaces":
-			return new NamespaceStore(etcd);
+			return new NamespaceStore(config.options.ctx, etcd);
 		default:
 			throw new Error(`Unsupported kind: ${kind}`);
 	}

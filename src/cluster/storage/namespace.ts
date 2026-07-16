@@ -1,12 +1,13 @@
 import { V1Namespace } from "../../client";
+import type * as context from "../../go/context";
 import { Etcd } from "../etcd";
 import { Store } from "./store";
 
 const finalizerKubernetes = "kubernetes";
 
 export class NamespaceStore extends Store<V1Namespace> {
-	public constructor(etcd: Etcd) {
-		super(etcd, {
+	public constructor(ctx: context.Context, etcd: Etcd) {
+		super(ctx, etcd, {
 			apiVersion: "v1",
 			defaultQualifiedResource: "namespaces",
 			kind: "Namespace",

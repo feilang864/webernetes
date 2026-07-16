@@ -1,6 +1,9 @@
 import { V1ObjectMeta } from "../../client";
 import { Conflict, NotFound } from "../../client/errors";
+import { getClock } from "../../clock-context";
+import type * as context from "../../go/context";
 import type { Etcd } from "../etcd";
+import { parseStoredObject } from "./serialization";
 import { Watcher } from "./watch";
 
 export interface StoreOpts {
@@ -44,6 +47,7 @@ const finishNothing: FinishFunc = () => undefined;
 // and etcd.
 export class Store<T extends Storable> {
 	constructor(
+		private readonly ctx: context.Context,
 		protected readonly etcd: Etcd,
 		private readonly opts: StoreOpts,
 	) {}
@@ -126,7 +130,7 @@ export class Store<T extends Storable> {
 			return undefined;
 		}
 
-		const obj = JSON.parse(kv.value.toString()) as T;
+		const obj = parseStoredObject<T>(kv.value.toString());
 		return {
 			obj: this.withResourceVersion(obj, kv.mod_revision),
 			resourceVersion: kv.mod_revision,
@@ -145,6 +149,7 @@ export class Store<T extends Storable> {
 		if (obj.metadata.resourceVersion) {
 			throw new Error("resourceVersion should not be set on objects to be created");
 		}
+		obj.metadata.creationTimestamp = getClock(this.ctx).now();
 		this.defaultTypeMeta(obj);
 		this.validateTypeMeta(obj);
 
@@ -307,7 +312,7 @@ export class Store<T extends Storable> {
 		return {
 			resourceVersion: response.header.revision,
 			items: response.kvs.map((kv) => {
-				const obj = JSON.parse(kv.value.toString()) as T;
+				const obj = parseStoredObject<T>(kv.value.toString());
 				return this.withResourceVersion(obj, kv.mod_revision);
 			}),
 		};

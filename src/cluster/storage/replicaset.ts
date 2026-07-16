@@ -6,14 +6,15 @@ import type { V1ReplicaSet } from "../../client";
 import { labelSelectorAsSelector } from "../../apimachinery/pkg/apis/meta/v1/helpers";
 import { Set as LabelSet } from "../../apimachinery/pkg/labels/labels";
 import { Invalid } from "../../client/errors";
+import type * as context from "../../go/context";
 import { Etcd } from "../etcd";
 import { formatLabelSelector, formatStringMap } from "./helpers";
 import { Store } from "./store";
 
 // Models kubernetes/pkg/apis/apps/v1/defaults.go SetDefaults_ReplicaSet.
 export class ReplicaSetStore extends Store<V1ReplicaSet> {
-	constructor(etcd: Etcd) {
-		super(etcd, {
+	constructor(ctx: context.Context, etcd: Etcd) {
+		super(ctx, etcd, {
 			apiVersion: "apps/v1",
 			defaultQualifiedResource: "replicasets",
 			kind: "ReplicaSet",
