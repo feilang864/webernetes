@@ -1,5 +1,11 @@
 # @ngrok/webernetes
 
+## 0.3.3
+
+### Patch Changes
+
+- [`8228f05`](https://github.com/ngrok/webernetes/commit/8228f0517a676432743b6be216e9bb60419f5565) Thanks [@samwho](https://github.com/samwho)! - Match Kubernetes event timestamp behavior by using `eventTime` for scheduler events with null legacy timestamps and preserving event timestamps as `Date` values through storage reads.
+
 ## 0.3.2
 
 ### Patch Changes
