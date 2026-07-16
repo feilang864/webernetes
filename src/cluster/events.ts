@@ -10,6 +10,7 @@ export interface EventRecorderOptions {
 	api: k8s.KubeClient["corev1"];
 	component: string;
 	host?: string;
+	timestampFormat?: "eventTime" | "legacy";
 }
 
 export class EventRecorderImpl implements EventRecorder {
@@ -55,29 +56,36 @@ export class EventRecorderImpl implements EventRecorder {
 		}
 
 		const now = getClock(this.options.ctx).now();
+		const body: k8s.CoreV1Event = {
+			metadata: {
+				generateName: `${name}.`,
+				namespace,
+				annotations,
+			},
+			involvedObject: ref,
+			count: 1,
+			message,
+			reason,
+			reportingComponent: this.options.component,
+			reportingInstance: this.options.host ?? this.options.component,
+			source: {
+				component: this.options.component,
+				host: this.options.host,
+			},
+			type,
+		};
+		if (this.options.timestampFormat === "eventTime") {
+			body.eventTime = now;
+			// Kubernetes returns explicit nulls even though the generated client type omits null.
+			Object.assign(body, { firstTimestamp: null, lastTimestamp: null });
+		} else {
+			body.firstTimestamp = now;
+			body.lastTimestamp = now;
+		}
 		try {
 			await this.options.api.createNamespacedEvent({
 				namespace,
-				body: {
-					metadata: {
-						generateName: `${name}.`,
-						namespace,
-						annotations,
-					},
-					involvedObject: ref,
-					count: 1,
-					firstTimestamp: now,
-					lastTimestamp: now,
-					message,
-					reason,
-					reportingComponent: this.options.component,
-					reportingInstance: this.options.host ?? this.options.component,
-					source: {
-						component: this.options.component,
-						host: this.options.host,
-					},
-					type,
-				},
+				body,
 			});
 		} catch (error) {
 			if (!isNotFoundError(error)) {

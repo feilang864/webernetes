@@ -4,8 +4,9 @@ import { kubernetes } from "../../test/harnesses/kubernetes";
 import { apiErrorCode } from "../../test/harnesses/helpers";
 import { expectRecentCreationTimestamp, expectResourceUid } from "./assertions";
 
-kubernetes.describe("Events", ({ core, helpers }) => {
-	const { getSuiteNamespace } = helpers;
+kubernetes.describe("Events", ({ apps, core, helpers }) => {
+	const { createPod, eventsFor, getSuiteNamespace, getTestNamespace, waitFor, waitForPodReady } =
+		helpers;
 	async function createEvent(event: Partial<CoreV1Event>): Promise<CoreV1Event> {
 		const namespace = await getSuiteNamespace();
 		return await core.createNamespacedEvent({
@@ -45,6 +46,69 @@ kubernetes.describe("Events", ({ core, helpers }) => {
 		const event = await createEvent({ metadata: { name: "uid-event" } });
 
 		expectResourceUid(event);
+	});
+
+	it("should set first and last timestamps on kubelet-generated events", async () => {
+		const pod = await createPod({ metadata: { name: "event-timestamps" } });
+		await waitForPodReady(pod);
+
+		const events = await eventsFor(pod);
+		// Scheduler events use eventTime instead of these legacy CoreV1 timestamp fields.
+		const kubeletEvents = events.filter((event) => event.source?.component === "kubelet");
+		expect(kubeletEvents.map((event) => event.reason)).toEqual(
+			expect.arrayContaining(["Pulled", "Created", "Started"]),
+		);
+		for (const event of kubeletEvents) {
+			expect(event.firstTimestamp).toEqual(expect.anything());
+			expect(event.lastTimestamp).toEqual(expect.anything());
+		}
+	});
+
+	it("should set a timestamp on events generated for different resource types", async () => {
+		const namespace = await getTestNamespace();
+		await apps.createNamespacedDeployment({
+			namespace,
+			body: {
+				metadata: { name: "event-timestamps" },
+				spec: {
+					replicas: 1,
+					selector: { matchLabels: { app: "event-timestamps" } },
+					template: {
+						metadata: { labels: { app: "event-timestamps" } },
+						spec: {
+							containers: [
+								{
+									name: "pause",
+									image: "registry.k8s.io/pause:3.10",
+								},
+							],
+						},
+					},
+				},
+			},
+		});
+
+		let events: CoreV1Event[] = [];
+		await waitFor(async () => {
+			events = (await core.listNamespacedEvent({ namespace })).items;
+			expect(events.map((event) => event.reason)).toEqual(
+				expect.arrayContaining(["ScalingReplicaSet", "SuccessfulCreate", "Scheduled", "Started"]),
+			);
+		});
+
+		expect(events.map((event) => event.involvedObject.kind)).toEqual(
+			expect.arrayContaining(["Deployment", "ReplicaSet", "Pod"]),
+		);
+		const scheduledEvents = events.filter((event) => event.reason === "Scheduled");
+		expect(scheduledEvents.length).toBeGreaterThan(0);
+		for (const event of scheduledEvents) {
+			expect(event.firstTimestamp ?? null).toBeNull();
+			expect(event.lastTimestamp ?? null).toBeNull();
+			expectTimestampCanBeReadAsDate(event.eventTime);
+		}
+		for (const event of events) {
+			expectGeneratedEventTimestamp(event);
+		}
 	});
 
 	it("should create, read, list, replace, and delete events", async () => {
@@ -318,3 +382,20 @@ kubernetes.describe("Events", ({ core, helpers }) => {
 		expect(current.message).toBe("updated");
 	});
 });
+
+function expectGeneratedEventTimestamp(event: CoreV1Event): void {
+	const firstTimestamp = event.firstTimestamp ?? null;
+	const lastTimestamp = event.lastTimestamp ?? null;
+	const usesEventTime = firstTimestamp === null;
+
+	expect(firstTimestamp === null).toBe(lastTimestamp === null);
+	expect(usesEventTime || firstTimestamp instanceof Date).toBe(true);
+	expect(usesEventTime || lastTimestamp instanceof Date).toBe(true);
+	expectTimestampCanBeReadAsDate(usesEventTime ? event.eventTime : firstTimestamp);
+}
+
+function expectTimestampCanBeReadAsDate(value: unknown): void {
+	expect(value).toEqual(expect.anything());
+	const date = value instanceof Date ? value : new Date(String(value));
+	expect(Number.isNaN(date.getTime())).toBe(false);
+}

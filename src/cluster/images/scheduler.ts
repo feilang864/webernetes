@@ -31,6 +31,7 @@ export class Scheduler extends BaseImage {
 			ctx,
 			api: ctx.api.corev1,
 			component: "default-scheduler",
+			timestampFormat: "eventTime",
 		});
 		this.informer = k8s.makeInformer(
 			ctx.kubeConfig,
