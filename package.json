@@ -1,6 +1,6 @@
 {
   "name": "@ngrok/webernetes",
-  "version": "0.3.2",
+  "version": "0.3.3",
   "description": "Kubernetes that runs in the browser.",
   "keywords": [
     "browser",
