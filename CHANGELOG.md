@@ -1,5 +1,11 @@
 # @ngrok/webernetes
 
+## 0.3.2
+
+### Patch Changes
+
+- [`d1ece45`](https://github.com/ngrok/webernetes/commit/d1ece45f7a05256e8449a9cac042e426febe4670) Thanks [@samwho](https://github.com/samwho)! - Set creation timestamps on newly created Kubernetes resources using the cluster clock and preserve them as `Date` values through storage reads and watches.
+
 ## 0.3.1
 
 ### Patch Changes
