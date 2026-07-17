@@ -39,10 +39,10 @@ export function defineSuite(
 	};
 
 	if (typeof maybeOptions === "function") {
-		node.describe(name, suite);
+		node.describe(`${name} (real etcd)`, suite);
 		return;
 	}
-	node.describe(name, maybeOptions, suite);
+	node.describe(`${name} (real etcd)`, maybeOptions, suite);
 }
 
 async function getEtcdContainer(): Promise<StartedTestContainer> {

@@ -57,10 +57,10 @@ export function defineSuite(
 	};
 
 	if (typeof maybeOptions === "function") {
-		both.describe(name, suite);
+		both.describe(`${name} (simulator)`, suite);
 		return;
 	}
-	both.describe(name, maybeOptions, suite);
+	both.describe(`${name} (simulator)`, maybeOptions, suite);
 }
 
 async function setupSimulator(): Promise<void> {

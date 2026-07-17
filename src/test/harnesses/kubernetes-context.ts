@@ -37,6 +37,7 @@ export function createKubernetesRuntimeContext({
 		k8s,
 		kubeConfig,
 		core,
+		target,
 		fetchNodePort,
 		apply,
 	});

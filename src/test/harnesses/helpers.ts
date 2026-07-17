@@ -14,8 +14,13 @@ import type { ClusterApplyResource, ClusterApplyResult } from "../../cluster/app
 import { deepMerge } from "../../deep-merge.js";
 import { retry } from "../../retry.js";
 import type * as context from "../../go/context.js";
-import { waitFor } from "../wait.js";
-import type { FetchNodePort, NodePortRequest, NodePortResponse } from "./kubernetes.js";
+import { waitFor as waitForAssertion } from "../wait.js";
+import type {
+	FetchNodePort,
+	KubernetesTestTarget,
+	NodePortRequest,
+	NodePortResponse,
+} from "./kubernetes.js";
 import type { DeepPartial } from "../../utility-types.js";
 
 const defaultPodImage = "registry.k8s.io/pause:3.10";
@@ -73,6 +78,7 @@ export interface KubernetesHelpersOptions {
 	k8s: K8s;
 	kubeConfig: KubeConfig;
 	core: CoreV1Api;
+	target: KubernetesTestTarget;
 	fetchNodePort: FetchNodePort;
 	apply<const T extends readonly ClusterApplyResource[]>(
 		resources: T,
@@ -84,9 +90,18 @@ export function createKubernetesHelpers({
 	k8s,
 	kubeConfig,
 	core,
+	target,
 	fetchNodePort: rawFetchNodePort,
 	apply,
 }: KubernetesHelpersOptions): KubernetesRuntimeHelpers {
+	const waitFor = async (assertion: () => unknown | Promise<unknown>): Promise<void> => {
+		await waitForAssertion(
+			assertion,
+			target === "simulator"
+				? { timeout: 5_000, interval: 50 }
+				: { timeout: 180_000, interval: 500 },
+		);
+	};
 	let suiteNamespace: string | undefined;
 	let testNamespace: string | undefined;
 	const createNamespace = async (namespace: string | Partial<V1Namespace>): Promise<string> => {

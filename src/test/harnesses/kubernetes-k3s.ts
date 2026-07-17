@@ -58,10 +58,10 @@ export function defineSuite(
 	};
 
 	if (typeof maybeOptions === "function") {
-		node.describe(name, suite);
+		node.describe(`${name} (k3s)`, suite);
 		return;
 	}
-	node.describe(name, maybeOptions, suite);
+	node.describe(`${name} (k3s)`, maybeOptions, suite);
 }
 
 async function setupK3s(): Promise<void> {
