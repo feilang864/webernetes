@@ -4,6 +4,7 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { setTimeout } from "node:timers/promises";
 import { K3sContainer, type StartedK3sContainer } from "@testcontainers/k3s";
+import { retryOperation } from "./operation-retry.js";
 
 let containerPromise: Promise<StartedK3sContainer> | undefined;
 
@@ -16,6 +17,8 @@ export const K3S_SETUP_MARKER_ROOT = join(tmpdir(), `${K3S_CONTAINER_NAME}.ready
 const K3S_START_LOCK_STALE_MS = 5 * 60 * 1000;
 const K3S_START_LOCK_WAIT_MS = 250;
 const MANIFEST_INSPECT_TIMEOUT_MS = 5_000;
+const IMAGE_PULL_RETRIES = 2;
+const IMAGE_PULL_RETRY_DELAY_MS = 1_000;
 export const K3S_PULL_LOG_DIR = join(tmpdir(), `${K3S_CONTAINER_NAME}.pulls`);
 
 const WARMUP_IMAGES = [
@@ -190,12 +193,30 @@ async function warmK3sImages(
 		if (!pulled) {
 			progress.imageFallback(imageNumber, WARMUP_IMAGES.length, image);
 		}
-		const result = await container.exec(["crictl", "pull", image]);
-		if (result.exitCode !== 0) {
-			throw new Error(result.stderr || result.output || `Failed to pull ${image}`);
-		}
+		await retryOperation(
+			async () => {
+				const result = await container.exec(["crictl", "pull", image]);
+				if (result.exitCode !== 0) {
+					throw new Error(result.stderr || result.output || `Failed to pull ${image}`);
+				}
+			},
+			{
+				retries: IMAGE_PULL_RETRIES,
+				onRetry: async (error, retry) => {
+					progress.info(
+						`retrying image ${imageNumber}/${WARMUP_IMAGES.length}: ${image} ` +
+							`(${retry}/${IMAGE_PULL_RETRIES}) after ${errorMessage(error)}`,
+					);
+					await setTimeout(IMAGE_PULL_RETRY_DELAY_MS * retry);
+				},
+			},
+		);
 		progress.imageDone(imageNumber, WARMUP_IMAGES.length, image);
 	}
+}
+
+function errorMessage(error: unknown): string {
+	return error instanceof Error ? error.message : String(error);
 }
 
 async function pullImageWithCtrProgress(
