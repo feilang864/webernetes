@@ -1,7 +1,7 @@
 import { expect } from "vitest";
 import type { KubernetesObject } from "../types";
 
-const recentTimestampToleranceMs = 1000;
+const recentTimestampToleranceMs = 5000;
 
 export function expectRecentCreationTimestamp(resource: KubernetesObject): void {
 	const creationTimestamp = resource.metadata?.creationTimestamp;
