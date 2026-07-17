@@ -11,7 +11,7 @@ import { newBackOff } from "../../../client-go/util/flowcontrol/backoff.js";
 import { Clock } from "../../../clock.js";
 import { withClock } from "../../../clock-context.js";
 import { background } from "../../../go/context.js";
-import { browser } from "../../../test/describe.js";
+import { both } from "../../../test/describe.js";
 import { FakeRuntime } from "../container/testing/index.js";
 import { KubeletImageManager, applyDefaultImageTag, evalCRIPullErr } from "./image-manager.js";
 import type { ImagePullManager } from "./pullmanager/index.js";
@@ -606,7 +606,7 @@ function noFGPullerTestCases(): PullerTestCase[] {
 }
 
 // Models kubernetes/pkg/kubelet/images/image_manager_test.go TestParallelPuller.
-browser.describe("TestParallelPuller", () => {
+both.describe("TestParallelPuller", () => {
 	const cases = pullerTestCases();
 
 	const useSerializedEnv = false;
@@ -665,7 +665,7 @@ browser.describe("TestParallelPuller", () => {
 });
 
 // Models kubernetes/pkg/kubelet/images/image_manager_test.go TestApplyDefaultImageTag.
-browser.describe("TestApplyDefaultImageTag", () => {
+both.describe("TestApplyDefaultImageTag", () => {
 	const testCases = [
 		{ testName: "root", input: "root", output: "root:latest" },
 		{ testName: "root:tag", input: "root:tag", output: "root:tag" },
@@ -692,7 +692,7 @@ browser.describe("TestApplyDefaultImageTag", () => {
 });
 
 // Models kubernetes/pkg/kubelet/images/image_manager_test.go TestPullAndListImageWithPodAnnotations.
-browser.describe("TestPullAndListImageWithPodAnnotations", () => {
+both.describe("TestPullAndListImageWithPodAnnotations", () => {
 	it("test pull and list image with pod annotations", async () => {
 		const pod = {
 			metadata: {
@@ -779,7 +779,7 @@ browser.describe("TestPullAndListImageWithPodAnnotations", () => {
 });
 
 // Models kubernetes/pkg/kubelet/images/image_manager_test.go TestMaxParallelImagePullsLimit.
-browser.describe("TestMaxParallelImagePullsLimit", () => {
+both.describe("TestMaxParallelImagePullsLimit", () => {
 	it("limits concurrent pulls", async () => {
 		const pod = {
 			metadata: {
@@ -873,7 +873,7 @@ browser.describe("TestMaxParallelImagePullsLimit", () => {
 });
 
 // Models kubernetes/pkg/kubelet/images/image_manager_test.go TestParallelPodPullingTimeRecorderWithErr.
-browser.describe("TestParallelPodPullingTimeRecorderWithErr", () => {
+both.describe("TestParallelPodPullingTimeRecorderWithErr", () => {
 	it("finishes recorder state when a parallel pod pull errors after another pod succeeds", async () => {
 		const pod1 = {
 			metadata: {
@@ -995,7 +995,7 @@ browser.describe("TestParallelPodPullingTimeRecorderWithErr", () => {
 });
 
 // Models kubernetes/pkg/kubelet/images/image_manager_test.go TestEvalCRIPullErr.
-browser.describe("TestEvalCRIPullErr", () => {
+both.describe("TestEvalCRIPullErr", () => {
 	const testCases = [
 		{
 			name: "fallback error",
@@ -1051,7 +1051,7 @@ browser.describe("TestEvalCRIPullErr", () => {
 });
 
 // Models kubernetes/pkg/kubelet/images/image_manager_test.go TestImagePullPrecheck.
-browser.describe("TestImagePullPrecheck", () => {
+both.describe("TestImagePullPrecheck", () => {
 	const pod = {
 		metadata: {
 			name: "test_pod",

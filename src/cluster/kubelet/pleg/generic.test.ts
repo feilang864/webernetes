@@ -11,7 +11,7 @@ import * as context from "../../../go/context.js";
 import { Timer } from "../../../go/time.js";
 import type { Backoff } from "../../../client-go/util/flowcontrol/backoff.js";
 import type { V1Pod } from "../../../client/index.js";
-import { browser } from "../../../test/describe.js";
+import { both } from "../../../test/describe.js";
 import type {
 	ImageFsInfoResponse,
 	MetricDescriptor,
@@ -51,7 +51,7 @@ import { GenericPLEG } from "./generic.js";
 const testContainerRuntimeType = "fooRuntime";
 const largeChannelCap = 100;
 
-browser.describe("GenericPLEG", ({ ctx }) => {
+both.describe("GenericPLEG", ({ ctx }) => {
 	// Models kubernetes/pkg/kubelet/pleg/generic_test.go TestRelisting.
 	it("relisting", async () => {
 		const testPleg = newTestGenericPLEG(ctx);

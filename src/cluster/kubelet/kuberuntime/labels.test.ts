@@ -4,7 +4,7 @@
  */
 import { expect, it } from "vitest";
 import type { V1Container, V1ContainerPort, V1Lifecycle, V1Pod } from "../../../client/index.js";
-import { browser } from "../../../test/describe.js";
+import { both } from "../../../test/describe.js";
 import { hashContainer, type RunContainerOptions } from "../container/index.js";
 import {
 	getContainerInfoFromAnnotations,
@@ -13,7 +13,7 @@ import {
 } from "./labels.js";
 
 // Models kubernetes/pkg/kubelet/kuberuntime/labels_test.go TestContainerAnnotations.
-browser.describe("TestContainerAnnotations", ({ ctx }) => {
+both.describe("TestContainerAnnotations", ({ ctx }) => {
 	it("TestContainerAnnotations", () => {
 		const restartCount = 5;
 		const deletionGracePeriod = 10;

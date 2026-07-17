@@ -5,10 +5,10 @@
 import { expect, it } from "vitest";
 
 import { Clock } from "../../clock.js";
-import { browser } from "../../test/describe.js";
+import { both } from "../../test/describe.js";
 import { Mutex, RWMutex } from "./mutex.js";
 
-browser.describe("Mutex", () => {
+both.describe("Mutex", () => {
 	// Models Go src/sync/mutex.go Mutex.Lock.
 	it("grants the lock immediately when it is free", async () => {
 		const mutex = new Mutex();
@@ -93,7 +93,7 @@ browser.describe("Mutex", () => {
 	});
 });
 
-browser.describe("RWMutex", () => {
+both.describe("RWMutex", () => {
 	// Models Go src/sync/rwmutex.go RWMutex.RLock.
 	it("allows multiple readers to enter concurrently", async () => {
 		const lock = new RWMutex();

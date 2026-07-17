@@ -4,10 +4,10 @@
  */
 import { expect, it } from "vitest";
 
-import { browser } from "../../../test/describe.js";
+import { both } from "../../../test/describe.js";
 import { Set, type Fields } from "./fields.js";
 
-browser.describe("fields", () => {
+both.describe("fields", () => {
 	// Models staging/src/k8s.io/apimachinery/pkg/fields/fields_test.go TestSetString.
 	it("formats sets", () => {
 		expect.hasAssertions();

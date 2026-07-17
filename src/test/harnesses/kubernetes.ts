@@ -59,10 +59,7 @@ const k3sRuntime =
 		? await import(/* @vite-ignore */ "./kubernetes-k3s.js")
 		: undefined;
 
-const simulatorRuntime =
-	currentTestEnvironment === "browser"
-		? await import(/* @vite-ignore */ "./kubernetes-simulator.js")
-		: undefined;
+const simulatorRuntime = await import(/* @vite-ignore */ "./kubernetes-simulator.js");
 
 export const k3s: KubernetesDescribe = {
 	describe: createTargetDescribe("k3s", k3sRuntime),

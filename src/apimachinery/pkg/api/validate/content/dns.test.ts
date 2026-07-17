@@ -3,10 +3,10 @@
  * Derived from Kubernetes, translated and modified for Webernetes.
  */
 import { expect, it } from "vitest";
-import { browser } from "../../../../../test/describe.js";
+import { both } from "../../../../../test/describe.js";
 import { isDNS1123Label, isDNS1123Subdomain, isDNS1123SubdomainCaseless } from "./dns.js";
 
-browser.describe("content DNS validation", () => {
+both.describe("content DNS validation", () => {
 	// Models staging/src/k8s.io/apimachinery/pkg/api/validate/content/dns_test.go TestIsDNS1123Label.
 	it("TestIsDNS1123Label", () => {
 		const goodValues = [

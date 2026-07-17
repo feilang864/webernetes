@@ -1,8 +1,8 @@
 import { expect, it } from "vitest";
-import { browser } from "../test/describe.js";
+import { both } from "../test/describe.js";
 import { fieldSelectorMatches, filterByFields, parseFieldSelector } from "./fields.js";
 
-browser.describe("field selectors", () => {
+both.describe("field selectors", () => {
 	it("treats empty selectors as matching everything", () => {
 		const items = [pod("selected", "node-a"), pod("also-selected", "node-b")];
 

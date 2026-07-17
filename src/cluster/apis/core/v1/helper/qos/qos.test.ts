@@ -4,13 +4,13 @@
  */
 import { expect, it } from "vitest";
 import type { V1Container, V1Pod, V1ResourceRequirements } from "../../../../../../client/index.js";
-import { browser } from "../../../../../../test/describe.js";
+import { both } from "../../../../../../test/describe.js";
 import { computePodQOS } from "./qos.js";
 
 type ResourceList = NonNullable<V1ResourceRequirements["requests"]>;
 
 // Models kubernetes/pkg/apis/core/v1/helper/qos/qos_test.go TestComputePodQOS.
-browser.describe("computePodQOS", () => {
+both.describe("computePodQOS", () => {
 	const testCases: Array<{
 		pod: V1Pod;
 		expected: string;

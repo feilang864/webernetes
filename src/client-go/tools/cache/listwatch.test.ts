@@ -5,7 +5,7 @@
 import { expect, it } from "vitest";
 
 import * as context from "../../../go/context.js";
-import { browser } from "../../../test/describe.js";
+import { both } from "../../../test/describe.js";
 import type { ListOptions } from "../../../apimachinery/pkg/apis/meta/v1/types.js";
 import type { Selector, TransformFunc } from "../../../apimachinery/pkg/fields/selector.js";
 import type { Requirements } from "../../../apimachinery/pkg/fields/requirements.js";
@@ -35,7 +35,7 @@ class FakeWatchListClient {
 	}
 }
 
-browser.describe("ListWatch", () => {
+both.describe("ListWatch", () => {
 	// Models staging/src/k8s.io/client-go/tools/cache/listwatch_test.go TestToListWatcherWithWatchListSemantics.
 	it("wraps watch-list semantics support from the client", () => {
 		const scenarios: Array<{

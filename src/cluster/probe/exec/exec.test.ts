@@ -6,7 +6,7 @@
 import { expect, it } from "vitest";
 
 import { errCommandTimedOut } from "../../cri-client/pkg.js";
-import { browser } from "../../../test/describe.js";
+import { both } from "../../../test/describe.js";
 import type { ProbeResult } from "../probe.js";
 import { ExecProber, type ByteWriter, type ExecCmd } from "./exec.js";
 
@@ -88,7 +88,7 @@ class FakeExitError extends Error {
 }
 
 // Models kubernetes/pkg/probe/exec/exec_test.go TestExec.
-browser.describe("TestExec", () => {
+both.describe("TestExec", () => {
 	it("maps command results like upstream", async () => {
 		const prober = new ExecProber();
 

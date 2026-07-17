@@ -8,7 +8,7 @@ import { Channel, select } from "../../../../go/channel.js";
 import * as context from "../../../../go/context.js";
 import { WaitGroup } from "../../../../go/sync/wait-group.js";
 import * as time from "../../../../go/time.js";
-import { browser } from "../../../../test/describe.js";
+import { both } from "../../../../test/describe.js";
 import type { ConditionWithContextFunc } from "./delay.js";
 import { errWaitTimeout } from "./error.js";
 import {
@@ -26,7 +26,7 @@ import {
 } from "./wait.js";
 
 // The browser harness supplies the parent context; mirrored tests declare their own `ctx` values.
-browser.describe("wait", ({ ctx: rootCtx }) => {
+both.describe("wait", ({ ctx: rootCtx }) => {
 	// Models staging/src/k8s.io/apimachinery/pkg/util/wait/wait_test.go TestPoller.
 	it("TestPoller", async () => {
 		const [ctx, cancel] = context.withCancel(rootCtx);

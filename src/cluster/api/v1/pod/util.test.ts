@@ -5,10 +5,10 @@
 import { expect, it } from "vitest";
 
 import type { V1Pod } from "../../../../client/index.js";
-import { browser } from "../../../../test/describe.js";
+import { both } from "../../../../test/describe.js";
 import { isPodTerminal } from "./util.js";
 
-browser.describe("pod util", () => {
+both.describe("pod util", () => {
 	// Models kubernetes/pkg/api/v1/pod/util_test.go TestIsPodTerminal.
 	it("IsPodTerminal", () => {
 		const tests: Array<{

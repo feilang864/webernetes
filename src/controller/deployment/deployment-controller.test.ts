@@ -14,7 +14,7 @@ import {
 } from "../../client/test/index.js";
 import { keyFunc } from "../controller-utils.js";
 import * as context from "../../go/context.js";
-import { browser } from "../../test/describe.js";
+import { both } from "../../test/describe.js";
 import { DeploymentController } from "./deployment-controller.js";
 import { newDeployment, newReplicaSet } from "./test-helpers.js";
 import { revisionAnnotation } from "./util/deployment-util.js";
@@ -161,7 +161,7 @@ class Fixture {
 }
 
 // Models kubernetes/pkg/controller/deployment/deployment_controller_test.go deployment controller tests.
-browser.describe("DeploymentController", ({ ctx }) => {
+both.describe("DeploymentController", ({ ctx }) => {
 	// Models kubernetes/pkg/controller/deployment/deployment_controller_test.go TestSyncDeploymentCreatesReplicaSet.
 	it("TestSyncDeploymentCreatesReplicaSet", async () => {
 		const f = newFixture(ctx);

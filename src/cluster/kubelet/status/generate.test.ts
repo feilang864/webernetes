@@ -23,10 +23,10 @@ import {
 	generatePodReadyCondition,
 	generatePodReadyToStartContainersCondition,
 } from "./generate.js";
-import { browser } from "../../../test/describe.js";
+import { both } from "../../../test/describe.js";
 
 // Models kubernetes/pkg/kubelet/status/generate_test.go TestGenerateContainersReadyCondition.
-browser.describe("generateContainersReadyCondition", () => {
+both.describe("generateContainersReadyCondition", () => {
 	const tests: Array<{
 		spec: Partial<V1PodSpec>;
 		containerStatuses: V1ContainerStatus[] | undefined;
@@ -120,7 +120,7 @@ browser.describe("generateContainersReadyCondition", () => {
 });
 
 // Models kubernetes/pkg/kubelet/status/generate_test.go TestGeneratePodReadyCondition.
-browser.describe("generatePodReadyCondition", () => {
+both.describe("generatePodReadyCondition", () => {
 	const tests: Array<{
 		spec: Partial<V1PodSpec>;
 		conditions: V1PodCondition[] | undefined;
@@ -319,7 +319,7 @@ browser.describe("generatePodReadyCondition", () => {
 // table covers init-container semantics, which this simulator does not support.
 
 // Models kubernetes/pkg/kubelet/status/generate_test.go TestGeneratePodReadyToStartContainersCondition.
-browser.describe("generatePodReadyToStartContainersCondition", () => {
+both.describe("generatePodReadyToStartContainersCondition", () => {
 	const tests: Record<
 		string,
 		{
@@ -397,7 +397,7 @@ browser.describe("generatePodReadyToStartContainersCondition", () => {
 });
 
 // Models kubernetes/pkg/kubelet/status/generate_test.go TestGenerateAllContainersRestartingCondition.
-browser.describe("generateAllContainersRestartingCondition", () => {
+both.describe("generateAllContainersRestartingCondition", () => {
 	const restartPolicyNever = "Never";
 	const defaultPod: V1Pod = {
 		spec: {

@@ -6,11 +6,11 @@
 import { expect, it } from "vitest";
 
 import type { V1LabelSelector } from "../../../../../client/index.js";
-import { browser } from "../../../../../test/describe.js";
+import { both } from "../../../../../test/describe.js";
 import { everything, nothing, parse, type Selector } from "../../../labels/selector.js";
 import { labelSelectorAsSelector } from "./helpers.js";
 
-browser.describe("meta v1 helpers", () => {
+both.describe("meta v1 helpers", () => {
 	// Models staging/src/k8s.io/apimachinery/pkg/apis/meta/v1/helpers_test.go TestLabelSelectorAsSelector.
 	it("TestLabelSelectorAsSelector", () => {
 		const matchLabels = { foo: "bar" };

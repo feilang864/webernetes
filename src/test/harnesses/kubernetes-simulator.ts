@@ -1,6 +1,6 @@
 import { afterAll, afterEach, beforeAll } from "vitest";
 
-import { browser } from "../describe.js";
+import { both } from "../describe.js";
 import type { SuiteOptions } from "../describe.js";
 import { Cluster } from "../../cluster/index.js";
 import * as http from "../../cluster/cni/http.js";
@@ -57,10 +57,10 @@ export function defineSuite(
 	};
 
 	if (typeof maybeOptions === "function") {
-		browser.describe(name, suite);
+		both.describe(name, suite);
 		return;
 	}
-	browser.describe(name, maybeOptions, suite);
+	both.describe(name, maybeOptions, suite);
 }
 
 async function setupSimulator(): Promise<void> {

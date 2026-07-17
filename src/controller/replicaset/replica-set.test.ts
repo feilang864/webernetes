@@ -29,7 +29,7 @@ import { Channel, select } from "../../go/channel.js";
 import * as context from "../../go/context.js";
 import { Mutex } from "../../go/sync/mutex.js";
 import * as time from "../../go/time.js";
-import { browser } from "../../test/describe.js";
+import { both } from "../../test/describe.js";
 import { FakePodControl, keyFunc, podKey } from "../controller-utils.js";
 import {
 	defaultReplicaSetControllerFeatures,
@@ -278,7 +278,7 @@ function newPod(
 }
 
 // Models kubernetes/pkg/controller/replicaset/replica_set_test.go ReplicaSet tests.
-browser.describe("replicaset controller", ({ ctx }) => {
+both.describe("replicaset controller", ({ ctx }) => {
 	// Models kubernetes/pkg/controller/replicaset/replica_set_test.go TestSyncReplicaSetDoesNothing.
 	it("TestSyncReplicaSetDoesNothing", async () => {
 		const [client, kubeConfig] = await newTestKubeClient(ctx);

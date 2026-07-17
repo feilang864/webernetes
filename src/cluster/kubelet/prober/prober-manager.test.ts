@@ -14,7 +14,7 @@ import { getClock } from "../../../clock-context.js";
 import { poll as waitPoll } from "../../../apimachinery/pkg/util/wait/poll.js";
 import { Channel, select } from "../../../go/channel.js";
 import * as context from "../../../go/context.js";
-import { browser } from "../../../test/describe.js";
+import { both } from "../../../test/describe.js";
 import { newContainerID, parseContainerID } from "../container/index.js";
 import { ProbeManagerImpl } from "./prober-manager.js";
 import { type ProbeKey, type ProbeUpdate } from "./results/index.js";
@@ -43,7 +43,7 @@ const interval = 1000;
 const foreverTestTimeout = 30_000;
 
 // Models kubernetes/pkg/kubelet/prober/prober_manager_test.go TestAddRemovePods.
-browser.describe("TestAddRemovePods", ({ ctx }) => {
+both.describe("TestAddRemovePods", ({ ctx }) => {
 	it("adds and removes regular-container probes", async () => {
 		const m = newTestManager(ctx);
 		try {
@@ -101,7 +101,7 @@ browser.describe("TestAddRemovePods", ({ ctx }) => {
 });
 
 // Models kubernetes/pkg/kubelet/prober/prober_manager_test.go TestCleanupPods.
-browser.describe("TestCleanupPods", ({ ctx }) => {
+both.describe("TestCleanupPods", ({ ctx }) => {
 	it("cleans up probes whose pod UID is not desired", async () => {
 		const m = newTestManager(ctx);
 		try {
@@ -151,7 +151,7 @@ browser.describe("TestCleanupPods", ({ ctx }) => {
 });
 
 // Models kubernetes/pkg/kubelet/prober/prober_manager_test.go TestCleanupRepeated.
-browser.describe("TestCleanupRepeated", ({ ctx }) => {
+both.describe("TestCleanupRepeated", ({ ctx }) => {
 	it("repeatedly cleans up workers", async () => {
 		const m = newTestManager(ctx);
 		try {
@@ -185,7 +185,7 @@ browser.describe("TestCleanupRepeated", ({ ctx }) => {
 });
 
 // Models kubernetes/pkg/kubelet/prober/prober_manager_test.go TestUpdatePodStatus.
-browser.describe("TestUpdatePodStatus", ({ ctx }) => {
+both.describe("TestUpdatePodStatus", ({ ctx }) => {
 	it("updates readiness from cached regular-container probe results", async () => {
 		const m = newTestManager(ctx);
 
@@ -279,7 +279,7 @@ browser.describe("TestUpdatePodStatus", ({ ctx }) => {
 });
 
 // Models kubernetes/pkg/kubelet/prober/prober_manager_test.go TestUpdateReadiness.
-browser.describe("TestUpdateReadiness", ({ ctx }) => {
+both.describe("TestUpdateReadiness", ({ ctx }) => {
 	it("updates container readiness from worker readiness updates", async () => {
 		const testPod = getTestPod();
 		setTestProbe(testPod, "readiness", {});

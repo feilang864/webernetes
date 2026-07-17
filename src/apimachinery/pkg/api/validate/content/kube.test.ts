@@ -3,10 +3,10 @@
  * Derived from Kubernetes, translated and modified for Webernetes.
  */
 import { expect, it } from "vitest";
-import { browser } from "../../../../../test/describe.js";
+import { both } from "../../../../../test/describe.js";
 import { isLabelKey, isLabelValue } from "./kube.js";
 
-browser.describe("content kube validation", () => {
+both.describe("content kube validation", () => {
 	// Models staging/src/k8s.io/apimachinery/pkg/api/validate/content/kube_test.go TestIsLabelKey.
 	it("TestIsLabelKey", () => {
 		const successCases = [

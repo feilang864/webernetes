@@ -1,6 +1,6 @@
 import { expect, it } from "vitest";
 
-import { browser } from "../../test/describe.js";
+import { both } from "../../test/describe.js";
 import { waitFor } from "../../test/wait.js";
 import { Cluster } from "../cluster.js";
 
@@ -16,7 +16,7 @@ function podCountsByNode(pods: Array<{ spec?: { nodeName?: string } }>): Record<
 	return counts;
 }
 
-browser.describe("Scheduler", () => {
+both.describe("Scheduler", () => {
 	it("binds pending pods to the node with the fewest non-system pods", async () => {
 		const cluster = new Cluster();
 		await cluster.init();

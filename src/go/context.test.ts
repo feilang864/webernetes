@@ -3,7 +3,7 @@ import { expect, it } from "vitest";
 import { getClock } from "../clock-context.js";
 import { select } from "./channel.js";
 import * as context from "./context.js";
-import { browser } from "../test/describe.js";
+import { both } from "../test/describe.js";
 
 // These tests mirror the cancel-only subset of Go's context tests from:
 // https://github.com/golang/go/blob/go1.26.0/src/context/x_test.go
@@ -14,7 +14,7 @@ import { browser } from "../test/describe.js";
 //   contexts, AfterFunc, goroutine allocation tests, and benchmarks.
 // - Tests that inspect Go's unexported child maps directly. We verify the
 //   observable behavior instead.
-browser.describe("Context", ({ ctx }) => {
+both.describe("Context", ({ ctx }) => {
 	// Mirrors Go TestBackground, lines 59-71:
 	// https://github.com/golang/go/blob/go1.26.0/src/context/x_test.go#L59-L71
 	it("background is never canceled", async () => {

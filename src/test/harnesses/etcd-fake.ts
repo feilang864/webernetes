@@ -1,4 +1,4 @@
-import { browser } from "../describe.js";
+import { both } from "../describe.js";
 import type { SuiteOptions } from "../describe.js";
 import { Etcd } from "../../cluster/etcd.js";
 import type { EtcdSuiteFactory, EtcdTestContext } from "./etcd.js";
@@ -31,8 +31,8 @@ export function defineSuite(
 	};
 
 	if (typeof maybeOptions === "function") {
-		browser.describe(name, suite);
+		both.describe(name, suite);
 		return;
 	}
-	browser.describe(name, maybeOptions, suite);
+	both.describe(name, maybeOptions, suite);
 }

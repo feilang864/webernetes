@@ -15,9 +15,9 @@ import {
 	withLatencyProvider,
 	type ContainerTerminationLatencyEvent,
 } from "./latency.js";
-import { browser } from "./test/describe.js";
+import { both } from "./test/describe.js";
 
-browser.describe("LatencyProvider", () => {
+both.describe("LatencyProvider", () => {
 	const chain: NetworkHop[] = [{ type: "external", host: "example.com" }];
 	const requestEvent: PreNetworkRequestEvent = {
 		chain,

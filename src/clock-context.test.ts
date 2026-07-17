@@ -3,9 +3,9 @@ import { expect, it } from "vitest";
 import { Clock } from "./clock.js";
 import { getClock, withClock } from "./clock-context.js";
 import * as context from "./go/context.js";
-import { browser } from "./test/describe.js";
+import { both } from "./test/describe.js";
 
-browser.describe("Clock context", () => {
+both.describe("Clock context", () => {
 	it("stores and retrieves a clock through context", () => {
 		const clock = new Clock();
 		const ctx = withClock(context.background(), clock);

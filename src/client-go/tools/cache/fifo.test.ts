@@ -5,7 +5,7 @@
 import { expect, it } from "vitest";
 
 import type { KubernetesObject } from "../../../client/types.js";
-import { browser } from "../../../test/describe.js";
+import { both } from "../../../test/describe.js";
 import { errFIFOClosed, newFIFO, type FIFO, type Queue } from "./fifo.js";
 import { ExplicitKey } from "./store.js";
 
@@ -17,7 +17,7 @@ interface TestFifoObject extends KubernetesObject {
 	};
 }
 
-browser.describe("FIFO", () => {
+both.describe("FIFO", () => {
 	// Models staging/src/k8s.io/client-go/tools/cache/fifo_test.go TestFIFO_basic.
 	it("keeps each producer's objects in order", async () => {
 		const f = newFIFO(testFifoObjectKeyFunc);

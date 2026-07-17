@@ -7,12 +7,12 @@ import { expect, it, vi } from "vitest";
 import type { V1Pod } from "../../../client/index.js";
 import { Channel } from "../../../go/channel.js";
 import * as context from "../../../go/context.js";
-import { browser } from "../../../test/describe.js";
+import { both } from "../../../test/describe.js";
 import type { Merger } from "./mux.js";
 import { newMux } from "./mux.js";
 import type { SourceUpdate } from "./config.js";
 
-browser.describe("mux", ({ ctx }) => {
+both.describe("mux", ({ ctx }) => {
 	// Models kubernetes/pkg/kubelet/config/mux_test.go TestConfigurationChannels.
 	it("returns stable channels by source name", () => {
 		const [childCtx, cancel] = context.withCancel(ctx);

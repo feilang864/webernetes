@@ -16,7 +16,7 @@ import { getClock } from "../../../clock-context.js";
 import type { KubernetesObject, KubeList } from "../../../client/types.js";
 import { Channel, type ReadOnlyChannel } from "../../../go/channel.js";
 import * as context from "../../../go/context.js";
-import { browser } from "../../../test/describe.js";
+import { both } from "../../../test/describe.js";
 import { newFIFO, type Queue } from "./fifo.js";
 import { ListWatch, type WatchResult } from "./listwatch.js";
 import {
@@ -38,7 +38,7 @@ interface TestPod extends KubernetesObject {
 	};
 }
 
-browser.describe("Reflector", ({ ctx }) => {
+both.describe("Reflector", ({ ctx }) => {
 	// Models staging/src/k8s.io/client-go/tools/cache/reflector_test.go TestReflectorWatchStoppedBefore.
 	it("does not start watch when context is canceled before watch", async () => {
 		const store = new TestStore<TestPod>();
@@ -486,7 +486,7 @@ browser.describe("Reflector", ({ ctx }) => {
 	});
 });
 
-browser.describe("Reflector simulator behavior", ({ ctx }) => {
+both.describe("Reflector simulator behavior", ({ ctx }) => {
 	it("skips watch events with an unexpected group version kind", async () => {
 		const store = new TestStore<TestPod>();
 		const [childCtx, cancel] = context.withCancel(ctx);

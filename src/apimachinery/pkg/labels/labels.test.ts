@@ -5,7 +5,7 @@
 // oxlint-disable jest/expect-expect
 // oxlint-disable jest/no-conditional-expect
 import { expect, it } from "vitest";
-import { browser } from "../../../test/describe.js";
+import { both } from "../../../test/describe.js";
 import { conflicts, convertSelectorToLabelsMap, equals, merge, Set } from "./labels.js";
 
 // Models staging/src/k8s.io/apimachinery/pkg/labels/labels_test.go matches.
@@ -13,7 +13,7 @@ function matches(ls: Set, want: string): void {
 	expect(ls.string()).toBe(want);
 }
 
-browser.describe("labels", () => {
+both.describe("labels", () => {
 	// Models staging/src/k8s.io/apimachinery/pkg/labels/labels_test.go TestSetString.
 	it("TestSetString", () => {
 		matches(new Set({ x: "y" }), "x=y");

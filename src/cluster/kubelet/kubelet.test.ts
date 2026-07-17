@@ -11,7 +11,7 @@ import {
 	type V1PodStatus,
 } from "../../client/index.js";
 import { Channel } from "../../go/channel.js";
-import { browser } from "../../test/describe.js";
+import { both } from "../../test/describe.js";
 import {
 	ContainerID,
 	PodSyncResult,
@@ -81,7 +81,7 @@ function checkPodStatus(kl: TestKubelet["kubelet"], pod: V1Pod, phase: V1PodStat
 }
 
 // Models kubernetes/pkg/kubelet/kubelet_test.go TestSyncLoopAbort.
-browser.describe("syncLoopAbort", ({ ctx }) => {
+both.describe("syncLoopAbort", ({ ctx }) => {
 	it("returns false when the config channel is closed", async () => {
 		expect.hasAssertions();
 		const testKubelet = newTestKubelet(ctx, false);
@@ -110,7 +110,7 @@ browser.describe("syncLoopAbort", ({ ctx }) => {
 });
 
 // Models kubernetes/pkg/kubelet/kubelet_test.go TestSyncPodsStartPod.
-browser.describe("syncPodsStartPod", ({ ctx }) => {
+both.describe("syncPodsStartPod", ({ ctx }) => {
 	it("starts pods dispatched through handlePodSyncs", async () => {
 		expect.hasAssertions();
 		const testKubelet = newTestKubelet(ctx, false);
@@ -133,7 +133,7 @@ browser.describe("syncPodsStartPod", ({ ctx }) => {
 });
 
 // Models kubernetes/pkg/kubelet/kubelet_test.go TestDispatchWorkOfCompletedPod.
-browser.describe("dispatchWorkOfCompletedPod", ({ ctx }) => {
+both.describe("dispatchWorkOfCompletedPod", ({ ctx }) => {
 	it("does not skip completed pods when dispatching pod worker sync work", async () => {
 		expect.hasAssertions();
 		const testKubelet = newTestKubelet(ctx, false);
@@ -215,7 +215,7 @@ browser.describe("dispatchWorkOfCompletedPod", ({ ctx }) => {
 });
 
 // Models kubernetes/pkg/kubelet/kubelet_test.go TestDispatchWorkOfActivePod.
-browser.describe("dispatchWorkOfActivePod", ({ ctx }) => {
+both.describe("dispatchWorkOfActivePod", ({ ctx }) => {
 	it("does not skip active pods when dispatching pod worker sync work", async () => {
 		expect.hasAssertions();
 		const testKubelet = newTestKubelet(ctx, false);
@@ -275,7 +275,7 @@ browser.describe("dispatchWorkOfActivePod", ({ ctx }) => {
 });
 
 // Models kubernetes/pkg/kubelet/kubelet_test.go TestGetPodsToSync.
-browser.describe("getPodsToSync", ({ ctx }) => {
+both.describe("getPodsToSync", ({ ctx }) => {
 	it("returns due work queue pods and pods selected by sync-loop handlers", async () => {
 		expect.hasAssertions();
 		const testKubelet = newTestKubelet(ctx, false);
@@ -354,7 +354,7 @@ class testPodSyncHandler {
 }
 
 // Models kubernetes/pkg/kubelet/kubelet_test.go TestGetPodsToSyncInvokesPodSyncLoopHandlers.
-browser.describe("getPodsToSyncInvokesPodSyncLoopHandlers", ({ ctx }) => {
+both.describe("getPodsToSyncInvokesPodSyncLoopHandlers", ({ ctx }) => {
 	it("invokes registered sync-loop handlers", async () => {
 		expect.hasAssertions();
 		const testKubelet = newTestKubelet(ctx, false);
@@ -374,7 +374,7 @@ browser.describe("getPodsToSyncInvokesPodSyncLoopHandlers", ({ ctx }) => {
 });
 
 // Models kubernetes/pkg/kubelet/kubelet_test.go TestGenerateAPIPodStatusInvokesPodSyncHandlers.
-browser.describe("generateAPIPodStatusInvokesPodSyncHandlers", ({ ctx }) => {
+both.describe("generateAPIPodStatusInvokesPodSyncHandlers", ({ ctx }) => {
 	it("invokes registered pod sync handlers and reports eviction status", async () => {
 		expect.hasAssertions();
 		const testKubelet = newTestKubelet(ctx, false);
@@ -400,7 +400,7 @@ browser.describe("generateAPIPodStatusInvokesPodSyncHandlers", ({ ctx }) => {
 });
 
 // Models kubernetes/pkg/kubelet/kubelet_test.go TestGenerateAPIPodStatusWithSortedContainers.
-browser.describe("generateAPIPodStatusWithSortedContainers", ({ ctx }) => {
+both.describe("generateAPIPodStatusWithSortedContainers", ({ ctx }) => {
 	it("sorts container statuses by pod spec container order", async () => {
 		const testKubelet = newTestKubelet(ctx, false);
 		try {
@@ -449,7 +449,7 @@ browser.describe("generateAPIPodStatusWithSortedContainers", ({ ctx }) => {
 });
 
 // Models kubernetes/pkg/kubelet/kubelet_test.go TestHandlePodRemovesWhenSourcesAreReady.
-browser.describe("handlePodRemovesWhenSourcesAreReady", ({ ctx }) => {
+both.describe("handlePodRemovesWhenSourcesAreReady", ({ ctx }) => {
 	it("gates pod worker deletion on source readiness", async () => {
 		expect.hasAssertions();
 		let ready = false;
@@ -501,7 +501,7 @@ browser.describe("handlePodRemovesWhenSourcesAreReady", ({ ctx }) => {
 });
 
 // Models kubernetes/pkg/kubelet/kubelet_test.go TestHandlePodCleanups.
-browser.describe("handlePodCleanups", ({ ctx }) => {
+both.describe("handlePodCleanups", ({ ctx }) => {
 	it("queues orphaned runtime pods for deletion through pod workers", async () => {
 		expect.hasAssertions();
 		const testKubelet = newTestKubelet(ctx, false);
@@ -546,7 +546,7 @@ browser.describe("handlePodCleanups", ({ ctx }) => {
 });
 
 // Models kubernetes/pkg/kubelet/kubelet_test.go TestPurgingObsoleteStatusMapEntries.
-browser.describe("purgingObsoleteStatusMapEntries", ({ ctx }) => {
+both.describe("purgingObsoleteStatusMapEntries", ({ ctx }) => {
 	it("removes obsolete status manager cache entries during cleanup", async () => {
 		expect.hasAssertions();
 		const testKubelet = newTestKubelet(ctx, false);
@@ -579,7 +579,7 @@ browser.describe("purgingObsoleteStatusMapEntries", ({ ctx }) => {
 });
 
 // Models kubernetes/pkg/kubelet/kubelet_test.go TestFilterOutInactivePods.
-browser.describe("filterOutInactivePods", ({ ctx }) => {
+both.describe("filterOutInactivePods", ({ ctx }) => {
 	it("excludes terminal and worker-known terminated pods while keeping active terminating pods", async () => {
 		expect.hasAssertions();
 		const testKubelet = newTestKubelet(ctx, false);
@@ -629,7 +629,7 @@ browser.describe("filterOutInactivePods", ({ ctx }) => {
 });
 
 // Models kubernetes/pkg/kubelet/kubelet_test.go TestNetworkErrorsWithoutHostNetwork.
-browser.describe("networkErrorsWithoutHostNetwork", ({ ctx }) => {
+both.describe("networkErrorsWithoutHostNetwork", ({ ctx }) => {
 	it("blocks non-host-network pods when runtime network is not ready", async () => {
 		expect.hasAssertions();
 		const testKubelet = newTestKubelet(ctx, false);
@@ -690,7 +690,7 @@ browser.describe("networkErrorsWithoutHostNetwork", ({ ctx }) => {
 });
 
 // Models kubernetes/pkg/kubelet/kubelet_test.go TestSyncPodsSetStatusToFailedForPodsThatRunTooLong.
-browser.describe("syncPodsSetStatusToFailedForPodsThatRunTooLong", ({ ctx }) => {
+both.describe("syncPodsSetStatusToFailedForPodsThatRunTooLong", ({ ctx }) => {
 	it("sets pod status to failed after active deadline is exceeded", async () => {
 		expect.hasAssertions();
 		const testKubelet = newTestKubelet(ctx, false);
@@ -740,7 +740,7 @@ browser.describe("syncPodsSetStatusToFailedForPodsThatRunTooLong", ({ ctx }) => 
 });
 
 // Models kubernetes/pkg/kubelet/kubelet_test.go TestSyncPodsDoesNotSetPodsThatDidNotRunTooLongToFailed.
-browser.describe("syncPodsDoesNotSetPodsThatDidNotRunTooLongToFailed", ({ ctx }) => {
+both.describe("syncPodsDoesNotSetPodsThatDidNotRunTooLongToFailed", ({ ctx }) => {
 	it("does not set pod status to failed before active deadline is exceeded", async () => {
 		expect.hasAssertions();
 		const testKubelet = newTestKubelet(ctx, false);
@@ -790,7 +790,7 @@ browser.describe("syncPodsDoesNotSetPodsThatDidNotRunTooLongToFailed", ({ ctx })
 });
 
 // Models kubernetes/pkg/kubelet/kubelet_test.go TestSyncPodRestartAllContainersRequeue.
-browser.describe("syncPodRestartAllContainersRequeue", ({ ctx }) => {
+both.describe("syncPodRestartAllContainersRequeue", ({ ctx }) => {
 	it("requeues immediately after successful restart-all container removal", async () => {
 		expect.hasAssertions();
 		const testKubelet = newTestKubelet(ctx, false);
@@ -864,7 +864,7 @@ browser.describe("syncPodRestartAllContainersRequeue", ({ ctx }) => {
 });
 
 // Models kubernetes/pkg/kubelet/kubelet_test.go TestGenerateAPIPodStatusWithReasonCache.
-browser.describe("generateAPIPodStatusWithReasonCache", ({ ctx }) => {
+both.describe("generateAPIPodStatusWithReasonCache", ({ ctx }) => {
 	const testTimestamp = new Date(123456789000 + 987);
 	const testErrorReason = new Error("test-error");
 	const emptyContainerID = new ContainerID("", "").toString();
@@ -1010,7 +1010,7 @@ browser.describe("generateAPIPodStatusWithReasonCache", ({ ctx }) => {
 });
 
 // Models kubernetes/pkg/kubelet/kubelet_test.go TestGenerateAPIPodStatusWithDifferentRestartPolicies.
-browser.describe("generateAPIPodStatusWithDifferentRestartPolicies", ({ ctx }) => {
+both.describe("generateAPIPodStatusWithDifferentRestartPolicies", ({ ctx }) => {
 	const testErrorReason = new Error("test-error");
 	const emptyContainerID = new ContainerID("", "").toString();
 	const containers: V1Container[] = [{ name: "succeed" }, { name: "failed" }];
@@ -1099,7 +1099,7 @@ browser.describe("generateAPIPodStatusWithDifferentRestartPolicies", ({ ctx }) =
 });
 
 // Models kubernetes/pkg/kubelet/kubelet_test.go TestGenerateAPIPodStatusWithContainerRestartPolicies.
-browser.describe("generateAPIPodStatusWithContainerRestartPolicies", ({ ctx }) => {
+both.describe("generateAPIPodStatusWithContainerRestartPolicies", ({ ctx }) => {
 	const containerRestartPolicyAlways = "Always";
 	const containerRestartPolicyOnFailure = "OnFailure";
 	const containerRestartPolicyNever = "Never";
@@ -1265,7 +1265,7 @@ browser.describe("generateAPIPodStatusWithContainerRestartPolicies", ({ ctx }) =
 });
 
 // Models kubernetes/pkg/kubelet/kubelet_test.go TestSyncTerminatingPodKillPod.
-browser.describe("syncTerminatingPodKillPod", ({ ctx }) => {
+both.describe("syncTerminatingPodKillPod", ({ ctx }) => {
 	it("kills the terminating pod and stores the supplied failed status", async () => {
 		expect.hasAssertions();
 		const testKubelet = newTestKubelet(ctx, false);

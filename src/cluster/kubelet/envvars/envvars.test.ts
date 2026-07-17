@@ -4,11 +4,11 @@
  */
 import { expect, it } from "vitest";
 import type { V1EnvVar, V1Service } from "../../../client/index.js";
-import { browser } from "../../../test/describe.js";
+import { both } from "../../../test/describe.js";
 import { fromServices } from "./envvars.js";
 
 // Models kubernetes/pkg/kubelet/envvars/envvars_test.go TestFromServices.
-browser.describe("fromServices", () => {
+both.describe("fromServices", () => {
 	it("builds service environment variables", () => {
 		const sl: V1Service[] = [
 			{

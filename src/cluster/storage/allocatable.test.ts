@@ -1,7 +1,7 @@
 import { expect, it } from "vitest";
 
 import type * as context from "../../go/context.js";
-import { browser } from "../../test/describe.js";
+import { both } from "../../test/describe.js";
 import { Etcd } from "../etcd.js";
 import {
 	AllocatableRange,
@@ -11,7 +11,7 @@ import {
 	PortRange,
 } from "./allocatable.js";
 
-browser.describe("AllocatableRange", ({ ctx }) => {
+both.describe("AllocatableRange", ({ ctx }) => {
 	it("throws an AlreadyAllocated error with the claimed index", async () => {
 		const range = await AllocatableRange.create(ctx, newTestEtcd(ctx), "raw", 2);
 		await range.claim(1);
@@ -34,7 +34,7 @@ browser.describe("AllocatableRange", ({ ctx }) => {
 	});
 });
 
-browser.describe("PortRange", ({ ctx }) => {
+both.describe("PortRange", ({ ctx }) => {
 	it("allocates ports in order and throws when exhausted", async () => {
 		const range = await createPortRange(ctx, 30000, 30002);
 
@@ -105,7 +105,7 @@ browser.describe("PortRange", ({ ctx }) => {
 	});
 });
 
-browser.describe("IpRange", ({ ctx }) => {
+both.describe("IpRange", ({ ctx }) => {
 	it("allocates usable addresses from a CIDR range and throws when exhausted", async () => {
 		const range = await createIpRange(ctx, "10.0.0.0/30");
 

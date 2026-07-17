@@ -11,7 +11,7 @@ import { Channel, type ReadOnlyChannel } from "../../go/channel.js";
 import * as context from "../../go/context.js";
 import { Mutex } from "../../go/sync/mutex.js";
 import { wait } from "../../promise.js";
-import { browser } from "../../test/describe.js";
+import { both } from "../../test/describe.js";
 import {
 	newFakePassiveClock,
 	type FakePassiveClock,
@@ -374,7 +374,7 @@ async function drainWorkers(podWorkers: PodWorkersImpl, numPods: number): Promis
 }
 
 // Models kubernetes/pkg/kubelet/pod_workers_test.go TestUpdatePodParallel.
-browser.describe("TestUpdatePodParallel", ({ ctx }) => {
+both.describe("TestUpdatePodParallel", ({ ctx }) => {
 	it("runs", async () => {
 		const [podWorkers, , processed] = createPodWorkers();
 		try {
@@ -412,7 +412,7 @@ browser.describe("TestUpdatePodParallel", ({ ctx }) => {
 });
 
 // Models kubernetes/pkg/kubelet/pod_workers_test.go TestCompleteWork_Enqueue.
-browser.describe("completeWork_Enqueue", () => {
+both.describe("completeWork_Enqueue", () => {
 	const noJitter = 0;
 	const defaultBackoff = 10 * 1000;
 	const resyncInterval = 20 * 1000;
@@ -542,7 +542,7 @@ browser.describe("completeWork_Enqueue", () => {
 });
 
 // Models kubernetes/pkg/kubelet/pod_workers_test.go TestCompleteWork_PendingUpdate.
-browser.describe("completeWork_PendingUpdate", () => {
+both.describe("completeWork_PendingUpdate", () => {
 	const podUID = "pod-with-pending-update-check";
 
 	it("with nil pendingUpdate, clears working status", async () => {
@@ -582,7 +582,7 @@ browser.describe("completeWork_PendingUpdate", () => {
 	});
 });
 
-browser.describe("updatePod locking", ({ ctx }) => {
+both.describe("updatePod locking", ({ ctx }) => {
 	it("serializes updates while first-time terminal status checks await the pod cache", async () => {
 		const clock = newFakePassiveClock(new Date(1_000));
 		let releaseGet: (() => void) | undefined;
@@ -647,7 +647,7 @@ browser.describe("updatePod locking", ({ ctx }) => {
 });
 
 // Models kubernetes/pkg/kubelet/pod_workers_test.go TestUpdatePodForRuntimePod.
-browser.describe("updatePodForRuntimePod", ({ ctx }) => {
+both.describe("updatePodForRuntimePod", ({ ctx }) => {
 	it("creates synthetic pod only for runtime kill updates", async () => {
 		const [podWorkers, , processed] = createPodWorkers();
 		try {
@@ -681,7 +681,7 @@ browser.describe("updatePodForRuntimePod", ({ ctx }) => {
 });
 
 // Models kubernetes/pkg/kubelet/pod_workers_test.go TestUpdatePodForTerminatedRuntimePod.
-browser.describe("updatePodForTerminatedRuntimePod", ({ ctx }) => {
+both.describe("updatePodForTerminatedRuntimePod", ({ ctx }) => {
 	it("ignores runtime kill updates after runtime pod termination is complete", async () => {
 		const [podWorkers, , processed] = createPodWorkers();
 		try {
@@ -722,7 +722,7 @@ browser.describe("updatePodForTerminatedRuntimePod", ({ ctx }) => {
 });
 
 // Models kubernetes/pkg/kubelet/pod_workers_test.go TestUpdatePod.
-browser.describe("updatePod", ({ ctx }) => {
+both.describe("updatePod", ({ ctx }) => {
 	const one = 1;
 	const hasCancelFn = (status: PodSyncStatus): PodSyncStatus => {
 		status.cancelFn = () => {};
@@ -1076,7 +1076,7 @@ browser.describe("updatePod", ({ ctx }) => {
 });
 
 // Models kubernetes/pkg/kubelet/pod_workers_test.go TestTerminalPhaseTransition.
-browser.describe("TestTerminalPhaseTransition", ({ ctx }) => {
+both.describe("TestTerminalPhaseTransition", ({ ctx }) => {
 	it("runs", async () => {
 		const [podWorkers] = createPodWorkers();
 		const channels = new WorkChannel();
@@ -1135,7 +1135,7 @@ browser.describe("TestTerminalPhaseTransition", ({ ctx }) => {
 });
 
 // Models kubernetes/pkg/kubelet/pod_workers_test.go TestUpdatePodDoesNotForgetSyncPodKill.
-browser.describe("updatePodDoesNotForgetSyncPodKill", ({ ctx }) => {
+both.describe("updatePodDoesNotForgetSyncPodKill", ({ ctx }) => {
 	it("preserves kill update when a later update is received", async () => {
 		const [podWorkers, , processed] = createPodWorkers();
 		try {
@@ -1199,7 +1199,7 @@ browser.describe("updatePodDoesNotForgetSyncPodKill", ({ ctx }) => {
 });
 
 // Models kubernetes/pkg/kubelet/pod_workers_test.go Test_removeTerminatedWorker.
-browser.describe("Test_removeTerminatedWorker", () => {
+both.describe("Test_removeTerminatedWorker", () => {
 	const podUID = "pod-uid";
 
 	const testCases: Array<{
@@ -1410,7 +1410,7 @@ browser.describe("Test_removeTerminatedWorker", () => {
 });
 
 // Models kubernetes/pkg/kubelet/pod_workers_test.go Test_calculateEffectiveGracePeriod.
-browser.describe("Test_calculateEffectiveGracePeriod", () => {
+both.describe("Test_calculateEffectiveGracePeriod", () => {
 	const zero = 0;
 	const two = 2;
 	const five = 5;
@@ -1471,7 +1471,7 @@ browser.describe("Test_calculateEffectiveGracePeriod", () => {
 });
 
 // Models kubernetes/pkg/kubelet/pod_workers_test.go TestSyncKnownPods.
-browser.describe("syncKnownPods", ({ ctx }) => {
+both.describe("syncKnownPods", ({ ctx }) => {
 	it("tracks lifecycle query state while forgetting terminated workers", async () => {
 		const [podWorkers] = createPodWorkers();
 		try {

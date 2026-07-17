@@ -4,7 +4,7 @@
  */
 import { expect, it } from "vitest";
 
-import { browser } from "../../../test/describe.js";
+import { both } from "../../../test/describe.js";
 import { ClusterNetwork } from "../../cni/index.js";
 import { PodSandboxInstance } from "../../cri/index.js";
 import type { ProbeResult } from "../probe.js";
@@ -27,7 +27,7 @@ function bindTestHTTP(network: ClusterNetwork, port: number): string {
 }
 
 // Models kubernetes/pkg/probe/tcp/tcp_test.go TestTcpHealthChecker.
-browser.describe("TCPProber", () => {
+both.describe("TCPProber", () => {
 	it("checks TCP health", () => {
 		const network = new ClusterNetwork();
 		const host = bindTestHTTP(network, 8080);

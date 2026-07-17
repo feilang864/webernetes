@@ -4,7 +4,7 @@
  */
 import { expect, it } from "vitest";
 
-import { browser } from "../../../test/describe.js";
+import { both } from "../../../test/describe.js";
 import { newIndexer } from "./store.js";
 import { KeyError, newStore, withTransformer } from "./store.js";
 import {
@@ -16,7 +16,7 @@ import {
 	type TestStoreObject,
 } from "./store-test-helpers.js";
 
-browser.describe("Store", () => {
+both.describe("Store", () => {
 	// Models staging/src/k8s.io/client-go/tools/cache/store_test.go TestCache.
 	it("implements the public store interface", async () => {
 		expect.hasAssertions();

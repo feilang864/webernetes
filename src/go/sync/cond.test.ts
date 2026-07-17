@@ -4,12 +4,12 @@
  */
 import { expect, it } from "vitest";
 
-import { browser } from "../../test/describe.js";
+import { both } from "../../test/describe.js";
 import { Channel, select } from "../channel.js";
 import { newCond } from "./cond.js";
 import { Mutex } from "./mutex.js";
 
-browser.describe("Cond", () => {
+both.describe("Cond", () => {
 	// Models Go src/sync/cond_test.go TestCondSignal.
 	it("signal wakes one waiter", async () => {
 		const c = newCond(new Mutex());

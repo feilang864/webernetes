@@ -1,7 +1,7 @@
 import { expect, it } from "vitest";
 
 import * as context from "../../go/context.js";
-import { browser } from "../../test/describe.js";
+import { both } from "../../test/describe.js";
 import { waitFor } from "../../test/wait.js";
 import { Cluster } from "../cluster.js";
 import { errCommandTimedOut } from "../cri-client/pkg.js";
@@ -163,7 +163,7 @@ class SignalHandlerImage extends BaseImage {
 	}
 }
 
-browser.describe("InProcessRuntimeService images", () => {
+both.describe("InProcessRuntimeService images", () => {
 	it("lists and removes images through the image registry", async () => {
 		const cluster = new Cluster();
 		try {

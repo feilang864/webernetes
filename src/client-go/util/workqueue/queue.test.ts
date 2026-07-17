@@ -5,7 +5,7 @@
 import { expect, it } from "vitest";
 
 import { Channel, select } from "../../../go/channel.js";
-import { browser } from "../../../test/describe.js";
+import { both } from "../../../test/describe.js";
 import {
 	defaultQueue,
 	new as newQueue,
@@ -37,7 +37,7 @@ class TraceQueue<T> implements Queue<T> {
 	}
 }
 
-browser.describe("workqueue", () => {
+both.describe("workqueue", () => {
 	// Models staging/src/k8s.io/client-go/util/workqueue/queue_test.go TestBasic.
 	it("Basic", async () => {
 		const tests: Array<{

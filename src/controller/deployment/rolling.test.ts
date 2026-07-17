@@ -12,7 +12,7 @@ import {
 	type TestKubeClientObject,
 } from "../../client/test/index.js";
 import * as context from "../../go/context.js";
-import { browser } from "../../test/describe.js";
+import { both } from "../../test/describe.js";
 import { DeploymentController } from "./deployment-controller.js";
 import { newDeployment, noTimestamp, rs } from "./test-helpers.js";
 
@@ -24,7 +24,7 @@ type ReplicaSetUpdateAction = ClientAction & {
 	};
 };
 
-browser.describe("DeploymentController rolling", ({ ctx }) => {
+both.describe("DeploymentController rolling", ({ ctx }) => {
 	// Models kubernetes/pkg/controller/deployment/rolling_test.go TestDeploymentController_reconcileNewReplicaSet.
 	it("reconciles new replica sets", async () => {
 		const tests: {

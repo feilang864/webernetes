@@ -9,7 +9,7 @@ import { FakeRecorder, newFakeRecorder } from "../../../client-go/tools/record/f
 import { select, type ReadOnlyChannel, type WriteOnlyChannel } from "../../../go/channel.js";
 import * as context from "../../../go/context.js";
 import { deepEqual } from "../../../deep-equal.js";
-import { browser } from "../../../test/describe.js";
+import { both } from "../../../test/describe.js";
 import { failedValidation } from "../events.js";
 import type { PodUpdate } from "../types/pod-update.js";
 import {
@@ -26,7 +26,7 @@ type TestPod = V1Pod & {
 	spec: NonNullable<V1Pod["spec"]>;
 };
 
-browser.describe("PodConfig", ({ ctx }) => {
+both.describe("PodConfig", ({ ctx }) => {
 	// Models kubernetes/pkg/kubelet/config/config_test.go TestNewPodAdded.
 	it("sends add updates for new pods", async () => {
 		const [channel, ch] = createPodConfigTester(ctx);

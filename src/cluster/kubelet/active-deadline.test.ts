@@ -6,7 +6,7 @@ import { expect, it } from "vitest";
 import type { V1Pod, V1PodSpec, V1PodStatus } from "../../client/index.js";
 import { newFakeRecorder } from "../../client-go/tools/record/fake.js";
 import { getClock } from "../../clock-context.js";
-import { browser } from "../../test/describe.js";
+import { both } from "../../test/describe.js";
 import { ActiveDeadlineHandler, newActiveDeadlineHandler } from "./active-deadline.js";
 import { newTestPods } from "./kubelet-test-helpers.js";
 
@@ -40,7 +40,7 @@ function podSpec(pod: V1Pod): V1PodSpec {
 }
 
 // Models kubernetes/pkg/kubelet/active_deadline_test.go TestNewActiveDeadlineHandler.
-browser.describe("newActiveDeadlineHandler", ({ ctx }) => {
+both.describe("newActiveDeadlineHandler", ({ ctx }) => {
 	it("requires all handler dependencies", () => {
 		expect.hasAssertions();
 		const pods = newTestPods(1);
@@ -93,7 +93,7 @@ browser.describe("newActiveDeadlineHandler", ({ ctx }) => {
 });
 
 // Models kubernetes/pkg/kubelet/active_deadline_test.go TestActiveDeadlineHandler.
-browser.describe("activeDeadlineHandler", ({ ctx }) => {
+both.describe("activeDeadlineHandler", ({ ctx }) => {
 	it("syncs and evicts pods that have exceeded their active deadline", () => {
 		expect.hasAssertions();
 		const pods = newTestPods(5);

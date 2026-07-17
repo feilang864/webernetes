@@ -17,7 +17,7 @@ import { NotFound } from "../../../client/errors.js";
 import { clientAction, TestKubeClient, type ClientAction } from "../../../client/test/index.js";
 import { deepEqual, dropUndefinedFields } from "../../../deep-equal.js";
 import * as context from "../../../go/context.js";
-import { browser } from "../../../test/describe.js";
+import { both } from "../../../test/describe.js";
 import * as podutil from "../../api/v1/pod/util.js";
 import { Etcd } from "../../etcd.js";
 import {
@@ -193,7 +193,7 @@ async function consumeUpdates(ctx: context.Context, m: StatusManagerImpl): Promi
 }
 
 // Models kubernetes/pkg/kubelet/status/status_manager_test.go TestNewStatus.
-browser.describe("TestNewStatus", ({ ctx }) => {
+both.describe("TestNewStatus", ({ ctx }) => {
 	it("sets a new status", async () => {
 		const syncer = newTestManager(ctx, newTestKubeClient(ctx));
 		const testPod = getTestPod();
@@ -206,7 +206,7 @@ browser.describe("TestNewStatus", ({ ctx }) => {
 });
 
 // Models kubernetes/pkg/kubelet/status/status_manager_test.go TestNewStatusPreservesPodStartTime.
-browser.describe("TestNewStatusPreservesPodStartTime", ({ ctx }) => {
+both.describe("TestNewStatusPreservesPodStartTime", ({ ctx }) => {
 	it("preserves pod start time", async () => {
 		const syncer = newTestManager(ctx, newTestKubeClient(ctx));
 		const pod: V1Pod = {
@@ -239,7 +239,7 @@ function getReadyPodStatus(): V1PodStatus {
 }
 
 // Models kubernetes/pkg/kubelet/status/status_manager_test.go TestNewStatusSetsReadyTransitionTime.
-browser.describe("TestNewStatusSetsReadyTransitionTime", ({ ctx }) => {
+both.describe("TestNewStatusSetsReadyTransitionTime", ({ ctx }) => {
 	it("sets ready transition time", async () => {
 		const syncer = newTestManager(ctx, newTestKubeClient(ctx));
 		const podStatus = getReadyPodStatus();
@@ -260,7 +260,7 @@ browser.describe("TestNewStatusSetsReadyTransitionTime", ({ ctx }) => {
 });
 
 // Models kubernetes/pkg/kubelet/status/status_manager_test.go TestChangedStatus.
-browser.describe("TestChangedStatus", ({ ctx }) => {
+both.describe("TestChangedStatus", ({ ctx }) => {
 	it("generates updates for changed status", async () => {
 		expect.hasAssertions();
 		const syncer = newTestManager(ctx, newTestKubeClient(ctx));
@@ -273,7 +273,7 @@ browser.describe("TestChangedStatus", ({ ctx }) => {
 });
 
 // Models kubernetes/pkg/kubelet/status/status_manager_test.go TestChangedStatusKeepsStartTime.
-browser.describe("TestChangedStatusKeepsStartTime", ({ ctx }) => {
+both.describe("TestChangedStatusKeepsStartTime", ({ ctx }) => {
 	it("keeps start time", async () => {
 		const syncer = newTestManager(ctx, newTestKubeClient(ctx));
 		const testPod = getTestPod();
@@ -291,7 +291,7 @@ browser.describe("TestChangedStatusKeepsStartTime", ({ ctx }) => {
 });
 
 // Models kubernetes/pkg/kubelet/status/status_manager_test.go TestChangedStatusUpdatesLastTransitionTime.
-browser.describe("TestChangedStatusUpdatesLastTransitionTime", ({ ctx }) => {
+both.describe("TestChangedStatusUpdatesLastTransitionTime", ({ ctx }) => {
 	it("updates last transition time", async () => {
 		const syncer = newTestManager(ctx, newTestKubeClient(ctx));
 		const podStatus = getReadyPodStatus();
@@ -325,7 +325,7 @@ browser.describe("TestChangedStatusUpdatesLastTransitionTime", ({ ctx }) => {
 });
 
 // Models kubernetes/pkg/kubelet/status/status_manager_test.go TestUnchangedStatus.
-browser.describe("TestUnchangedStatus", ({ ctx }) => {
+both.describe("TestUnchangedStatus", ({ ctx }) => {
 	it("does not generate a second update", async () => {
 		expect.hasAssertions();
 		const syncer = newTestManager(ctx, newTestKubeClient(ctx));
@@ -338,7 +338,7 @@ browser.describe("TestUnchangedStatus", ({ ctx }) => {
 });
 
 // Models kubernetes/pkg/kubelet/status/status_manager_test.go TestUnchangedStatusPreservesLastTransitionTime.
-browser.describe("TestUnchangedStatusPreservesLastTransitionTime", ({ ctx }) => {
+both.describe("TestUnchangedStatusPreservesLastTransitionTime", ({ ctx }) => {
 	it("preserves last transition time", async () => {
 		const syncer = newTestManager(ctx, newTestKubeClient(ctx));
 		const podStatus = getReadyPodStatus();
@@ -368,7 +368,7 @@ browser.describe("TestUnchangedStatusPreservesLastTransitionTime", ({ ctx }) => 
 });
 
 // Models kubernetes/pkg/kubelet/status/status_manager_test.go TestSyncPodIgnoresNotFound.
-browser.describe("TestSyncPodIgnoresNotFound", ({ ctx }) => {
+both.describe("TestSyncPodIgnoresNotFound", ({ ctx }) => {
 	it("ignores not found pods", async () => {
 		expect.hasAssertions();
 		const kubeClient = newTestKubeClient(ctx);
@@ -382,7 +382,7 @@ browser.describe("TestSyncPodIgnoresNotFound", ({ ctx }) => {
 });
 
 // Models kubernetes/pkg/kubelet/status/status_manager_test.go TestSyncPod.
-browser.describe("TestSyncPod", ({ ctx }) => {
+both.describe("TestSyncPod", ({ ctx }) => {
 	it("syncs pod status", async () => {
 		expect.hasAssertions();
 		const testPod = getTestPod();
@@ -395,7 +395,7 @@ browser.describe("TestSyncPod", ({ ctx }) => {
 });
 
 // Models kubernetes/pkg/kubelet/status/status_manager_test.go TestSyncPodChecksMismatchedUID.
-browser.describe("TestSyncPodChecksMismatchedUID", ({ ctx }) => {
+both.describe("TestSyncPodChecksMismatchedUID", ({ ctx }) => {
 	it("checks mismatched UID", async () => {
 		expect.hasAssertions();
 		const pod = getTestPod();
@@ -413,7 +413,7 @@ browser.describe("TestSyncPodChecksMismatchedUID", ({ ctx }) => {
 });
 
 // Models kubernetes/pkg/kubelet/status/status_manager_test.go TestSyncPodNoDeadlock.
-browser.describe("TestSyncPodNoDeadlock", ({ ctx }) => {
+both.describe("TestSyncPodNoDeadlock", ({ ctx }) => {
 	it("does not deadlock while syncing pods", async () => {
 		expect.hasAssertions();
 		const kubeClient = newTestKubeClient(ctx);
@@ -473,7 +473,7 @@ browser.describe("TestSyncPodNoDeadlock", ({ ctx }) => {
 });
 
 // Models kubernetes/pkg/kubelet/status/status_manager_test.go TestStaleUpdates.
-browser.describe("TestStaleUpdates", ({ ctx }) => {
+both.describe("TestStaleUpdates", ({ ctx }) => {
 	it("only pushes latest status", async () => {
 		expect.hasAssertions();
 		const pod = getTestPod();
@@ -515,7 +515,7 @@ function shuffle(statuses: V1ContainerStatus[]): V1ContainerStatus[] {
 }
 
 // Models kubernetes/pkg/kubelet/status/status_manager_test.go TestStatusEquality.
-browser.describe("TestStatusEquality", () => {
+both.describe("TestStatusEquality", () => {
 	it("matches upstream normalized status equality", () => {
 		// Models kubernetes/pkg/kubelet/status/status_manager_test.go TestStatusEquality getContainersAndStatuses.
 		const getContainersAndStatuses = (): [Array<{ name: string }>, V1ContainerStatus[]] => {
@@ -575,7 +575,7 @@ browser.describe("TestStatusEquality", () => {
 });
 
 // Models kubernetes/pkg/kubelet/status/status_manager_test.go TestStatusNormalizationEnforcesMaxBytes.
-browser.describe("TestStatusNormalizationEnforcesMaxBytes", () => {
+both.describe("TestStatusNormalizationEnforcesMaxBytes", () => {
 	it("truncates container messages", () => {
 		const pod: V1Pod = {
 			spec: { containers: [] },
@@ -611,7 +611,7 @@ browser.describe("TestStatusNormalizationEnforcesMaxBytes", () => {
 });
 
 // Models kubernetes/pkg/kubelet/status/status_manager_test.go TestStatusNormalizeTimeStamp.
-browser.describe("TestStatusNormalizeTimeStamp", () => {
+both.describe("TestStatusNormalizeTimeStamp", () => {
 	it("normalizes timestamps", () => {
 		const pod: V1Pod = {
 			spec: { containers: [] },
@@ -666,7 +666,7 @@ browser.describe("TestStatusNormalizeTimeStamp", () => {
 });
 
 // Models kubernetes/pkg/kubelet/status/status_manager_test.go TestStaticPod.
-browser.describe("TestStaticPod", ({ ctx }) => {
+both.describe("TestStaticPod", ({ ctx }) => {
 	it("syncs static pod status through mirror pod", async () => {
 		const staticPod = getTestPod();
 		staticPod.metadata = {
@@ -724,7 +724,7 @@ browser.describe("TestStaticPod", ({ ctx }) => {
 });
 
 // Models kubernetes/pkg/kubelet/status/status_manager_test.go TestTerminatePod.
-browser.describe("TestTerminatePod", ({ ctx }) => {
+both.describe("TestTerminatePod", ({ ctx }) => {
 	it("preserves previous terminal status update", async () => {
 		const syncer = newTestManager(ctx, newTestKubeClient(ctx));
 		const testPod = getTestPod();
@@ -821,7 +821,7 @@ browser.describe("TestTerminatePod", ({ ctx }) => {
 });
 
 // Models kubernetes/pkg/kubelet/status/status_manager_test.go TestTerminatePodWaiting.
-browser.describe("TestTerminatePodWaiting", ({ ctx }) => {
+both.describe("TestTerminatePodWaiting", ({ ctx }) => {
 	it("preserves waiting init container status", async () => {
 		const syncer = newTestManager(ctx, newTestKubeClient(ctx));
 		const testPod = getTestPod();
@@ -919,7 +919,7 @@ browser.describe("TestTerminatePodWaiting", ({ ctx }) => {
 });
 
 // Models kubernetes/pkg/kubelet/status/status_manager_test.go TestTerminatePod_DefaultUnknownStatus.
-browser.describe("TestTerminatePod_DefaultUnknownStatus", ({ ctx }) => {
+both.describe("TestTerminatePod_DefaultUnknownStatus", ({ ctx }) => {
 	// Models kubernetes/pkg/kubelet/status/status_manager_test.go TestTerminatePod_DefaultUnknownStatus newPod.
 	const newPod = (
 		initContainers: number,
@@ -1419,7 +1419,7 @@ browser.describe("TestTerminatePod_DefaultUnknownStatus", ({ ctx }) => {
 });
 
 // Models kubernetes/pkg/kubelet/status/status_manager_test.go TestTerminatePod_EnsurePodPhaseIsTerminal.
-browser.describe("TestTerminatePod_EnsurePodPhaseIsTerminal", ({ ctx }) => {
+both.describe("TestTerminatePod_EnsurePodPhaseIsTerminal", ({ ctx }) => {
 	// Models kubernetes/pkg/kubelet/status/status_manager_test.go TestTerminatePod_EnsurePodPhaseIsTerminal testCases.
 	const testCases: Record<
 		string,
@@ -1508,7 +1508,7 @@ browser.describe("TestTerminatePod_EnsurePodPhaseIsTerminal", ({ ctx }) => {
 });
 
 // Models kubernetes/pkg/kubelet/status/status_manager_test.go TestSetContainerReadiness.
-browser.describe("TestSetContainerReadiness", ({ ctx }) => {
+both.describe("TestSetContainerReadiness", ({ ctx }) => {
 	it("sets container readiness", async () => {
 		const cID1 = buildContainerID("test", "1");
 		const cID2 = buildContainerID("test", "2");
@@ -1601,7 +1601,7 @@ browser.describe("TestSetContainerReadiness", ({ ctx }) => {
 });
 
 // Models kubernetes/pkg/kubelet/status/status_manager_test.go TestSetContainerStartup.
-browser.describe("TestSetContainerStartup", ({ ctx }) => {
+both.describe("TestSetContainerStartup", ({ ctx }) => {
 	it("sets container startup", async () => {
 		const cID1 = buildContainerID("test", "1");
 		const cID2 = buildContainerID("test", "2");
@@ -1695,7 +1695,7 @@ browser.describe("TestSetContainerStartup", ({ ctx }) => {
 });
 
 // Models kubernetes/pkg/kubelet/status/status_manager_test.go TestSyncBatchCleanupVersions.
-browser.describe("TestSyncBatchCleanupVersions", ({ ctx }) => {
+both.describe("TestSyncBatchCleanupVersions", ({ ctx }) => {
 	it("cleans up versions", async () => {
 		const m = newTestManager(ctx, newTestKubeClient(ctx));
 		const podManager = m.podManager;
@@ -1735,7 +1735,7 @@ browser.describe("TestSyncBatchCleanupVersions", ({ ctx }) => {
 });
 
 // Models kubernetes/pkg/kubelet/status/status_manager_test.go TestReconcilePodStatus.
-browser.describe("TestReconcilePodStatus", ({ ctx }) => {
+both.describe("TestReconcilePodStatus", ({ ctx }) => {
 	it("reconciles pod status", async () => {
 		const testPod = getTestPod();
 		const kubeClient = await newSimpleTestKubeClient(ctx, testPod);
@@ -1782,7 +1782,7 @@ function expectPodStatus(m: StatusManager, pod: V1Pod): V1PodStatus {
 }
 
 // Models kubernetes/pkg/kubelet/status/status_manager_test.go TestDeletePodBeforeFinished.
-browser.describe("TestDeletePodBeforeFinished", ({ ctx }) => {
+both.describe("TestDeletePodBeforeFinished", ({ ctx }) => {
 	it("does not delete pod before finished", async () => {
 		expect.hasAssertions();
 		const pod = getTestPod();
@@ -1799,7 +1799,7 @@ browser.describe("TestDeletePodBeforeFinished", ({ ctx }) => {
 });
 
 // Models kubernetes/pkg/kubelet/status/status_manager_test.go TestDeletePodFinished.
-browser.describe("TestDeletePodFinished", ({ ctx }) => {
+both.describe("TestDeletePodFinished", ({ ctx }) => {
 	it("deletes pod once finished", async () => {
 		expect.hasAssertions();
 		const pod = getTestPod();
@@ -1815,7 +1815,7 @@ browser.describe("TestDeletePodFinished", ({ ctx }) => {
 });
 
 // Models kubernetes/pkg/kubelet/status/status_manager_test.go TestDoNotDeleteMirrorPods.
-browser.describe("TestDoNotDeleteMirrorPods", ({ ctx }) => {
+both.describe("TestDoNotDeleteMirrorPods", ({ ctx }) => {
 	it("does not delete mirror pods", async () => {
 		expect.hasAssertions();
 		const staticPod = getTestPod();
@@ -1853,7 +1853,7 @@ browser.describe("TestDoNotDeleteMirrorPods", ({ ctx }) => {
 });
 
 // Models kubernetes/pkg/kubelet/status/status_manager_test.go TestUpdateLastTransitionTime.
-browser.describe("TestUpdateLastTransitionTime", ({ ctx }) => {
+both.describe("TestUpdateLastTransitionTime", ({ ctx }) => {
 	const old = new Date(Date.now() - 1000);
 	const tests: Record<
 		string,
@@ -1935,7 +1935,7 @@ function deleteAction(): ClientAction {
 }
 
 // Models kubernetes/pkg/kubelet/status/status_manager_test.go TestMergePodStatus.
-browser.describe("TestMergePodStatus", ({ ctx }) => {
+both.describe("TestMergePodStatus", ({ ctx }) => {
 	// Models kubernetes/pkg/kubelet/status/status_manager_test.go TestMergePodStatus useCases.
 	const useCases: Array<{
 		desc: string;

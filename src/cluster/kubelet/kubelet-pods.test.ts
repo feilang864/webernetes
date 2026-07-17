@@ -18,7 +18,7 @@ import type {
 	V1PodStatus,
 	V1Service,
 } from "../../client/index.js";
-import { browser } from "../../test/describe.js";
+import { both } from "../../test/describe.js";
 import { ClusterNetwork } from "../cni/index.js";
 import {
 	buildContainerID,
@@ -354,7 +354,7 @@ function podPhaseInfo(pod: V1Pod): V1ContainerStatus[] {
 }
 
 // Models kubernetes/pkg/kubelet/kubelet_pods_test.go TestPodPhaseWithRestartAlways.
-browser.describe("podPhaseWithRestartAlways", () => {
+both.describe("podPhaseWithRestartAlways", () => {
 	const desiredState = {
 		nodeName: "machine",
 		containers: [{ name: "containerA" }, { name: "containerB" }],
@@ -457,7 +457,7 @@ browser.describe("podPhaseWithRestartAlways", () => {
 });
 
 // Models kubernetes/pkg/kubelet/kubelet_pods_test.go TestPodPhaseWithRestartAlwaysInitContainers.
-browser.describe("podPhaseWithRestartAlwaysInitContainers", () => {
+both.describe("podPhaseWithRestartAlwaysInitContainers", () => {
 	const desiredState = {
 		nodeName: "machine",
 		initContainers: [{ name: "containerX" }],
@@ -527,7 +527,7 @@ browser.describe("podPhaseWithRestartAlwaysInitContainers", () => {
 });
 
 // Models kubernetes/pkg/kubelet/kubelet_pods_test.go TestPodPhaseWithRestartAlwaysRestartableInitContainers.
-browser.describe("podPhaseWithRestartAlwaysRestartableInitContainers", () => {
+both.describe("podPhaseWithRestartAlwaysRestartableInitContainers", () => {
 	const desiredState = {
 		nodeName: "machine",
 		initContainers: [{ name: "containerX", restartPolicy: "Always" as const }],
@@ -711,7 +711,7 @@ browser.describe("podPhaseWithRestartAlwaysRestartableInitContainers", () => {
 });
 
 // Models kubernetes/pkg/kubelet/kubelet_pods_test.go TestPodPhaseWithRestartAlwaysAndPodHasRun.
-browser.describe("podPhaseWithRestartAlwaysAndPodHasRun", () => {
+both.describe("podPhaseWithRestartAlwaysAndPodHasRun", () => {
 	const desiredState = {
 		nodeName: "machine",
 		initContainers: [
@@ -792,7 +792,7 @@ browser.describe("podPhaseWithRestartAlwaysAndPodHasRun", () => {
 });
 
 // Models kubernetes/pkg/kubelet/kubelet_pods_test.go TestPodPhaseWithRestartNever.
-browser.describe("podPhaseWithRestartNever", () => {
+both.describe("podPhaseWithRestartNever", () => {
 	const desiredState = {
 		nodeName: "machine",
 		containers: [{ name: "containerA" }, { name: "containerB" }],
@@ -863,7 +863,7 @@ browser.describe("podPhaseWithRestartNever", () => {
 });
 
 // Models kubernetes/pkg/kubelet/kubelet_pods_test.go TestPodPhaseWithRestartNeverInitContainers.
-browser.describe("podPhaseWithRestartNeverInitContainers", () => {
+both.describe("podPhaseWithRestartNeverInitContainers", () => {
 	const desiredState = {
 		nodeName: "machine",
 		initContainers: [{ name: "containerX" }],
@@ -933,7 +933,7 @@ browser.describe("podPhaseWithRestartNeverInitContainers", () => {
 });
 
 // Models kubernetes/pkg/kubelet/kubelet_pods_test.go TestPodPhaseWithRestartNeverRestartableInitContainers.
-browser.describe("podPhaseWithRestartNeverRestartableInitContainers", () => {
+both.describe("podPhaseWithRestartNeverRestartableInitContainers", () => {
 	const desiredState = {
 		nodeName: "machine",
 		initContainers: [{ name: "containerX", restartPolicy: "Always" as const }],
@@ -1086,7 +1086,7 @@ browser.describe("podPhaseWithRestartNeverRestartableInitContainers", () => {
 });
 
 // Models kubernetes/pkg/kubelet/kubelet_pods_test.go TestPodPhaseWithRestartOnFailure.
-browser.describe("podPhaseWithRestartOnFailure", () => {
+both.describe("podPhaseWithRestartOnFailure", () => {
 	const desiredState = {
 		nodeName: "machine",
 		containers: [{ name: "containerA" }, { name: "containerB" }],
@@ -1168,7 +1168,7 @@ browser.describe("podPhaseWithRestartOnFailure", () => {
 });
 
 // Models kubernetes/pkg/kubelet/kubelet_pods_test.go TestPodPhaseWithContainerRestartPolicy.
-browser.describe("podPhaseWithContainerRestartPolicy", () => {
+both.describe("podPhaseWithContainerRestartPolicy", () => {
 	interface ContainerRestartPolicyTestCase {
 		name: string;
 		spec: NonNullable<V1Pod["spec"]>;
@@ -1290,7 +1290,7 @@ browser.describe("podPhaseWithContainerRestartPolicy", () => {
 });
 
 // Models kubernetes/pkg/kubelet/kubelet_pods_test.go TestPodPhaseWithContainerRestartPolicyInitContainers.
-browser.describe("podPhaseWithContainerRestartPolicyInitContainers", () => {
+both.describe("podPhaseWithContainerRestartPolicyInitContainers", () => {
 	interface ContainerRestartPolicyInitTestCase {
 		name: string;
 		spec: NonNullable<V1Pod["spec"]>;
@@ -1364,7 +1364,7 @@ browser.describe("podPhaseWithContainerRestartPolicyInitContainers", () => {
 });
 
 // Models kubernetes/pkg/kubelet/kubelet_pods_test.go TestPodPhaseWithRestartAllContainers.
-browser.describe("podPhaseWithRestartAllContainers", () => {
+both.describe("podPhaseWithRestartAllContainers", () => {
 	interface RestartAllContainersTestCase {
 		name: string;
 		spec: NonNullable<V1Pod["spec"]>;
@@ -1421,7 +1421,7 @@ browser.describe("podPhaseWithRestartAllContainers", () => {
 });
 
 // Models kubernetes/pkg/kubelet/kubelet_pods_test.go TestMakeEnvironmentVariables.
-browser.describe("makeEnvironmentVariables", ({ ctx }) => {
+both.describe("makeEnvironmentVariables", ({ ctx }) => {
 	interface MakeEnvironmentVariablesTestCase {
 		name: string; // the name of the test case
 		ns: string; // the namespace to generate environment for
@@ -2060,7 +2060,7 @@ browser.describe("makeEnvironmentVariables", ({ ctx }) => {
 });
 
 // Models kubernetes/pkg/kubelet/kubelet_pods_test.go TestGeneratePodHostNameAndDomain.
-browser.describe("generatePodHostNameAndDomain", ({ ctx }) => {
+both.describe("generatePodHostNameAndDomain", ({ ctx }) => {
 	it.each([
 		{
 			name: "Default behavior - pod name as hostname",
@@ -2212,7 +2212,7 @@ browser.describe("generatePodHostNameAndDomain", ({ ctx }) => {
 });
 
 // Models kubernetes/pkg/kubelet/kubelet_pods_test.go TestKubelet_HandlePodCleanups.
-browser.describe("kubeletHandlePodCleanups", ({ ctx }) => {
+both.describe("kubeletHandlePodCleanups", ({ ctx }) => {
 	const one = 1;
 	const two = 2;
 	const deleted = new Date(2_000);
@@ -2705,7 +2705,7 @@ browser.describe("kubeletHandlePodCleanups", ({ ctx }) => {
 });
 
 // Models kubernetes/pkg/kubelet/kubelet_pods_test.go TestConvertToAPIContainerStatuses.
-browser.describe("convertToAPIContainerStatuses", ({ ctx }) => {
+both.describe("convertToAPIContainerStatuses", ({ ctx }) => {
 	const desiredState = {
 		nodeName: "machine",
 		containers: [{ name: "containerA" }, { name: "containerB" }],
@@ -3322,7 +3322,7 @@ browser.describe("convertToAPIContainerStatuses", ({ ctx }) => {
 });
 
 // Models kubernetes/pkg/kubelet/prober/prober_manager.go UpdatePodStatus.
-browser.describe("probeManagerUpdatePodStatus", ({ ctx }) => {
+both.describe("probeManagerUpdatePodStatus", ({ ctx }) => {
 	it("preserves old started true for a running container with a pending startup probe when kubelet restart status changes are disabled", async () => {
 		const testKubelet = newTestKubelet(ctx, false);
 		const pod: V1Pod = {
@@ -3377,7 +3377,7 @@ browser.describe("probeManagerUpdatePodStatus", ({ ctx }) => {
 });
 
 // Models kubernetes/pkg/kubelet/kubelet_pods_test.go TestConvertToAPIContainerStatusesForResources.
-browser.describe("convertToAPIContainerStatusesForResources", ({ ctx }) => {
+both.describe("convertToAPIContainerStatusesForResources", ({ ctx }) => {
 	const nowTime = new Date();
 	const testContainerName = "ctr0";
 	const testContainerID = buildContainerID("test", testContainerName);
@@ -3556,7 +3556,7 @@ browser.describe("convertToAPIContainerStatusesForResources", ({ ctx }) => {
 });
 
 // Models kubernetes/pkg/kubelet/kubelet_pods_test.go Test_generateAPIPodStatus.
-browser.describe("generateAPIPodStatus", ({ ctx }) => {
+both.describe("generateAPIPodStatus", ({ ctx }) => {
 	const now = new Date("2026-01-02T03:04:05.000Z");
 	const desiredState = {
 		nodeName: "machine",
@@ -4151,7 +4151,7 @@ browser.describe("generateAPIPodStatus", ({ ctx }) => {
 });
 
 // Models kubernetes/pkg/kubelet/kubelet_pods_test.go TestGenerateAPIPodStatusPodIPs.
-browser.describe("generateAPIPodStatusPodIPs", ({ ctx }) => {
+both.describe("generateAPIPodStatusPodIPs", ({ ctx }) => {
 	const tests: Array<{
 		name: string;
 		nodeIP: string;
@@ -4258,7 +4258,7 @@ browser.describe("generateAPIPodStatusPodIPs", ({ ctx }) => {
 });
 
 // Models kubernetes/pkg/kubelet/kubelet_pods_test.go TestTruncatePodHostname.
-browser.describe("truncatePodHostname", () => {
+both.describe("truncatePodHostname", () => {
 	const testcases: Array<{
 		name: string;
 		input: string;
@@ -4295,7 +4295,7 @@ browser.describe("truncatePodHostname", () => {
 });
 
 // Models kubernetes/pkg/kubelet/kubelet_pods_test.go TestGenerateAPIPodStatusHostNetworkPodIPs.
-browser.describe("generateAPIPodStatusHostNetworkPodIPs", ({ ctx }) => {
+both.describe("generateAPIPodStatusHostNetworkPodIPs", ({ ctx }) => {
 	const testcases: Array<{
 		name: string;
 		nodeAddresses: V1NodeAddress[];
@@ -4411,7 +4411,7 @@ browser.describe("generateAPIPodStatusHostNetworkPodIPs", ({ ctx }) => {
 });
 
 // Models kubernetes/pkg/kubelet/kubelet_pods_test.go TestSortPodIPs.
-browser.describe("sortPodIPs", ({ ctx }) => {
+both.describe("sortPodIPs", ({ ctx }) => {
 	const testcases: Array<{
 		name: string;
 		nodeIP: string;

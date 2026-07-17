@@ -16,7 +16,7 @@ import {
 	type TypedRateLimitingInterface,
 } from "../../client-go/util/workqueue/rate-limiting-queue.js";
 import * as context from "../../go/context.js";
-import { browser } from "../../test/describe.js";
+import { both } from "../../test/describe.js";
 import { GarbageCollector } from "./garbage-collector.js";
 import {
 	createEvent,
@@ -29,7 +29,7 @@ import { GraphBuilder, type GraphBuilderQueues, type GraphEvent } from "./graph-
 import { identityFor, Node, type ModeledObject, type ObjectReference } from "./graph.js";
 import { newReferenceCache } from "./uid-cache.js";
 
-browser.describe("garbagecollector GarbageCollector", ({ ctx }) => {
+both.describe("garbagecollector GarbageCollector", ({ ctx }) => {
 	// Models kubernetes/pkg/controller/garbagecollector/garbagecollector_test.go TestAttemptToDeleteItem.
 	// ReplicationController is outside the current modeled resource set, so this uses a
 	// missing apps/v1 ReplicaSet owner to exercise the same dangling-owner delete path.

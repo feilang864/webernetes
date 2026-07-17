@@ -11,7 +11,7 @@ import type { Clock } from "../../../clock.js";
 import { getClock } from "../../../clock-context.js";
 import { KeyFnMap } from "../../../collections.js";
 import * as context from "../../../go/context.js";
-import { browser } from "../../../test/describe.js";
+import { both } from "../../../test/describe.js";
 import type { ContainerConfig, PodSandboxStatus } from "../../cri/index.js";
 import type { ExecSyncResponse } from "../../cri/runtime/v1/api.js";
 import {
@@ -85,7 +85,7 @@ async function makeExpectedConfig(
 	return expectedConfig;
 }
 
-browser.describe("KubeGenericRuntimeManager", ({ ctx }) => {
+both.describe("KubeGenericRuntimeManager", ({ ctx }) => {
 	// Models kubernetes/pkg/kubelet/kuberuntime/kuberuntime_manager_test.go TestNewKubeRuntimeManager.
 	it("TestNewKubeRuntimeManager", () => {
 		const [, , , err] = createTestRuntimeManager(ctx);
@@ -212,7 +212,7 @@ browser.describe("KubeGenericRuntimeManager", ({ ctx }) => {
 	});
 });
 
-browser.describe("KubeGenericRuntimeManager runtime state", ({ ctx }) => {
+both.describe("KubeGenericRuntimeManager runtime state", ({ ctx }) => {
 	// Models kubernetes/pkg/kubelet/kuberuntime/kuberuntime_manager_test.go TestGetPodStatus.
 	it("TestGetPodStatus", async () => {
 		const [fakeRuntime, , m, err] = createTestRuntimeManager(ctx);
@@ -543,7 +543,7 @@ browser.describe("KubeGenericRuntimeManager runtime state", ({ ctx }) => {
 });
 
 // Models kubernetes/pkg/kubelet/kuberuntime/kuberuntime_manager_test.go TestComputePodActions.
-browser.describe("KubeGenericRuntimeManager.computePodActions", ({ ctx }) => {
+both.describe("KubeGenericRuntimeManager.computePodActions", ({ ctx }) => {
 	const [, , m, err] = createTestRuntimeManager(ctx);
 	if (err) {
 		throw err;
@@ -936,381 +936,375 @@ browser.describe("KubeGenericRuntimeManager.computePodActions", ({ ctx }) => {
 });
 
 // Models kubernetes/pkg/kubelet/kuberuntime/kuberuntime_manager_test.go TestComputePodActionsForRestartAllContainers.
-browser.describe(
-	"KubeGenericRuntimeManager.computePodActions restart all containers",
-	({ ctx }) => {
-		const allContainersRestartingTrue = [
-			{
-				type: "AllContainersRestarting",
-				status: "True",
+both.describe("KubeGenericRuntimeManager.computePodActions restart all containers", ({ ctx }) => {
+	const allContainersRestartingTrue = [
+		{
+			type: "AllContainersRestarting",
+			status: "True",
+		},
+	];
+	const allContainersRestartingFalse = [
+		{
+			type: "AllContainersRestarting",
+			status: "False",
+		},
+	];
+	const restartAllContainersRules: NonNullable<V1Container["restartPolicyRules"]> = [
+		{
+			action: "RestartAllContainers",
+			exitCodes: {
+				operator: "In",
+				values: [1],
 			},
-		];
-		const allContainersRestartingFalse = [
-			{
-				type: "AllContainersRestarting",
-				status: "False",
-			},
-		];
-		const restartAllContainersRules: NonNullable<V1Container["restartPolicyRules"]> = [
-			{
-				action: "RestartAllContainers",
-				exitCodes: {
-					operator: "In",
-					values: [1],
-				},
-			},
-		];
+		},
+	];
 
-		it.each([
-			{
-				name: "pod not marked for RestartAllContainers",
-				podFunc: () => {
-					const [pod] = makeBasePodAndStatus();
-					pod.status = { conditions: allContainersRestartingFalse };
-					return pod;
-				},
-				podStatusFunc: () => makeBasePodAndStatus()[1],
+	it.each([
+		{
+			name: "pod not marked for RestartAllContainers",
+			podFunc: () => {
+				const [pod] = makeBasePodAndStatus();
+				pod.status = { conditions: allContainersRestartingFalse };
+				return pod;
 			},
-			{
-				name: "pod marked for RestartAllContainers",
-				podFunc: () => {
-					const [pod] = makeBasePodAndStatus();
-					pod.status = { conditions: allContainersRestartingTrue };
-					return pod;
-				},
-				podStatusFunc: () => makeBasePodAndStatus()[1],
-				restartAllContainers: true,
-				containersToRemove: [
-					{
-						container: { name: "foo1" },
-						containerID: buildContainerID("simulator", "id1"),
-						kill: true,
-					},
-					{
-						container: { name: "foo2" },
-						containerID: buildContainerID("simulator", "id2"),
-						kill: true,
-					},
-					{
-						container: { name: "foo3" },
-						containerID: buildContainerID("simulator", "id3"),
-						kill: true,
-					},
-				],
+			podStatusFunc: () => makeBasePodAndStatus()[1],
+		},
+		{
+			name: "pod marked for RestartAllContainers",
+			podFunc: () => {
+				const [pod] = makeBasePodAndStatus();
+				pod.status = { conditions: allContainersRestartingTrue };
+				return pod;
 			},
-			// Upstream has init-container and restartable-init rows here. The simulator
-			// intentionally does not model init containers yet, so those rows are omitted.
-			{
-				name: "removes past terminated statuses",
-				podFunc: () => {
-					const [pod] = makeBasePodAndStatus();
-					if (pod.spec) {
-						pod.spec.restartPolicy = "Always";
-						const source = pod.spec.containers?.[2];
-						if (source) {
-							source.restartPolicy = "Always";
-							source.restartPolicyRules = restartAllContainersRules;
-						}
+			podStatusFunc: () => makeBasePodAndStatus()[1],
+			restartAllContainers: true,
+			containersToRemove: [
+				{
+					container: { name: "foo1" },
+					containerID: buildContainerID("simulator", "id1"),
+					kill: true,
+				},
+				{
+					container: { name: "foo2" },
+					containerID: buildContainerID("simulator", "id2"),
+					kill: true,
+				},
+				{
+					container: { name: "foo3" },
+					containerID: buildContainerID("simulator", "id3"),
+					kill: true,
+				},
+			],
+		},
+		// Upstream has init-container and restartable-init rows here. The simulator
+		// intentionally does not model init containers yet, so those rows are omitted.
+		{
+			name: "removes past terminated statuses",
+			podFunc: () => {
+				const [pod] = makeBasePodAndStatus();
+				if (pod.spec) {
+					pod.spec.restartPolicy = "Always";
+					const source = pod.spec.containers?.[2];
+					if (source) {
+						source.restartPolicy = "Always";
+						source.restartPolicyRules = restartAllContainersRules;
 					}
-					pod.status = { conditions: allContainersRestartingTrue };
-					return pod;
-				},
-				podStatusFunc: () => {
-					const [, status] = makeBasePodAndStatus();
-					const t1 = Date.now();
-					const t0 = t1 - 60_000;
-					status.containerStatuses[0].createdAt = t1;
-					status.containerStatuses[1].createdAt = t1;
-					status.containerStatuses[2] = {
-						...status.containerStatuses[2],
-						state: "Exited",
-						exitCode: 1,
-						createdAt: t1,
-					};
-					status.containerStatuses.push(
-						{
-							...containerStatus("foo1", "id1-past", "Exited"),
-							exitCode: 99,
-							createdAt: t0,
-						},
-						{
-							...containerStatus("foo2", "id2-past", "Exited"),
-							exitCode: 99,
-							createdAt: t0,
-						},
-						{
-							...containerStatus("foo3", "id3-past", "Exited"),
-							exitCode: 99,
-							createdAt: t0,
-						},
-					);
-					return status;
-				},
-				restartAllContainers: true,
-				containersToRemove: [
-					{
-						container: { name: "foo1" },
-						containerID: buildContainerID("simulator", "id1"),
-						kill: true,
-					},
-					{
-						container: { name: "foo1" },
-						containerID: buildContainerID("simulator", "id1-past"),
-						kill: false,
-					},
-					{
-						container: { name: "foo2" },
-						containerID: buildContainerID("simulator", "id2"),
-						kill: true,
-					},
-					{
-						container: { name: "foo2" },
-						containerID: buildContainerID("simulator", "id2-past"),
-						kill: false,
-					},
-					{
-						container: { name: "foo3" },
-						containerID: buildContainerID("simulator", "id3-past"),
-						kill: false,
-					},
-					{
-						container: { name: "foo3" },
-						containerID: buildContainerID("simulator", "id3"),
-						kill: false,
-					},
-				],
+				}
+				pod.status = { conditions: allContainersRestartingTrue };
+				return pod;
 			},
-			{
-				name: "all containers removed, start regular container",
-				podFunc: () => makeBasePodAndStatus()[0],
-				podStatusFunc: () => {
-					const [, status] = makeBasePodAndStatus();
-					status.containerStatuses = [];
-					return status;
-				},
-				containersToStart: [0, 1, 2],
+			podStatusFunc: () => {
+				const [, status] = makeBasePodAndStatus();
+				const t1 = Date.now();
+				const t0 = t1 - 60_000;
+				status.containerStatuses[0].createdAt = t1;
+				status.containerStatuses[1].createdAt = t1;
+				status.containerStatuses[2] = {
+					...status.containerStatuses[2],
+					state: "Exited",
+					exitCode: 1,
+					createdAt: t1,
+				};
+				status.containerStatuses.push(
+					{
+						...containerStatus("foo1", "id1-past", "Exited"),
+						exitCode: 99,
+						createdAt: t0,
+					},
+					{
+						...containerStatus("foo2", "id2-past", "Exited"),
+						exitCode: 99,
+						createdAt: t0,
+					},
+					{
+						...containerStatus("foo3", "id3-past", "Exited"),
+						exitCode: 99,
+						createdAt: t0,
+					},
+				);
+				return status;
 			},
-		] satisfies RestartAllContainersCase[])("$name", (test) => {
-			const [, , m, err] = createTestRuntimeManager(ctx);
-			expect(err).toBeUndefined();
-			const pod = test.podFunc();
-			const status = test.podStatusFunc();
+			restartAllContainers: true,
+			containersToRemove: [
+				{
+					container: { name: "foo1" },
+					containerID: buildContainerID("simulator", "id1"),
+					kill: true,
+				},
+				{
+					container: { name: "foo1" },
+					containerID: buildContainerID("simulator", "id1-past"),
+					kill: false,
+				},
+				{
+					container: { name: "foo2" },
+					containerID: buildContainerID("simulator", "id2"),
+					kill: true,
+				},
+				{
+					container: { name: "foo2" },
+					containerID: buildContainerID("simulator", "id2-past"),
+					kill: false,
+				},
+				{
+					container: { name: "foo3" },
+					containerID: buildContainerID("simulator", "id3-past"),
+					kill: false,
+				},
+				{
+					container: { name: "foo3" },
+					containerID: buildContainerID("simulator", "id3"),
+					kill: false,
+				},
+			],
+		},
+		{
+			name: "all containers removed, start regular container",
+			podFunc: () => makeBasePodAndStatus()[0],
+			podStatusFunc: () => {
+				const [, status] = makeBasePodAndStatus();
+				status.containerStatuses = [];
+				return status;
+			},
+			containersToStart: [0, 1, 2],
+		},
+	] satisfies RestartAllContainersCase[])("$name", (test) => {
+		const [, , m, err] = createTestRuntimeManager(ctx);
+		expect(err).toBeUndefined();
+		const pod = test.podFunc();
+		const status = test.podStatusFunc();
 
-			const actions = m.computePodActions(ctx, pod, status, test.restartAllContainers ?? false);
+		const actions = m.computePodActions(ctx, pod, status, test.restartAllContainers ?? false);
 
-			const expected: PodActions = podActions({
-				createSandbox: false,
-				killPod: false,
-				sandboxID: status.sandboxStatuses[0]?.id ?? "",
-				containersToKill: newContainerToKillMap(),
-				containersToStart: [],
-			});
-			if (test.containersToStart !== undefined) {
-				expected.containersToStart = test.containersToStart;
-			}
-
-			const containerSpecByName = new Map<string, V1Container>();
-			for (const c of pod.spec?.containers ?? []) {
-				containerSpecByName.set(c.name, c);
-			}
-			for (const info of test.containersToRemove ?? []) {
-				const cName = info.container.name;
-				info.container = containerSpecByName.get(cName) ?? info.container;
-				expected.containersToReset?.push(info);
-			}
-
-			verifyActions(expected, actions);
+		const expected: PodActions = podActions({
+			createSandbox: false,
+			killPod: false,
+			sandboxID: status.sandboxStatuses[0]?.id ?? "",
+			containersToKill: newContainerToKillMap(),
+			containersToStart: [],
 		});
-	},
-);
+		if (test.containersToStart !== undefined) {
+			expected.containersToStart = test.containersToStart;
+		}
+
+		const containerSpecByName = new Map<string, V1Container>();
+		for (const c of pod.spec?.containers ?? []) {
+			containerSpecByName.set(c.name, c);
+		}
+		for (const info of test.containersToRemove ?? []) {
+			const cName = info.container.name;
+			info.container = containerSpecByName.get(cName) ?? info.container;
+			expected.containersToReset?.push(info);
+		}
+
+		verifyActions(expected, actions);
+	});
+});
 
 // Models kubernetes/pkg/kubelet/kuberuntime/kuberuntime_manager_test.go TestComputePodActionsWithContainerRestartRules.
-browser.describe(
-	"KubeGenericRuntimeManager.computePodActions container restart rules",
-	({ ctx }) => {
-		const [basePod, baseStatus] = makeBasePodAndStatus();
-		const noAction: PodActions = podActions({
-			sandboxID: baseStatus.sandboxStatuses[0]?.id,
-			containersToStart: [],
-			containersToKill: newContainerToKillMap(),
-		});
+both.describe("KubeGenericRuntimeManager.computePodActions container restart rules", ({ ctx }) => {
+	const [basePod, baseStatus] = makeBasePodAndStatus();
+	const noAction: PodActions = podActions({
+		sandboxID: baseStatus.sandboxStatuses[0]?.id,
+		containersToStart: [],
+		containersToKill: newContainerToKillMap(),
+	});
 
-		it.each([
-			{
-				name: "restart exited containers if RestartPolicy == Always",
-				mutatePodFn: async (pod: V1Pod) => {
-					const containers = pod.spec?.containers ?? [];
-					if (containers[0]) {
-						containers[0].restartPolicy = "Always";
-					}
-					if (containers[1]) {
-						containers[1].restartPolicy = "Always";
-					}
-					if (pod.spec) {
-						pod.spec.restartPolicy = "Never";
-					}
-				},
-				mutateStatusFn: async (status: PodRuntimeStatus) => {
-					status.containerStatuses[0] = {
-						...(status.containerStatuses[0] as ContainerStatus),
-						state: "Exited",
-						exitCode: 0,
-					};
-					status.containerStatuses[1] = {
-						...(status.containerStatuses[1] as ContainerStatus),
-						state: "Exited",
-						exitCode: 111,
-					};
-				},
-				actions: podActions({
-					sandboxID: baseStatus.sandboxStatuses[0]?.id,
-					containersToStart: [0, 1],
-					containersToKill: getKillMap(basePod, baseStatus, []),
-				}),
+	it.each([
+		{
+			name: "restart exited containers if RestartPolicy == Always",
+			mutatePodFn: async (pod: V1Pod) => {
+				const containers = pod.spec?.containers ?? [];
+				if (containers[0]) {
+					containers[0].restartPolicy = "Always";
+				}
+				if (containers[1]) {
+					containers[1].restartPolicy = "Always";
+				}
+				if (pod.spec) {
+					pod.spec.restartPolicy = "Never";
+				}
 			},
-			{
-				name: "restart failed containers if RestartPolicy == OnFailure",
-				mutatePodFn: async (pod: V1Pod) => {
-					const containers = pod.spec?.containers ?? [];
-					if (containers[0]) {
-						containers[0].restartPolicy = "OnFailure";
-					}
-					if (containers[1]) {
-						containers[1].restartPolicy = "OnFailure";
-					}
-					if (pod.spec) {
-						pod.spec.restartPolicy = "Never";
-					}
-				},
-				mutateStatusFn: async (status: PodRuntimeStatus) => {
-					status.containerStatuses[0] = {
-						...(status.containerStatuses[0] as ContainerStatus),
-						state: "Exited",
-						exitCode: 0,
-					};
-					status.containerStatuses[1] = {
-						...(status.containerStatuses[1] as ContainerStatus),
-						state: "Exited",
-						exitCode: 111,
-					};
-				},
-				actions: podActions({
-					sandboxID: baseStatus.sandboxStatuses[0]?.id,
-					containersToStart: [1],
-					containersToKill: getKillMap(basePod, baseStatus, []),
-				}),
+			mutateStatusFn: async (status: PodRuntimeStatus) => {
+				status.containerStatuses[0] = {
+					...(status.containerStatuses[0] as ContainerStatus),
+					state: "Exited",
+					exitCode: 0,
+				};
+				status.containerStatuses[1] = {
+					...(status.containerStatuses[1] as ContainerStatus),
+					state: "Exited",
+					exitCode: 111,
+				};
 			},
-			{
-				name: "restart created but not started containers if RestartPolicy == OnFailure",
-				mutatePodFn: async (pod: V1Pod) => {
-					const containers = pod.spec?.containers ?? [];
-					if (containers[0]) {
-						containers[0].restartPolicy = "OnFailure";
-					}
-					if (containers[1]) {
-						containers[1].restartPolicy = "OnFailure";
-					}
-					if (pod.spec) {
-						pod.spec.restartPolicy = "Never";
-					}
-				},
-				mutateStatusFn: async (status: PodRuntimeStatus) => {
-					status.containerStatuses[0] = {
-						...(status.containerStatuses[0] as ContainerStatus),
-						state: "Exited",
-						exitCode: 0,
-					};
-					status.containerStatuses[1] = {
-						...(status.containerStatuses[1] as ContainerStatus),
-						state: "Created",
-					};
-				},
-				actions: podActions({
-					sandboxID: baseStatus.sandboxStatuses[0]?.id,
-					containersToStart: [1],
-					containersToKill: getKillMap(basePod, baseStatus, []),
-				}),
+			actions: podActions({
+				sandboxID: baseStatus.sandboxStatuses[0]?.id,
+				containersToStart: [0, 1],
+				containersToKill: getKillMap(basePod, baseStatus, []),
+			}),
+		},
+		{
+			name: "restart failed containers if RestartPolicy == OnFailure",
+			mutatePodFn: async (pod: V1Pod) => {
+				const containers = pod.spec?.containers ?? [];
+				if (containers[0]) {
+					containers[0].restartPolicy = "OnFailure";
+				}
+				if (containers[1]) {
+					containers[1].restartPolicy = "OnFailure";
+				}
+				if (pod.spec) {
+					pod.spec.restartPolicy = "Never";
+				}
 			},
-			{
-				name: "don't restart containers if RestartPolicy == Never",
-				mutatePodFn: async (pod: V1Pod) => {
-					const containers = pod.spec?.containers ?? [];
-					if (containers[0]) {
-						containers[0].restartPolicy = "Never";
-					}
-					if (containers[1]) {
-						containers[1].restartPolicy = "Never";
-					}
-					if (pod.spec) {
-						pod.spec.restartPolicy = "Always";
-					}
-				},
-				mutateStatusFn: async (status: PodRuntimeStatus) => {
-					status.containerStatuses[0] = {
-						...(status.containerStatuses[0] as ContainerStatus),
-						state: "Exited",
-						exitCode: 0,
-					};
-					status.containerStatuses[1] = {
-						...(status.containerStatuses[1] as ContainerStatus),
-						state: "Exited",
-						exitCode: 111,
-					};
-				},
-				actions: noAction,
+			mutateStatusFn: async (status: PodRuntimeStatus) => {
+				status.containerStatuses[0] = {
+					...(status.containerStatuses[0] as ContainerStatus),
+					state: "Exited",
+					exitCode: 0,
+				};
+				status.containerStatuses[1] = {
+					...(status.containerStatuses[1] as ContainerStatus),
+					state: "Exited",
+					exitCode: 111,
+				};
 			},
-			{
-				name: "Kill pod and recreate all containers (except for the succeeded one) if the pod sandbox is dead",
-				mutatePodFn: async (pod: V1Pod) => {
-					const containers = pod.spec?.containers ?? [];
-					if (containers[1]) {
-						containers[1].restartPolicy = "OnFailure";
-					}
-					if (pod.spec) {
-						pod.spec.restartPolicy = "Always";
-					}
-				},
-				mutateStatusFn: async (status: PodRuntimeStatus) => {
-					status.sandboxStatuses[0] = {
-						...(status.sandboxStatuses[0] as PodSandboxStatus),
-						state: "NotReady",
-					};
-					status.containerStatuses[1] = {
-						...(status.containerStatuses[1] as ContainerStatus),
-						state: "Exited",
-						exitCode: 0,
-					};
-				},
-				actions: podActions({
-					killPod: true,
-					createSandbox: true,
-					sandboxID: baseStatus.sandboxStatuses[0]?.id,
-					attempt: 1,
-					containersToStart: [0, 2],
-					containersToKill: getKillMap(basePod, baseStatus, []),
-				}),
+			actions: podActions({
+				sandboxID: baseStatus.sandboxStatuses[0]?.id,
+				containersToStart: [1],
+				containersToKill: getKillMap(basePod, baseStatus, []),
+			}),
+		},
+		{
+			name: "restart created but not started containers if RestartPolicy == OnFailure",
+			mutatePodFn: async (pod: V1Pod) => {
+				const containers = pod.spec?.containers ?? [];
+				if (containers[0]) {
+					containers[0].restartPolicy = "OnFailure";
+				}
+				if (containers[1]) {
+					containers[1].restartPolicy = "OnFailure";
+				}
+				if (pod.spec) {
+					pod.spec.restartPolicy = "Never";
+				}
 			},
-		] satisfies ComputePodActionsCase[])("$name", async (test) => {
-			const [, , m] = createTestRuntimeManager(ctx);
-			const [pod, status] = makeBasePodAndStatus();
-			if (test.mutatePodFn) {
-				await test.mutatePodFn(pod);
-			}
-			if (test.mutateStatusFn) {
-				await test.mutateStatusFn(status);
-			}
+			mutateStatusFn: async (status: PodRuntimeStatus) => {
+				status.containerStatuses[0] = {
+					...(status.containerStatuses[0] as ContainerStatus),
+					state: "Exited",
+					exitCode: 0,
+				};
+				status.containerStatuses[1] = {
+					...(status.containerStatuses[1] as ContainerStatus),
+					state: "Created",
+				};
+			},
+			actions: podActions({
+				sandboxID: baseStatus.sandboxStatuses[0]?.id,
+				containersToStart: [1],
+				containersToKill: getKillMap(basePod, baseStatus, []),
+			}),
+		},
+		{
+			name: "don't restart containers if RestartPolicy == Never",
+			mutatePodFn: async (pod: V1Pod) => {
+				const containers = pod.spec?.containers ?? [];
+				if (containers[0]) {
+					containers[0].restartPolicy = "Never";
+				}
+				if (containers[1]) {
+					containers[1].restartPolicy = "Never";
+				}
+				if (pod.spec) {
+					pod.spec.restartPolicy = "Always";
+				}
+			},
+			mutateStatusFn: async (status: PodRuntimeStatus) => {
+				status.containerStatuses[0] = {
+					...(status.containerStatuses[0] as ContainerStatus),
+					state: "Exited",
+					exitCode: 0,
+				};
+				status.containerStatuses[1] = {
+					...(status.containerStatuses[1] as ContainerStatus),
+					state: "Exited",
+					exitCode: 111,
+				};
+			},
+			actions: noAction,
+		},
+		{
+			name: "Kill pod and recreate all containers (except for the succeeded one) if the pod sandbox is dead",
+			mutatePodFn: async (pod: V1Pod) => {
+				const containers = pod.spec?.containers ?? [];
+				if (containers[1]) {
+					containers[1].restartPolicy = "OnFailure";
+				}
+				if (pod.spec) {
+					pod.spec.restartPolicy = "Always";
+				}
+			},
+			mutateStatusFn: async (status: PodRuntimeStatus) => {
+				status.sandboxStatuses[0] = {
+					...(status.sandboxStatuses[0] as PodSandboxStatus),
+					state: "NotReady",
+				};
+				status.containerStatuses[1] = {
+					...(status.containerStatuses[1] as ContainerStatus),
+					state: "Exited",
+					exitCode: 0,
+				};
+			},
+			actions: podActions({
+				killPod: true,
+				createSandbox: true,
+				sandboxID: baseStatus.sandboxStatuses[0]?.id,
+				attempt: 1,
+				containersToStart: [0, 2],
+				containersToKill: getKillMap(basePod, baseStatus, []),
+			}),
+		},
+	] satisfies ComputePodActionsCase[])("$name", async (test) => {
+		const [, , m] = createTestRuntimeManager(ctx);
+		const [pod, status] = makeBasePodAndStatus();
+		if (test.mutatePodFn) {
+			await test.mutatePodFn(pod);
+		}
+		if (test.mutateStatusFn) {
+			await test.mutateStatusFn(status);
+		}
 
-			const actions = m.computePodActions(ctx, pod, status, false);
-			verifyActions(test.actions, actions);
-		});
+		const actions = m.computePodActions(ctx, pod, status, false);
+		verifyActions(test.actions, actions);
+	});
 
-		// Upstream also covers TestComputePodActionsWithInitContainers,
-		// TestComputePodActionsWithRestartableInitContainers, and
-		// TestComputePodActionsWithInitAndEphemeralContainers. Those tables are left
-		// out here because this simulator intentionally excludes init and ephemeral
-		// containers from kuberuntime behavior.
-	},
-);
+	// Upstream also covers TestComputePodActionsWithInitContainers,
+	// TestComputePodActionsWithRestartableInitContainers, and
+	// TestComputePodActionsWithInitAndEphemeralContainers. Those tables are left
+	// out here because this simulator intentionally excludes init and ephemeral
+	// containers from kuberuntime behavior.
+});
 
 // Upstream kuberuntime_manager_test.go has pod resize, actuated resource, and
 // image-volume tests before TestDoBackOff. The simulator does not model
@@ -1318,7 +1312,7 @@ browser.describe(
 // volumes/CSI image volumes, so those tests are outside the current project scope.
 
 // Models kubernetes/pkg/kubelet/kuberuntime/kuberuntime_manager_test.go TestDoBackOff.
-browser.describe("KubeGenericRuntimeManager.doBackOff", ({ ctx }) => {
+both.describe("KubeGenericRuntimeManager.doBackOff", ({ ctx }) => {
 	it.each([
 		{
 			name: "container running",
@@ -1397,7 +1391,7 @@ browser.describe("KubeGenericRuntimeManager.doBackOff", ({ ctx }) => {
 });
 
 // Models kubernetes/pkg/kubelet/kuberuntime/kuberuntime_manager_test.go TestOnPodSandboxReadyInvocation.
-browser.describe("KubeGenericRuntimeManager.OnPodSandboxReady invocation", ({ ctx }) => {
+both.describe("KubeGenericRuntimeManager.OnPodSandboxReady invocation", ({ ctx }) => {
 	it.each([
 		{
 			name: "OnPodSandboxReady succeeds with feature enabled",
@@ -1557,7 +1551,7 @@ browser.describe("KubeGenericRuntimeManager.OnPodSandboxReady invocation", ({ ct
 });
 
 // Models kubernetes/pkg/kubelet/kuberuntime/kuberuntime_manager_test.go TestOnPodSandboxReadyTiming.
-browser.describe("KubeGenericRuntimeManager.OnPodSandboxReady timing", ({ ctx }) => {
+both.describe("KubeGenericRuntimeManager.OnPodSandboxReady timing", ({ ctx }) => {
 	it("invokes OnPodSandboxReady after sandbox creation and before container creation", async () => {
 		const [fakeRuntime, fakeImage, m, err] = createTestRuntimeManager(ctx);
 		expect(err).toBeUndefined();

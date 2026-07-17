@@ -5,14 +5,14 @@
 import { expect, it } from "vitest";
 import { getClock } from "../../../clock-context.js";
 import * as context from "../../../go/context.js";
-import { browser } from "../../../test/describe.js";
+import { both } from "../../../test/describe.js";
 import {
 	newFakeAlwaysRateLimiter,
 	newFakeNeverRateLimiter,
 	newTokenBucketRateLimiterWithClock,
 } from "./throttle.js";
 
-browser.describe("flowcontrol throttle", ({ ctx }) => {
+both.describe("flowcontrol throttle", ({ ctx }) => {
 	// Models staging/src/k8s.io/client-go/util/flowcontrol/throttle_test.go TestMultithreadedThrottling.
 	it("multithreaded throttling", async () => {
 		const clock = getClock(ctx);

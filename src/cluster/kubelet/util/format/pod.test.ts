@@ -4,7 +4,7 @@
  */
 import { expect, it } from "vitest";
 import type { V1Pod } from "../../../../client/index.js";
-import { browser } from "../../../../test/describe.js";
+import { both } from "../../../../test/describe.js";
 import { pod, podDesc } from "./pod.js";
 
 function fakeCreatePod(name: string, namespace: string, uid: string): V1Pod {
@@ -18,7 +18,7 @@ function fakeCreatePod(name: string, namespace: string, uid: string): V1Pod {
 }
 
 // Models kubernetes/pkg/kubelet/util/format/pod_test.go TestPod.
-browser.describe("TestPod", () => {
+both.describe("TestPod", () => {
 	const testCases: {
 		caseName: string;
 		pod: V1Pod | undefined;
@@ -42,7 +42,7 @@ browser.describe("TestPod", () => {
 });
 
 // Models kubernetes/pkg/kubelet/util/format/pod_test.go TestPodAndPodDesc.
-browser.describe("TestPodAndPodDesc", () => {
+both.describe("TestPodAndPodDesc", () => {
 	const testCases: {
 		caseName: string;
 		podName: string;

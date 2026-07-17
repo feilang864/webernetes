@@ -4,10 +4,10 @@
  */
 // oxlint-disable jest/no-conditional-expect
 import { expect, it } from "vitest";
-import { browser } from "../../../../../test/describe.js";
+import { both } from "../../../../../test/describe.js";
 import { isPathSegmentName, isPathSegmentPrefix } from "./path.js";
 
-browser.describe("content path validation", () => {
+both.describe("content path validation", () => {
 	// Models staging/src/k8s.io/apimachinery/pkg/api/validate/content/path_test.go TestIsPathSegmentPrefix.
 	it("validates path segment prefixes", () => {
 		const testcases = new Map([

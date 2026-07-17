@@ -5,7 +5,7 @@
 import { expect, it } from "vitest";
 
 import type { KubernetesObject } from "../../../client/types.js";
-import { browser } from "../../../test/describe.js";
+import { both } from "../../../test/describe.js";
 import { ExplicitKey } from "./store.js";
 import { newUndeltaStore } from "./undelta_store.js";
 
@@ -17,7 +17,7 @@ interface TestUndeltaObject extends KubernetesObject {
 	};
 }
 
-browser.describe("UndeltaStore", () => {
+both.describe("UndeltaStore", () => {
 	// Models staging/src/k8s.io/client-go/tools/cache/undelta_store_test.go TestUpdateCallsPush.
 	it("calls push on update", async () => {
 		const mkObj = (name: string, val: string | number): TestUndeltaObject => ({ name, val });

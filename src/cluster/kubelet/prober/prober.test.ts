@@ -14,7 +14,7 @@ import type {
 	V1TCPSocketAction,
 } from "../../../client/index.js";
 import { FakeRecorder, newFakeRecorder } from "../../../client-go/tools/record/fake.js";
-import { browser } from "../../../test/describe.js";
+import { both } from "../../../test/describe.js";
 import type { ProbeResult } from "../../probe/index.js";
 import { resolveContainerPort } from "../../probe/util.js";
 import { ClusterNetwork } from "../../cni/index.js";
@@ -26,7 +26,7 @@ import { probeTypeString } from "./prober-manager.js";
 import type { ProbeType, ProberResult } from "./results/index.js";
 
 // Models kubernetes/pkg/kubelet/prober/prober_test.go TestGetURLParts.
-browser.describe("TestGetURLParts", () => {
+both.describe("TestGetURLParts", () => {
 	it("resolves HTTP probe URL parts", () => {
 		const testCases: Array<{
 			probe: V1HTTPGetAction;
@@ -97,7 +97,7 @@ browser.describe("TestGetURLParts", () => {
 });
 
 // Models kubernetes/pkg/kubelet/prober/prober_test.go TestGetTCPAddrParts.
-browser.describe("TestGetTCPAddrParts", () => {
+both.describe("TestGetTCPAddrParts", () => {
 	it("resolves TCP probe address parts", () => {
 		const testCases: Array<{
 			probe: V1TCPSocketAction;
@@ -140,7 +140,7 @@ browser.describe("TestGetTCPAddrParts", () => {
 });
 
 // Models kubernetes/pkg/kubelet/prober/prober_test.go TestProbe.
-browser.describe("TestProbe", ({ ctx }) => {
+both.describe("TestProbe", ({ ctx }) => {
 	it("handles probe results and exec arguments", async () => {
 		const containerID = buildContainerID("test", "foobar");
 		const execProbe: V1Probe = {
@@ -299,7 +299,7 @@ browser.describe("TestProbe", ({ ctx }) => {
 // Intentionally not ported: the simulator routes exec probes through ExecProber and CommandRunner.
 
 // Models kubernetes/pkg/kubelet/prober/prober_test.go TestNewProber.
-browser.describe("TestNewProber", ({ ctx }) => {
+both.describe("TestNewProber", ({ ctx }) => {
 	it("initializes prober dependencies", () => {
 		const runner = new FakeContainerCommandRunner();
 		const recorder = new FakeRecorder();
@@ -315,7 +315,7 @@ browser.describe("TestNewProber", ({ ctx }) => {
 });
 
 // Models kubernetes/pkg/kubelet/prober/prober_test.go TestRecordContainerEventUnknownStatus.
-browser.describe("TestRecordContainerEventUnknownStatus", ({ ctx }) => {
+both.describe("TestRecordContainerEventUnknownStatus", ({ ctx }) => {
 	it("records warning events for unknown probe statuses", async () => {
 		const pod: V1Pod = {
 			apiVersion: "v1",

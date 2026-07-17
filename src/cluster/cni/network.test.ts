@@ -5,7 +5,7 @@ import type { V1Node, V1Pod, V1Service } from "../../client/index.js";
 import * as context from "../../go/context.js";
 import type { Context } from "../../go/context.js";
 import { withLatencyProvider, newLatencyProvider } from "../../latency.js";
-import { browser } from "../../test/describe.js";
+import { both } from "../../test/describe.js";
 import { waitFor } from "../../test/wait.js";
 import { PodSandboxInstance } from "../cri/runtime.js";
 import {
@@ -16,7 +16,7 @@ import {
 	type NetworkResponseEvent,
 } from "./network.js";
 
-browser.describe("ClusterNetwork", ({ ctx }) => {
+both.describe("ClusterNetwork", ({ ctx }) => {
 	it("matches Node fetch errors for invalid and unreachable targets", async () => {
 		const network = new ClusterNetwork();
 		const origin = nodeOrigin("node-1");

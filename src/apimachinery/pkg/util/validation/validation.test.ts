@@ -3,11 +3,11 @@
  * Derived from Kubernetes, translated and modified for Webernetes.
  */
 import { expect, it } from "vitest";
-import { browser } from "../../../../test/describe.js";
+import { both } from "../../../../test/describe.js";
 import { isDNS1123Label, isDNS1123Subdomain, isValidLabelValue } from "./validation.js";
 
 // Models staging/src/k8s.io/apimachinery/pkg/util/validation/validation_test.go TestIsDNS1123Label.
-browser.describe("isDNS1123Label", () => {
+both.describe("isDNS1123Label", () => {
 	const goodValues = [
 		"a",
 		"ab",
@@ -75,7 +75,7 @@ browser.describe("isDNS1123Label", () => {
 });
 
 // Models staging/src/k8s.io/apimachinery/pkg/util/validation/validation_test.go TestIsDNS1123Subdomain.
-browser.describe("isDNS1123Subdomain", () => {
+both.describe("isDNS1123Subdomain", () => {
 	const goodValues = [
 		"a",
 		"ab",
@@ -197,7 +197,7 @@ browser.describe("isDNS1123Subdomain", () => {
 });
 
 // Models staging/src/k8s.io/apimachinery/pkg/util/validation/validation_test.go TestIsValidLabelValue.
-browser.describe("isValidLabelValue", () => {
+both.describe("isValidLabelValue", () => {
 	const successCases = [
 		"simple",
 		"now-with-dashes",

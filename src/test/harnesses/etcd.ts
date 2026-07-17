@@ -32,8 +32,7 @@ interface EtcdRuntime {
 
 const realRuntime = currentTestEnvironment === "node" ? await import("./etcd-real.js") : undefined;
 
-const fakeRuntime =
-	currentTestEnvironment === "browser" ? await import("./etcd-fake.js") : undefined;
+const fakeRuntime = await import("./etcd-fake.js");
 
 export const realEtcd: EtcdDescribe = {
 	describe: createTargetDescribe("real", realRuntime),

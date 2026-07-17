@@ -1,7 +1,7 @@
 import { afterEach, beforeEach, expect, it, vi } from "vitest";
 
 import { Clock, MockedDate } from "./clock.js";
-import { browser } from "./test/describe.js";
+import { both } from "./test/describe.js";
 import { newFakePassiveClock } from "./utils/clock/testing/fake-clock.js";
 
 function diffMs(time1: Date, time2: Date): number {
@@ -21,7 +21,7 @@ function diffTimes(times: Date[]): number[] {
 	return result;
 }
 
-browser.describe("Clock", () => {
+both.describe("Clock", () => {
 	let clock: Clock;
 
 	beforeEach(() => {
@@ -491,7 +491,7 @@ browser.describe("Clock", () => {
 	});
 });
 
-browser.describe("FakePassiveClock", () => {
+both.describe("FakePassiveClock", () => {
 	it("should step passive time", () => {
 		const clock = newFakePassiveClock(new Date(1_000));
 

@@ -1,9 +1,9 @@
 import { expect, it } from "vitest";
 
-import { browser } from "./test/describe.js";
+import { both } from "./test/describe.js";
 import { CIDR, isIPLiteral } from "./net.js";
 
-browser.describe("CIDR", () => {
+both.describe("CIDR", () => {
 	it("checks full IPv4 CIDR membership separately from usable host membership", () => {
 		const cidr = new CIDR("10.0.0.0/30");
 

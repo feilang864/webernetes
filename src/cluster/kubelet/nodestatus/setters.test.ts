@@ -6,7 +6,7 @@
 import { expect, it } from "vitest";
 import type { V1Node, V1NodeAddress } from "../../../client/index.js";
 import * as context from "../../../go/context.js";
-import { browser } from "../../../test/describe.js";
+import { both } from "../../../test/describe.js";
 import { FakeVersion } from "../container/testing/index.js";
 import { RuntimeFeatures, RuntimeHandler, type Image } from "../container/index.js";
 import {
@@ -26,7 +26,7 @@ const testKubeletHostname = "test-hostname";
 const annotationAlphaProvidedIPAddr = "alpha.kubernetes.io/provided-node-ip";
 
 // Models kubernetes/pkg/kubelet/nodestatus/setters_test.go TestNodeAddress.
-browser.describe("NodeAddress", () => {
+both.describe("NodeAddress", () => {
 	const existingNodeAddress: V1NodeAddress = { address: "10.1.1.2", type: "" };
 	const cases: Array<{
 		name: string;
@@ -287,7 +287,7 @@ browser.describe("NodeAddress", () => {
 });
 
 // Models kubernetes/pkg/kubelet/nodestatus/setters_test.go TestNodeAddress_NoCloudProvider.
-browser.describe("NodeAddress_NoCloudProvider", () => {
+both.describe("NodeAddress_NoCloudProvider", () => {
 	const cases: Array<{
 		name: string;
 		nodeIPs: string[];
@@ -361,7 +361,7 @@ browser.describe("NodeAddress_NoCloudProvider", () => {
 });
 
 // Models kubernetes/pkg/kubelet/nodestatus/setters_test.go TestVersionInfo.
-browser.describe("VersionInfo", () => {
+both.describe("VersionInfo", () => {
 	const cases: Array<{
 		desc: string;
 		node: V1Node;
@@ -518,7 +518,7 @@ browser.describe("VersionInfo", () => {
 });
 
 // Models kubernetes/pkg/kubelet/nodestatus/setters_test.go TestImages.
-browser.describe("Images", () => {
+both.describe("Images", () => {
 	const cases: Array<{
 		desc: string;
 		maxImages: number;
@@ -589,7 +589,7 @@ browser.describe("Images", () => {
 });
 
 // Models kubernetes/pkg/kubelet/nodestatus/setters_test.go TestDaemonEndpoints.
-browser.describe("DaemonEndpoints", () => {
+both.describe("DaemonEndpoints", () => {
 	for (const test of [
 		{
 			name: "empty daemon endpoints",
@@ -621,7 +621,7 @@ browser.describe("DaemonEndpoints", () => {
 });
 
 // Models kubernetes/pkg/kubelet/nodestatus/setters.go GoRuntime.
-browser.describe("GoRuntime", () => {
+both.describe("GoRuntime", () => {
 	it("sets operating system and architecture", async () => {
 		const node: V1Node = {};
 
@@ -634,7 +634,7 @@ browser.describe("GoRuntime", () => {
 });
 
 // Models kubernetes/pkg/kubelet/nodestatus/setters.go RuntimeHandlers.
-browser.describe("RuntimeHandlers", () => {
+both.describe("RuntimeHandlers", () => {
 	it("sets runtime handlers", async () => {
 		const node: V1Node = {};
 
@@ -660,7 +660,7 @@ browser.describe("RuntimeHandlers", () => {
 });
 
 // Models kubernetes/pkg/kubelet/nodestatus/setters.go NodeFeatures.
-browser.describe("NodeFeatures", () => {
+both.describe("NodeFeatures", () => {
 	it("sets runtime node features", async () => {
 		const node: V1Node = {};
 

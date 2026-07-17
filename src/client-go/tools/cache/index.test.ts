@@ -4,7 +4,7 @@
  */
 import { expect, it } from "vitest";
 
-import { browser } from "../../../test/describe.js";
+import { both } from "../../../test/describe.js";
 import { type IndexFunc } from "./index.js";
 import { metaNamespaceKeyFunc, newIndexer } from "./store.js";
 
@@ -17,7 +17,7 @@ interface TestPod {
 	};
 }
 
-browser.describe("Indexer", () => {
+both.describe("Indexer", () => {
 	// Models staging/src/k8s.io/client-go/tools/cache/index_test.go TestGetIndexFuncValues.
 	it("lists indexed values for an index function", async () => {
 		const index = newIndexer<TestPod>(metaNamespaceKeyFunc, { testmodes: testIndexFunc });

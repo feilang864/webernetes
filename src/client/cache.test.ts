@@ -4,7 +4,7 @@ import { ListWatch } from "./cache.js";
 import { KubeConfig } from "./config.js";
 import { Watch as ClientWatch } from "./watch.js";
 import type { KubeList, KubernetesObject } from "./types.js";
-import { browser } from "../test/describe.js";
+import { both } from "../test/describe.js";
 
 interface TestPod extends KubernetesObject {
 	metadata: {
@@ -48,7 +48,7 @@ class FakeWatch extends ClientWatch {
 	}
 }
 
-browser.describe("ListWatch resourceVersion", () => {
+both.describe("ListWatch resourceVersion", () => {
 	let watch: FakeWatch;
 	let list: KubeList<TestPod>;
 

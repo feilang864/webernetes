@@ -4,11 +4,11 @@
  */
 import { expect, it } from "vitest";
 import type { V1PodSecurityContext, V1Sysctl } from "../../../client/index.js";
-import { browser } from "../../../test/describe.js";
+import { both } from "../../../test/describe.js";
 import { convertPodSysctlsVariableToDotsSeparator } from "./util.js";
 
 // Models kubernetes/pkg/kubelet/sysctl/util_test.go TestConvertPodSysctlsVariableToDotsSeparator.
-browser.describe("TestConvertPodSysctlsVariableToDotsSeparator", () => {
+both.describe("TestConvertPodSysctlsVariableToDotsSeparator", () => {
 	it("converts sysctl names to dot separators", () => {
 		const sysctls: V1Sysctl[] = [
 			{

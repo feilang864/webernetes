@@ -3,7 +3,7 @@
  * Derived from Kubernetes, translated and modified for Webernetes.
  */
 import { expect, it } from "vitest";
-import { browser } from "../test/describe.js";
+import { both } from "../test/describe.js";
 import { formatMap } from "./fieldpath.js";
 
 // Models kubernetes/pkg/fieldpath/fieldpath_test.go TestFormatMap test case.
@@ -15,7 +15,7 @@ interface FormatMapUpstreamTestCase {
 	wantFmtStr: string;
 }
 
-browser.describe("formatMap", () => {
+both.describe("formatMap", () => {
 	// Models kubernetes/pkg/fieldpath/fieldpath_test.go TestFormatMap.
 	const tests: FormatMapUpstreamTestCase[] = [
 		{

@@ -12,7 +12,7 @@ import type { KubeList } from "../../../client/types.js";
 import { Channel } from "../../../go/channel.js";
 import * as context from "../../../go/context.js";
 import { deepEqual } from "../../../deep-equal.js";
-import { browser } from "../../../test/describe.js";
+import { both } from "../../../test/describe.js";
 import type {
 	ListResult,
 	ListWatchClient,
@@ -25,7 +25,7 @@ import {
 	waitForAPIServerSyncPeriodMs,
 } from "./apiserver.js";
 
-browser.describe("apiserver source", ({ ctx }) => {
+both.describe("apiserver source", ({ ctx }) => {
 	// Models kubernetes/pkg/kubelet/config/apiserver_test.go TestNewSourceApiserver_UpdatesAndMultiplePods.
 	it("updates and multiple pods", async () => {
 		const pod1v1 = pod("p", "", "image/one");

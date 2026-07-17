@@ -1,10 +1,10 @@
 import { expect, it } from "vitest";
 
 import * as fnv from "../../fnv.js";
-import { browser } from "../../test/describe.js";
+import { both } from "../../test/describe.js";
 import * as hashutil from "./hash.js";
 
-browser.describe("hashutil", () => {
+both.describe("hashutil", () => {
 	// Models kubernetes/pkg/util/hash/hash_test.go TestDeepHashObject.
 	it("deep-hashes JSON bytes using Kubernetes dump formatting", () => {
 		const hash = fnv.new32a();

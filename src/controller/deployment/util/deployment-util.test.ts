@@ -8,7 +8,7 @@ import { expect, it } from "vitest";
 import type * as k8s from "../../../client/index.js";
 import { defaultDeploymentUniqueLabelKey } from "../../../apis/apps/v1/types.js";
 import type { DeploymentLister } from "../../../client-go/listers/apps/v1/deployment.js";
-import { browser } from "../../../test/describe.js";
+import { both } from "../../../test/describe.js";
 import {
 	deploymentComplete,
 	desiredReplicasAnnotation,
@@ -30,7 +30,7 @@ import {
 	setReplicasAnnotations,
 } from "./deployment-util.js";
 
-browser.describe("deployment util", () => {
+both.describe("deployment util", () => {
 	// Models kubernetes/pkg/controller/deployment/util/deployment_util_test.go TestEqualIgnoreHash.
 	it("compares templates ignoring hash", () => {
 		const tests: {

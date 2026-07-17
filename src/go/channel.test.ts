@@ -1,8 +1,8 @@
 import { expect, it } from "vitest";
 import { Channel, select } from "./channel.js";
-import { browser } from "../test/describe.js";
+import { both } from "../test/describe.js";
 
-browser.describe("Channel", () => {
+both.describe("Channel", () => {
 	// Go check:
 	//
 	//   package main
@@ -302,7 +302,7 @@ browser.describe("Channel", () => {
 	});
 });
 
-browser.describe("Channel async iteration", () => {
+both.describe("Channel async iteration", () => {
 	// Go check:
 	//
 	//   package main
@@ -458,7 +458,7 @@ browser.describe("Channel async iteration", () => {
 	});
 });
 
-browser.describe("Channel views", () => {
+both.describe("Channel views", () => {
 	it("can expose read-only and write-only views over the same channel", async () => {
 		const channel = new Channel<string>(1);
 		const receiver = channel.readOnly();
@@ -478,7 +478,7 @@ browser.describe("Channel views", () => {
 	});
 });
 
-browser.describe("select", () => {
+both.describe("select", () => {
 	// Go check:
 	//
 	//   package main

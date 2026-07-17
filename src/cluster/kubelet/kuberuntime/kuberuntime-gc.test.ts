@@ -5,7 +5,7 @@
 import { expect, it } from "vitest";
 import type { V1Container, V1Pod } from "../../../client/index.js";
 import { getClock } from "../../../clock-context.js";
-import { browser } from "../../../test/describe.js";
+import { both } from "../../../test/describe.js";
 import type { ContainerStatus as CRIContainerStatus } from "../../cri/index.js";
 import type { PodSandbox } from "../../cri/runtime/v1/api.js";
 import {
@@ -20,7 +20,7 @@ import {
 } from "./kuberuntime-test-helpers.js";
 
 // Models kubernetes/pkg/kubelet/kuberuntime/kuberuntime_gc_test.go TestSandboxGC.
-browser.describe("sandboxGC", ({ ctx }) => {
+both.describe("sandboxGC", ({ ctx }) => {
 	it("evicts sandboxes using upstream table cases", async () => {
 		const [fakeRuntime, , m, err] = createTestRuntimeManager(ctx);
 		expect(err).toBeUndefined();
@@ -190,7 +190,7 @@ browser.describe("sandboxGC", ({ ctx }) => {
 });
 
 // Models kubernetes/pkg/kubelet/kuberuntime/kuberuntime_gc_test.go TestContainerGC.
-browser.describe("containerGC", ({ ctx }) => {
+both.describe("containerGC", ({ ctx }) => {
 	it("evicts containers using upstream table cases", async () => {
 		const [fakeRuntime, , m, err] = createTestRuntimeManager(ctx);
 		const clock = getClock(ctx);
@@ -404,7 +404,7 @@ browser.describe("containerGC", ({ ctx }) => {
 });
 
 // Models kubernetes/pkg/kubelet/kuberuntime/kuberuntime_gc_test.go TestPodLogDirectoryGC.
-browser.describe("podLogDirectoryGC", ({ ctx }) => {
+both.describe("podLogDirectoryGC", ({ ctx }) => {
 	it("is a no-op because the simulator does not model kubelet log files", async () => {
 		const [, , m, err] = createTestRuntimeManager(ctx);
 		expect(err).toBeUndefined();
@@ -415,7 +415,7 @@ browser.describe("podLogDirectoryGC", ({ ctx }) => {
 });
 
 // Models kubernetes/pkg/kubelet/kuberuntime/kuberuntime_gc_test.go TestUnknownStateContainerGC.
-browser.describe("unknownStateContainerGC", ({ ctx }) => {
+both.describe("unknownStateContainerGC", ({ ctx }) => {
 	it("stops unknown containers before removing them", async () => {
 		const [fakeRuntime, , m, err] = createTestRuntimeManager(ctx);
 		expect(err).toBeUndefined();

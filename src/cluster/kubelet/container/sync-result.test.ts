@@ -5,7 +5,7 @@
 /* eslint-disable jest/expect-expect */
 import { it } from "vitest";
 import { Aggregate, newAggregate } from "../../../apimachinery/pkg/util/errors/errors.js";
-import { browser } from "../../../test/describe.js";
+import { both } from "../../../test/describe.js";
 import {
 	minBackoffExpiration,
 	newBackoffError,
@@ -14,7 +14,7 @@ import {
 } from "./sync-result.js";
 
 // Models kubernetes/pkg/kubelet/container/sync_result_test.go TestPodSyncResult.
-browser.describe("TestPodSyncResult", () => {
+both.describe("TestPodSyncResult", () => {
 	it("matches upstream behavior", () => {
 		const okResults = [
 			newSyncResult("StartContainer", "container_0"),
@@ -67,7 +67,7 @@ class MyCustomError extends Error {
 }
 
 // Models kubernetes/pkg/kubelet/container/sync_result_test.go TestPodSyncResultPreservesOriginalErrorType.
-browser.describe("TestPodSyncResultPreservesOriginalErrorType", () => {
+both.describe("TestPodSyncResultPreservesOriginalErrorType", () => {
 	it("with custom error in SyncResult", () => {
 		const customErr = new MyCustomError("a special error");
 		const syncResult = newSyncResult("KillContainer", "container_1");
@@ -128,7 +128,7 @@ browser.describe("TestPodSyncResultPreservesOriginalErrorType", () => {
 });
 
 // Models kubernetes/pkg/kubelet/container/sync_result_test.go TestMinBackoffExpiration.
-browser.describe("TestMinBackoffExpiration", () => {
+both.describe("TestMinBackoffExpiration", () => {
 	const now = new Date("2026-01-02T03:04:05.000Z");
 	const addSeconds = (seconds: number): Date => new Date(now.getTime() + seconds * 1000);
 	const testCases: Array<{

@@ -16,7 +16,7 @@ import { Clock } from "../clock.js";
 import { withClock } from "../clock-context.js";
 import * as context from "../go/context.js";
 import { WaitGroup } from "../go/sync/wait-group.js";
-import { browser } from "../test/describe.js";
+import { both } from "../test/describe.js";
 import { newFakePassiveClock } from "../utils/clock/testing/fake-clock.js";
 import {
 	ActivePodsWithRanks,
@@ -109,7 +109,7 @@ function newPodList(
 	return pods;
 }
 
-browser.describe("controller utils", ({ ctx }) => {
+both.describe("controller utils", ({ ctx }) => {
 	// Models kubernetes/pkg/controller/controller_utils_test.go TestControllerExpectations.
 	it("ControllerExpectations", async () => {
 		const ttl = 30 * 1000;

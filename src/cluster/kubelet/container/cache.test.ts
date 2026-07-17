@@ -1,10 +1,10 @@
 import { expect, it } from "vitest";
 import * as context from "../../../go/context.js";
-import { browser } from "../../../test/describe.js";
+import { both } from "../../../test/describe.js";
 import { PodStatusCache } from "./cache.js";
 import type { PodStatus as PodRuntimeStatus } from "./runtime.js";
 
-browser.describe("PodStatusCache", () => {
+both.describe("PodStatusCache", () => {
 	it("returns empty status for missing pods once the cache is globally fresh", async () => {
 		const cache = new PodStatusCache();
 		const pending = cache.getNewerThan(context.background(), "pod-1", new Date(1000));

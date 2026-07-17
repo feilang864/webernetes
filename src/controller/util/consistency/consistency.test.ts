@@ -11,7 +11,7 @@ import type { KubernetesObject } from "../../../client/index.js";
 import { metaNamespaceKeyFunc, newStore } from "../../../client-go/tools/cache/store.js";
 import { Once } from "../../../go/sync/once.js";
 import { WaitGroup } from "../../../go/sync/wait-group.js";
-import { browser } from "../../../test/describe.js";
+import { both } from "../../../test/describe.js";
 import {
 	newConsistencyStore,
 	newOwnerRecord,
@@ -21,7 +21,7 @@ import {
 
 interface TestPod extends KubernetesObject {}
 
-browser.describe("controller consistency store", () => {
+both.describe("controller consistency store", () => {
 	// Models kubernetes/pkg/controller/util/consistency/consistency_test.go TestOwnerRecord_WroteAt.
 	it("OwnerRecord_WroteAt", () => {
 		const uid = "owner-uid-1";
