@@ -5,8 +5,8 @@
 // oxlint-disable jest/expect-expect
 import { expect, it } from "vitest";
 
-import { browser } from "../../../../test/describe";
-import { expand, mappingFuncFor } from "./expand";
+import { browser } from "../../../../test/describe.js";
+import { expand, mappingFuncFor } from "./expand.js";
 
 // Models kubernetes/third_party/forked/golang/expansion/expand_test.go TestMapReference.
 browser.describe("TestMapReference", () => {

@@ -3,9 +3,9 @@
  * Derived from Kubernetes, translated and modified for Webernetes.
  */
 import { expect, it } from "vitest";
-import type { V1PodSecurityContext, V1Sysctl } from "../../../client";
-import { browser } from "../../../test/describe";
-import { convertPodSysctlsVariableToDotsSeparator } from "./util";
+import type { V1PodSecurityContext, V1Sysctl } from "../../../client/index.js";
+import { browser } from "../../../test/describe.js";
+import { convertPodSysctlsVariableToDotsSeparator } from "./util.js";
 
 // Models kubernetes/pkg/kubelet/sysctl/util_test.go TestConvertPodSysctlsVariableToDotsSeparator.
 browser.describe("TestConvertPodSysctlsVariableToDotsSeparator", () => {

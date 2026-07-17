@@ -2,12 +2,12 @@
  * SPDX-License-Identifier: Apache-2.0
  * Derived from Kubernetes, translated and modified for Webernetes.
  */
-import type { V1Node, V1NodeDaemonEndpoints } from "../../../client";
-import { newNodeSystemInfo } from "../../../client";
-import { formatIP, isUnspecifiedIP } from "../../../go/net";
-import type * as context from "../../../go/context";
-import { isIPv4, parseIPSloppy } from "../../../utils/net";
-import type { Image, RuntimeFeatures, RuntimeHandler, Version } from "../container";
+import type { V1Node, V1NodeDaemonEndpoints } from "../../../client/index.js";
+import { newNodeSystemInfo } from "../../../client/index.js";
+import { formatIP, isUnspecifiedIP } from "../../../go/net/index.js";
+import type * as context from "../../../go/context.js";
+import { isIPv4, parseIPSloppy } from "../../../utils/net/index.js";
+import type { Image, RuntimeFeatures, RuntimeHandler, Version } from "../container/index.js";
 
 // Models kubernetes/pkg/kubelet/nodestatus/setters.go MaxNamesPerImageInNodeStatus.
 export const maxNamesPerImageInNodeStatus = 5;

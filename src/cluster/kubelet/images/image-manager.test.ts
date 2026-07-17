@@ -5,19 +5,19 @@
 // oxlint-disable jest/expect-expect
 // oxlint-disable jest/no-standalone-expect
 import { expect, it } from "vitest";
-import type { V1Container, V1ObjectReference, V1Pod } from "../../../client";
-import { newFakeRecorder } from "../../../client-go/tools/record/fake";
-import { newBackOff } from "../../../client-go/util/flowcontrol/backoff";
-import { Clock } from "../../../clock";
-import { withClock } from "../../../clock-context";
-import { background } from "../../../go/context";
-import { browser } from "../../../test/describe";
-import { FakeRuntime } from "../container/testing";
-import { KubeletImageManager, applyDefaultImageTag, evalCRIPullErr } from "./image-manager";
-import type { ImagePullManager } from "./pullmanager";
-import { ImagePullError } from "./types";
-import type * as context from "../../../go/context";
-import type { ImagePodPullingTimeRecorder } from "./image-manager";
+import type { V1Container, V1ObjectReference, V1Pod } from "../../../client/index.js";
+import { newFakeRecorder } from "../../../client-go/tools/record/fake.js";
+import { newBackOff } from "../../../client-go/util/flowcontrol/backoff.js";
+import { Clock } from "../../../clock.js";
+import { withClock } from "../../../clock-context.js";
+import { background } from "../../../go/context.js";
+import { browser } from "../../../test/describe.js";
+import { FakeRuntime } from "../container/testing/index.js";
+import { KubeletImageManager, applyDefaultImageTag, evalCRIPullErr } from "./image-manager.js";
+import type { ImagePullManager } from "./pullmanager/index.js";
+import { ImagePullError } from "./types.js";
+import type * as context from "../../../go/context.js";
+import type { ImagePodPullingTimeRecorder } from "./image-manager.js";
 
 // Models kubernetes/pkg/kubelet/images/image_manager_test.go mockPodPullingTimeRecorder.
 class mockPodPullingTimeRecorder implements ImagePodPullingTimeRecorder {

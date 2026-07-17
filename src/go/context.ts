@@ -2,8 +2,8 @@
  * SPDX-License-Identifier: Apache-2.0
  * Derived from Kubernetes, translated and modified for Webernetes.
  */
-import { Channel, type ReadOnlyChannel } from "./channel";
-import { getClock } from "../clock-context";
+import { Channel, type ReadOnlyChannel } from "./channel.js";
+import { getClock } from "../clock-context.js";
 
 export class ContextError extends Error {}
 

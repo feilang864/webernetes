@@ -2,8 +2,8 @@
  * SPDX-License-Identifier: Apache-2.0
  * Derived from Kubernetes, translated and modified for Webernetes.
  */
-import type { V1ObjectReference } from "../../../client";
-import type { KubernetesObject } from "../../../client/types";
+import type { V1ObjectReference } from "../../../client/index.js";
+import type { KubernetesObject } from "../../../client/types.js";
 
 // Models staging/src/k8s.io/client-go/tools/record/event.go EventRecorder.
 export interface EventRecorder {

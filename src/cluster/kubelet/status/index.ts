@@ -5,7 +5,7 @@ export {
 	normalizeStatus,
 	StatusManagerImpl,
 	updateLastTransitionTime,
-} from "./status-manager";
+} from "./status-manager.js";
 export type {
 	PodDeletionSafetyProvider,
 	PodStatusProvider,
@@ -13,11 +13,11 @@ export type {
 	PodUpdateNotifier,
 	StatusManager,
 	StatusManagerOptions,
-} from "./status-manager";
+} from "./status-manager.js";
 export {
 	generateAllContainersRestartingCondition,
 	generateContainersReadyCondition,
 	generatePodInitializedCondition,
 	generatePodReadyCondition,
 	generatePodReadyToStartContainersCondition,
-} from "./generate";
+} from "./generate.js";

@@ -1,5 +1,5 @@
-import { Conflict, Invalid } from "../../../errors";
-import type { V1DeleteOptions } from "../../models";
+import { Conflict, Invalid } from "../../../errors.js";
+import type { V1DeleteOptions } from "../../models/index.js";
 
 interface ListResourceVersionRequest {
 	_continue?: string;

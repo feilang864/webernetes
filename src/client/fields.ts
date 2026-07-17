@@ -1,5 +1,5 @@
-import { Set } from "../apimachinery/pkg/fields/fields";
-import { parseSelector, type Selector } from "../apimachinery/pkg/fields/selector";
+import { Set } from "../apimachinery/pkg/fields/fields.js";
+import { parseSelector, type Selector } from "../apimachinery/pkg/fields/selector.js";
 
 export type FieldSelector = Selector;
 

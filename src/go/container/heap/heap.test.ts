@@ -4,8 +4,8 @@
  */
 import { expect, it } from "vitest";
 
-import { browser } from "../../../test/describe";
-import * as heap from "./heap";
+import { browser } from "../../../test/describe.js";
+import * as heap from "./heap.js";
 
 class NumberHeap implements heap.Interface<number> {
 	readonly items: number[] = [];

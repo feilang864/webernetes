@@ -1,7 +1,7 @@
 import { expect, it } from "vitest";
 
-import { browser } from "../../test/describe";
-import { WaitGroup } from "./wait-group";
+import { browser } from "../../test/describe.js";
+import { WaitGroup } from "./wait-group.js";
 
 browser.describe("WaitGroup", () => {
 	it("waits until all work is done", async () => {

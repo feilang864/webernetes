@@ -2,15 +2,19 @@
  * SPDX-License-Identifier: Apache-2.0
  * Derived from Kubernetes, translated and modified for Webernetes.
  */
-import type { V1Container, V1Pod, V1Probe } from "../../../client";
-import { getClock } from "../../../clock-context";
-import { Channel, select } from "../../../go/channel";
-import type { Context } from "../../../go/context";
-import * as time from "../../../go/time";
-import * as podutil from "../../api/v1/pod/util";
-import { type ContainerID, parseContainerID, shouldAllContainersRestart } from "../container";
-import type { ProbeManagerImpl } from "./prober-manager";
-import type { ProberResult, ProbeType, ResultsManager } from "./results";
+import type { V1Container, V1Pod, V1Probe } from "../../../client/index.js";
+import { getClock } from "../../../clock-context.js";
+import { Channel, select } from "../../../go/channel.js";
+import type { Context } from "../../../go/context.js";
+import * as time from "../../../go/time.js";
+import * as podutil from "../../api/v1/pod/util.js";
+import {
+	type ContainerID,
+	parseContainerID,
+	shouldAllContainersRestart,
+} from "../container/index.js";
+import type { ProbeManagerImpl } from "./prober-manager.js";
+import type { ProberResult, ProbeType, ResultsManager } from "./results/index.js";
 
 export class ProbeWorker {
 	readonly pod: V1Pod;

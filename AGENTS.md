@@ -40,6 +40,10 @@ General rules for this repository:
   `setTimeout`, `setInterval`, or `Date.now` directly. Route timeout, interval,
   and current-time behavior through the cluster `Clock` instance so the
   simulator can be paused and controlled deterministically.
+- In TypeScript source, include the emitted `.js` extension in every relative
+  import and re-export specifier. For directory barrels, import the explicit
+  `/index.js` path. The repository uses TypeScript's `NodeNext` module
+  resolution so editors and typechecking enforce native Node ESM semantics.
 - When a function or constructor accepts a `context.Context`, make that argument
   the first parameter and name it `ctx`, matching Kubernetes Go conventions.
 - For intentionally unused parameters, prefix the parameter name with an

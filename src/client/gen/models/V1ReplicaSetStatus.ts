@@ -2,7 +2,7 @@
  * SPDX-License-Identifier: Apache-2.0
  * Derived from Kubernetes, translated and modified for Webernetes.
  */
-import { V1ReplicaSetCondition } from "./V1ReplicaSetCondition";
+import { V1ReplicaSetCondition } from "./V1ReplicaSetCondition.js";
 
 export interface V1ReplicaSetStatus {
 	availableReplicas?: number;

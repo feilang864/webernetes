@@ -7,4 +7,4 @@ export {
 	type ClientReaction,
 	type ClientReactor,
 	type TestKubeClientObject,
-} from "./kube-client";
+} from "./kube-client.js";

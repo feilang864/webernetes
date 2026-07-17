@@ -4,30 +4,33 @@
  */
 // oxlint-disable jest/no-conditional-expect
 import { expect, it } from "vitest";
-import type { V1Pod } from "../../client";
-import { newAggregate } from "../../apimachinery/pkg/util/errors/errors";
-import { deepEqual } from "../../deep-equal";
-import { Channel, type ReadOnlyChannel } from "../../go/channel";
-import * as context from "../../go/context";
-import { Mutex } from "../../go/sync/mutex";
-import { wait } from "../../promise";
-import { browser } from "../../test/describe";
-import { newFakePassiveClock, type FakePassiveClock } from "../../utils/clock/testing/fake-clock";
+import type { V1Pod } from "../../client/index.js";
+import { newAggregate } from "../../apimachinery/pkg/util/errors/errors.js";
+import { deepEqual } from "../../deep-equal.js";
+import { Channel, type ReadOnlyChannel } from "../../go/channel.js";
+import * as context from "../../go/context.js";
+import { Mutex } from "../../go/sync/mutex.js";
+import { wait } from "../../promise.js";
+import { browser } from "../../test/describe.js";
+import {
+	newFakePassiveClock,
+	type FakePassiveClock,
+} from "../../utils/clock/testing/fake-clock.js";
 import {
 	newBackoffError,
 	newPod,
 	newPodStatus,
 	type ROCache,
 	type PodStatus as PodRuntimeStatus,
-} from "./container";
-import { networkNotReadyErrorMsg } from "./errors";
-import { FakeRuntime } from "./container/testing";
+} from "./container/index.js";
+import { networkNotReadyErrorMsg } from "./errors.js";
+import { FakeRuntime } from "./container/testing/index.js";
 import {
 	createPodWorkers,
 	drainAllWorkers,
 	FakeQueue,
 	type syncPodRecord,
-} from "./kubelet-test-helpers";
+} from "./kubelet-test-helpers.js";
 import {
 	calculateEffectiveGracePeriod,
 	isTerminated,
@@ -40,7 +43,7 @@ import {
 	type PodWorkerSync,
 	type SyncPodResult,
 	type UpdatePodOptions,
-} from "./pod-workers";
+} from "./pod-workers.js";
 
 type AfterUpdateFn = () => void | Promise<void>;
 

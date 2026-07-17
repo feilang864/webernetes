@@ -1,2 +1,2 @@
-export { NoopImagePullManager } from "./noop-pull-manager";
-export type { GetPodCredentials, ImagePullManager } from "./interfaces";
+export { NoopImagePullManager } from "./noop-pull-manager.js";
+export type { GetPodCredentials, ImagePullManager } from "./interfaces.js";

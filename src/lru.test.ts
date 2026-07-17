@@ -3,8 +3,8 @@
  * Derived from Kubernetes, translated and modified for Webernetes.
  */
 import { expect, it } from "vitest";
-import { browser } from "./test/describe";
-import { newLRU, newLRUWithEvictionFunc } from "./lru";
+import { browser } from "./test/describe.js";
+import { newLRU, newLRUWithEvictionFunc } from "./lru.js";
 
 interface SimpleStruct {
 	int: number;

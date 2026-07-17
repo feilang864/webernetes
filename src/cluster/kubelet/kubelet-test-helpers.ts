@@ -2,19 +2,22 @@
  * SPDX-License-Identifier: Apache-2.0
  * Derived from Kubernetes, translated and modified for Webernetes.
  */
-import type { V1Node, V1Pod, V1PodSpec } from "../../client";
-import { KubeConfig } from "../../client";
-import { Set as LabelSet } from "../../apimachinery/pkg/labels/labels";
-import type { Clock } from "../../clock";
-import { getClock } from "../../clock-context";
-import { Channel } from "../../go/channel";
-import * as context from "../../go/context";
-import { Mutex } from "../../go/sync/mutex";
-import { newBackOff } from "../../client-go/util/flowcontrol/backoff";
-import { newFakePassiveClock, type FakePassiveClock } from "../../utils/clock/testing/fake-clock";
-import { KubeClient } from "../cluster";
-import { Etcd } from "../etcd";
-import { EventRecorderImpl } from "../events";
+import type { V1Node, V1Pod, V1PodSpec } from "../../client/index.js";
+import { KubeConfig } from "../../client/index.js";
+import { Set as LabelSet } from "../../apimachinery/pkg/labels/labels.js";
+import type { Clock } from "../../clock.js";
+import { getClock } from "../../clock-context.js";
+import { Channel } from "../../go/channel.js";
+import * as context from "../../go/context.js";
+import { Mutex } from "../../go/sync/mutex.js";
+import { newBackOff } from "../../client-go/util/flowcontrol/backoff.js";
+import {
+	newFakePassiveClock,
+	type FakePassiveClock,
+} from "../../utils/clock/testing/fake-clock.js";
+import { KubeClient } from "../cluster.js";
+import { Etcd } from "../etcd.js";
+import { EventRecorderImpl } from "../events.js";
 import {
 	networkReady,
 	RuntimeCondition,
@@ -25,33 +28,33 @@ import {
 	type Pod,
 	type PodStatus as PodRuntimeStatus,
 	type ROCache,
-} from "./container";
+} from "./container/index.js";
 import {
 	FakeContainerCommandRunner,
 	FakeRuntime,
 	newFakeCache,
 	newFakeRuntimeCache,
-} from "./container/testing";
-import { newPodConfig, newSourcesReady } from "./config";
-import { Kubelet, NoopPodStartupSLIObserver } from "./kubelet";
-import { Configurer } from "./network/dns";
-import { GenericPLEG, type PodLifecycleEvent } from "./pleg";
+} from "./container/testing/index.js";
+import { newPodConfig, newSourcesReady } from "./config/index.js";
+import { Kubelet, NoopPodStartupSLIObserver } from "./kubelet.js";
+import { Configurer } from "./network/dns/index.js";
+import { GenericPLEG, type PodLifecycleEvent } from "./pleg/index.js";
 import {
 	PodWorkersImpl,
 	type PodWorkers,
 	type PodWorkerSync,
 	type SyncPodResult,
 	type UpdatePodOptions,
-} from "./pod-workers";
-import { PodManager } from "./pod";
-import { ResultsManager } from "./prober";
-import { FakeManager } from "./prober/testing/fake-manager";
-import { newRuntimeState } from "./runtime";
-import { StatusManagerImpl } from "./status";
-import { wait } from "../../promise";
-import type { SyncPodType } from "./types/pod-update";
-import { BasicWorkQueue, type WorkQueue } from "./util/queue/work-queue";
-import { newActiveDeadlineHandler } from "./active-deadline";
+} from "./pod-workers.js";
+import { PodManager } from "./pod/index.js";
+import { ResultsManager } from "./prober/index.js";
+import { FakeManager } from "./prober/testing/fake-manager.js";
+import { newRuntimeState } from "./runtime.js";
+import { StatusManagerImpl } from "./status/index.js";
+import { wait } from "../../promise.js";
+import type { SyncPodType } from "./types/pod-update.js";
+import { BasicWorkQueue, type WorkQueue } from "./util/queue/work-queue.js";
+import { newActiveDeadlineHandler } from "./active-deadline.js";
 
 const testServiceCIDR = "10.96.0.0/12";
 const testNodePortRange = { from: 30000, to: 32767 };

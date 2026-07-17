@@ -2,7 +2,7 @@
  * SPDX-License-Identifier: Apache-2.0
  * Derived from Kubernetes, translated and modified for Webernetes.
  */
-import type { V1LabelSelector, V1LabelSelectorRequirement } from "../../client";
+import type { V1LabelSelector, V1LabelSelectorRequirement } from "../../client/index.js";
 
 // Models kubernetes/pkg/util/labels/labels.go CloneSelectorAndAddLabel.
 export function cloneSelectorAndAddLabel(

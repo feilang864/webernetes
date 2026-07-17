@@ -4,21 +4,21 @@
  */
 import { expect, it, vi } from "vitest";
 
-import type { ListOptions } from "../../../apimachinery/pkg/apis/meta/v1/types";
-import { GroupVersionKind } from "../../../apimachinery/pkg/runtime/schema/group_version";
+import type { ListOptions } from "../../../apimachinery/pkg/apis/meta/v1/types.js";
+import { GroupVersionKind } from "../../../apimachinery/pkg/runtime/schema/group_version.js";
 import {
 	FakeWatcher,
 	MockWatcher,
 	newFakeWithChanSize,
 	type Event,
-} from "../../../apimachinery/pkg/watch/watch";
-import { getClock } from "../../../clock-context";
-import type { KubernetesObject, KubeList } from "../../../client/types";
-import { Channel, type ReadOnlyChannel } from "../../../go/channel";
-import * as context from "../../../go/context";
-import { browser } from "../../../test/describe";
-import { newFIFO, type Queue } from "./fifo";
-import { ListWatch, type WatchResult } from "./listwatch";
+} from "../../../apimachinery/pkg/watch/watch.js";
+import { getClock } from "../../../clock-context.js";
+import type { KubernetesObject, KubeList } from "../../../client/types.js";
+import { Channel, type ReadOnlyChannel } from "../../../go/channel.js";
+import * as context from "../../../go/context.js";
+import { browser } from "../../../test/describe.js";
+import { newFIFO, type Queue } from "./fifo.js";
+import { ListWatch, type WatchResult } from "./listwatch.js";
 import {
 	errorStopRequested,
 	handleWatch,
@@ -26,8 +26,8 @@ import {
 	newReflectorWithOptions,
 	type ReflectorStore,
 	VeryShortWatchError,
-} from "./reflector";
-import { metaNamespaceKeyFunc } from "./store";
+} from "./reflector.js";
+import { metaNamespaceKeyFunc } from "./store.js";
 
 interface TestPod extends KubernetesObject {
 	metadata: {

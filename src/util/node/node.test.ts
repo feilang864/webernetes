@@ -4,9 +4,9 @@
  */
 // oxlint-disable jest/no-conditional-expect
 import { expect, it } from "vitest";
-import type { V1Node, V1NodeAddress } from "../../client";
-import { browser } from "../../test/describe";
-import { getNodeHostIPs, getPreferredNodeAddress, isNodeReady } from "./node";
+import type { V1Node, V1NodeAddress } from "../../client/index.js";
+import { browser } from "../../test/describe.js";
+import { getNodeHostIPs, getPreferredNodeAddress, isNodeReady } from "./node.js";
 
 // Models kubernetes/pkg/util/node/node_test.go TestGetPreferredAddress.
 browser.describe("getPreferredAddress", () => {

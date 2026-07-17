@@ -1,9 +1,9 @@
 import { expect, it } from "vitest";
 
-import { getClock } from "../clock-context";
-import { select } from "./channel";
-import * as context from "./context";
-import { browser } from "../test/describe";
+import { getClock } from "../clock-context.js";
+import { select } from "./channel.js";
+import * as context from "./context.js";
+import { browser } from "../test/describe.js";
 
 // These tests mirror the cancel-only subset of Go's context tests from:
 // https://github.com/golang/go/blob/go1.26.0/src/context/x_test.go

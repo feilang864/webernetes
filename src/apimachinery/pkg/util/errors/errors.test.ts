@@ -3,8 +3,8 @@
  * Derived from Kubernetes, translated and modified for Webernetes.
  */
 import { expect, it } from "vitest";
-import { browser } from "../../../../test/describe";
-import { Aggregate, flatten, newAggregate } from "./errors";
+import { browser } from "../../../../test/describe.js";
+import { Aggregate, flatten, newAggregate } from "./errors.js";
 
 // Models staging/src/k8s.io/apimachinery/pkg/util/errors/errors_test.go TestEmptyAggregate.
 browser.describe("emptyAggregate", () => {

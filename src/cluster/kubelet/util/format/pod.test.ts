@@ -3,9 +3,9 @@
  * Derived from Kubernetes, translated and modified for Webernetes.
  */
 import { expect, it } from "vitest";
-import type { V1Pod } from "../../../../client";
-import { browser } from "../../../../test/describe";
-import { pod, podDesc } from "./pod";
+import type { V1Pod } from "../../../../client/index.js";
+import { browser } from "../../../../test/describe.js";
+import { pod, podDesc } from "./pod.js";
 
 function fakeCreatePod(name: string, namespace: string, uid: string): V1Pod {
 	return {

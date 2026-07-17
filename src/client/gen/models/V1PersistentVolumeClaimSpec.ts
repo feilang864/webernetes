@@ -2,10 +2,10 @@
  * SPDX-License-Identifier: Apache-2.0
  * Derived from Kubernetes, translated and modified for Webernetes.
  */
-import { V1LabelSelector } from "./V1LabelSelector";
-import { V1TypedLocalObjectReference } from "./V1TypedLocalObjectReference";
-import { V1TypedObjectReference } from "./V1TypedObjectReference";
-import { V1VolumeResourceRequirements } from "./V1VolumeResourceRequirements";
+import { V1LabelSelector } from "./V1LabelSelector.js";
+import { V1TypedLocalObjectReference } from "./V1TypedLocalObjectReference.js";
+import { V1TypedObjectReference } from "./V1TypedObjectReference.js";
+import { V1VolumeResourceRequirements } from "./V1VolumeResourceRequirements.js";
 export interface V1PersistentVolumeClaimSpec {
 	accessModes?: Array<string>;
 	dataSource?: V1TypedLocalObjectReference;

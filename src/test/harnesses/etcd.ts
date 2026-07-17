@@ -1,9 +1,9 @@
-import { browser, currentTestEnvironment, node } from "../describe";
-import type { SuiteOptions } from "../describe";
+import { browser, currentTestEnvironment, node } from "../describe.js";
+import type { SuiteOptions } from "../describe.js";
 import type { Etcd3 } from "etcd3";
 
-import type { Etcd } from "../../cluster/etcd";
-import type * as context from "../../go/context";
+import type { Etcd } from "../../cluster/etcd.js";
+import type * as context from "../../go/context.js";
 
 export type EtcdTestTarget = "fake" | "real";
 
@@ -30,9 +30,10 @@ interface EtcdRuntime {
 	defineSuite(name: string, options: SuiteOptions, factory: EtcdSuiteFactory): void;
 }
 
-const realRuntime = currentTestEnvironment === "node" ? await import("./etcd-real") : undefined;
+const realRuntime = currentTestEnvironment === "node" ? await import("./etcd-real.js") : undefined;
 
-const fakeRuntime = currentTestEnvironment === "browser" ? await import("./etcd-fake") : undefined;
+const fakeRuntime =
+	currentTestEnvironment === "browser" ? await import("./etcd-fake.js") : undefined;
 
 export const realEtcd: EtcdDescribe = {
 	describe: createTargetDescribe("real", realRuntime),

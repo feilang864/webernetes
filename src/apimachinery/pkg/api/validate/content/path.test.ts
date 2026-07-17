@@ -4,8 +4,8 @@
  */
 // oxlint-disable jest/no-conditional-expect
 import { expect, it } from "vitest";
-import { browser } from "../../../../../test/describe";
-import { isPathSegmentName, isPathSegmentPrefix } from "./path";
+import { browser } from "../../../../../test/describe.js";
+import { isPathSegmentName, isPathSegmentPrefix } from "./path.js";
 
 browser.describe("content path validation", () => {
 	// Models staging/src/k8s.io/apimachinery/pkg/api/validate/content/path_test.go TestIsPathSegmentPrefix.

@@ -2,10 +2,10 @@
 // oxlint-disable vitest/warn-todo
 import { beforeEach as vitestBeforeEach, describe as vitestDescribe } from "vitest";
 import type { TestOptions } from "vitest";
-import { Clock } from "../clock";
-import { getClock, withClock } from "../clock-context";
-import * as context from "../go/context";
-import { withLatencyProvider } from "../latency";
+import { Clock } from "../clock.js";
+import { getClock, withClock } from "../clock-context.js";
+import * as context from "../go/context.js";
+import { withLatencyProvider } from "../latency.js";
 
 export type TestEnvironment = "browser" | "node";
 export type SuiteOptions = number | TestOptions;

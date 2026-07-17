@@ -4,11 +4,11 @@
  */
 import { expect, it } from "vitest";
 
-import { Channel } from "../../../../go/channel";
-import * as context from "../../../../go/context";
-import { WaitGroup } from "../../../../go/sync/wait-group";
-import { browser } from "../../../../test/describe";
-import { untilWithContext } from "./backoff";
+import { Channel } from "../../../../go/channel.js";
+import * as context from "../../../../go/context.js";
+import { WaitGroup } from "../../../../go/sync/wait-group.js";
+import { browser } from "../../../../test/describe.js";
+import { untilWithContext } from "./backoff.js";
 
 browser.describe("untilWithContext", ({ ctx }) => {
 	// Models staging/src/k8s.io/apimachinery/pkg/util/wait/wait_test.go TestUntilWithContext.

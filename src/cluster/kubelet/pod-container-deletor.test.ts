@@ -3,9 +3,9 @@
  * Derived from Kubernetes, translated and modified for Webernetes.
  */
 import { expect, it } from "vitest";
-import { browser } from "../../test/describe";
-import { newPodStatus, newStatus, type Status } from "./container";
-import { getContainersToDeleteInPod } from "./pod-container-deletor";
+import { browser } from "../../test/describe.js";
+import { newPodStatus, newStatus, type Status } from "./container/index.js";
+import { getContainersToDeleteInPod } from "./pod-container-deletor.js";
 
 // Models kubernetes/pkg/kubelet/pod_container_deletor_test.go TestGetContainersToDeleteInPodWithFilter.
 browser.describe("TestGetContainersToDeleteInPodWithFilter", () => {

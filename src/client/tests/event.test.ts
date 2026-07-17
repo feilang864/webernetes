@@ -1,8 +1,8 @@
 import { expect, it } from "vitest";
-import type { CoreV1Event } from "../gen/models";
-import { kubernetes } from "../../test/harnesses/kubernetes";
-import { apiErrorCode } from "../../test/harnesses/helpers";
-import { expectRecentCreationTimestamp, expectResourceUid } from "./assertions";
+import type { CoreV1Event } from "../gen/models/index.js";
+import { kubernetes } from "../../test/harnesses/kubernetes.js";
+import { apiErrorCode } from "../../test/harnesses/helpers.js";
+import { expectRecentCreationTimestamp, expectResourceUid } from "./assertions.js";
 
 kubernetes.describe("Events", ({ apps, core, helpers }) => {
 	const { createPod, eventsFor, getSuiteNamespace, getTestNamespace, waitFor, waitForPodReady } =

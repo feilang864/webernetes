@@ -1,7 +1,7 @@
 import { Buffer } from "buffer";
-import { CIDR, ipToNumber, numberToIp } from "../../net";
-import type * as context from "../../go/context";
-import { Etcd } from "../etcd";
+import { CIDR, ipToNumber, numberToIp } from "../../net.js";
+import type * as context from "../../go/context.js";
+import { Etcd } from "../etcd.js";
 
 function bitmapKey(name: string): string {
 	return `/registry/ranges/${name}/bitmap`;

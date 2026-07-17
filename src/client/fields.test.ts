@@ -1,6 +1,6 @@
 import { expect, it } from "vitest";
-import { browser } from "../test/describe";
-import { fieldSelectorMatches, filterByFields, parseFieldSelector } from "./fields";
+import { browser } from "../test/describe.js";
+import { fieldSelectorMatches, filterByFields, parseFieldSelector } from "./fields.js";
 
 browser.describe("field selectors", () => {
 	it("treats empty selectors as matching everything", () => {

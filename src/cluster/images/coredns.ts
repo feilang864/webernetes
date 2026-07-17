@@ -1,7 +1,7 @@
-import * as k8s from "../../client";
-import type { DnsRequest, DnsResponse } from "../cni";
-import type { ProcessContext } from "../cri";
-import { BaseImage } from "./base";
+import * as k8s from "../../client/index.js";
+import type { DnsRequest, DnsResponse } from "../cni/index.js";
+import type { ProcessContext } from "../cri/index.js";
+import { BaseImage } from "./base.js";
 
 const SERVICE_TTL_SECONDS = 30;
 

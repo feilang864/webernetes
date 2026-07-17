@@ -1,9 +1,9 @@
 // oxlint-disable typescript/no-non-null-assertion
 import { expect, it } from "vitest";
-import { CIDR } from "../../net";
-import { kubernetes } from "../../test/harnesses/kubernetes";
-import { apiErrorCode, apiStatusMessage } from "../../test/harnesses/helpers";
-import { expectRecentCreationTimestamp, expectResourceUid } from "./assertions";
+import { CIDR } from "../../net.js";
+import { kubernetes } from "../../test/harnesses/kubernetes.js";
+import { apiErrorCode, apiStatusMessage } from "../../test/harnesses/helpers.js";
+import { expectRecentCreationTimestamp, expectResourceUid } from "./assertions.js";
 
 kubernetes.describe("Pods", (context) => {
 	const { core, target, k8s } = context;

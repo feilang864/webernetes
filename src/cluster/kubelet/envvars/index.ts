@@ -1,1 +1,1 @@
-export * from "./envvars";
+export * from "./envvars.js";

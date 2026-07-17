@@ -1,9 +1,9 @@
-export * from "./config";
-export * from "./cache";
-export * from "./fields";
-export * from "./gen";
-export * from "./informer";
-export * from "./exec";
-export * from "./watch";
-export * from "./patch";
-export type { IntOrString, KubeClient, KubernetesListObject, KubernetesObject } from "./types";
+export * from "./config.js";
+export * from "./cache.js";
+export * from "./fields.js";
+export * from "./gen/index.js";
+export * from "./informer.js";
+export * from "./exec.js";
+export * from "./watch.js";
+export * from "./patch.js";
+export type { IntOrString, KubeClient, KubernetesListObject, KubernetesObject } from "./types.js";

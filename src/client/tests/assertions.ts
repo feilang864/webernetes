@@ -1,5 +1,5 @@
 import { expect } from "vitest";
-import type { KubernetesObject } from "../types";
+import type { KubernetesObject } from "../types.js";
 
 const recentTimestampToleranceMs = 5000;
 

@@ -12,7 +12,7 @@ import {
 	V1Service,
 	V1ServiceList,
 	V1Status,
-} from "../../models";
+} from "../../models/index.js";
 
 export interface CoreV1ApiCreateNamespacedEventRequest {
 	namespace: string;

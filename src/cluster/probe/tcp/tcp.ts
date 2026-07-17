@@ -2,8 +2,8 @@
  * SPDX-License-Identifier: Apache-2.0
  * Derived from Kubernetes, translated and modified for Webernetes.
  */
-import type { ClusterNetwork } from "../../cni";
-import type { ProbeResult } from "../probe";
+import type { ClusterNetwork } from "../../cni/index.js";
+import type { ProbeResult } from "../probe.js";
 
 export class TCPProber {
 	constructor(private readonly network: ClusterNetwork) {}

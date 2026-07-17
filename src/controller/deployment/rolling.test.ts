@@ -4,17 +4,17 @@
  */
 import { expect, it } from "vitest";
 
-import type * as k8s from "../../client";
+import type * as k8s from "../../client/index.js";
 import {
 	newTestKubeClient,
 	type ClientAction,
 	type TestKubeClient,
 	type TestKubeClientObject,
-} from "../../client/test";
-import * as context from "../../go/context";
-import { browser } from "../../test/describe";
-import { DeploymentController } from "./deployment-controller";
-import { newDeployment, noTimestamp, rs } from "./test-helpers";
+} from "../../client/test/index.js";
+import * as context from "../../go/context.js";
+import { browser } from "../../test/describe.js";
+import { DeploymentController } from "./deployment-controller.js";
+import { newDeployment, noTimestamp, rs } from "./test-helpers.js";
 
 type ReplicaSetUpdateAction = ClientAction & {
 	verb: "update";

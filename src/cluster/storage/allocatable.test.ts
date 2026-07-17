@@ -1,15 +1,15 @@
 import { expect, it } from "vitest";
 
-import type * as context from "../../go/context";
-import { browser } from "../../test/describe";
-import { Etcd } from "../etcd";
+import type * as context from "../../go/context.js";
+import { browser } from "../../test/describe.js";
+import { Etcd } from "../etcd.js";
 import {
 	AllocatableRange,
 	AlreadyAllocated,
 	IpRange,
 	NotAllocated,
 	PortRange,
-} from "./allocatable";
+} from "./allocatable.js";
 
 browser.describe("AllocatableRange", ({ ctx }) => {
 	it("throws an AlreadyAllocated error with the claimed index", async () => {

@@ -4,13 +4,13 @@
  */
 import { expect, it } from "vitest";
 
-import type * as k8s from "../../client";
-import { newTestKubeClient, type TestKubeClient } from "../../client/test";
-import * as context from "../../go/context";
-import { browser } from "../../test/describe";
-import { DeploymentController } from "./deployment-controller";
-import { oldPodsRunning } from "./recreate";
-import { newDeployment, newReplicaSet, noTimestamp, rs } from "./test-helpers";
+import type * as k8s from "../../client/index.js";
+import { newTestKubeClient, type TestKubeClient } from "../../client/test/index.js";
+import * as context from "../../go/context.js";
+import { browser } from "../../test/describe.js";
+import { DeploymentController } from "./deployment-controller.js";
+import { oldPodsRunning } from "./recreate.js";
+import { newDeployment, newReplicaSet, noTimestamp, rs } from "./test-helpers.js";
 
 browser.describe("DeploymentController recreate", ({ ctx }) => {
 	// Models kubernetes/pkg/controller/deployment/recreate_test.go TestScaleDownOldReplicaSets.

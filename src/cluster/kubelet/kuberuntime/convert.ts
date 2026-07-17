@@ -2,8 +2,8 @@
  * SPDX-License-Identifier: Apache-2.0
  * Derived from Kubernetes, translated and modified for Webernetes.
  */
-import type { Image as ImageFromCRI, ImageSpec as ImageSpecFromCRI } from "../../cri";
-import type { ImageSpec } from "../container";
+import type { Image as ImageFromCRI, ImageSpec as ImageSpecFromCRI } from "../../cri/index.js";
+import type { ImageSpec } from "../container/index.js";
 
 // Models kubernetes/pkg/kubelet/kuberuntime/convert.go ToKubeContainerImageSpec.
 export function toKubeContainerImageSpec(image: ImageFromCRI): ImageSpec {

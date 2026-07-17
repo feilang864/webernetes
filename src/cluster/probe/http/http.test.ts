@@ -5,15 +5,15 @@
 // oxlint-disable jest/no-conditional-expect
 import { expect, it } from "vitest";
 
-import { getClock } from "../../../clock-context";
-import * as context from "../../../go/context";
-import { browser } from "../../../test/describe";
-import { ClusterNetwork, type FetchOrigin } from "../../cni";
-import * as http from "../../cni/http";
-import { PodSandboxInstance } from "../../cri";
-import type { ProbeResult } from "../probe";
-import { doHTTPProbe, HTTPProber, type GetHTTPInterface } from "./http";
-import { formatURL, newProbeRequest } from "./request";
+import { getClock } from "../../../clock-context.js";
+import * as context from "../../../go/context.js";
+import { browser } from "../../../test/describe.js";
+import { ClusterNetwork, type FetchOrigin } from "../../cni/index.js";
+import * as http from "../../cni/http.js";
+import { PodSandboxInstance } from "../../cri/index.js";
+import type { ProbeResult } from "../probe.js";
+import { doHTTPProbe, HTTPProber, type GetHTTPInterface } from "./http.js";
+import { formatURL, newProbeRequest } from "./request.js";
 
 const failureCode = -1;
 const testOrigin: FetchOrigin = {

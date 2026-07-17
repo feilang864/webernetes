@@ -1,10 +1,10 @@
 import { afterEach, expect, it } from "vitest";
 
-import { Channel, type ReceiveChannel, select } from "./channel";
-import type { Clock } from "../clock";
-import { getClock } from "../clock-context";
-import * as time from "./time";
-import { browser } from "../test/describe";
+import { Channel, type ReceiveChannel, select } from "./channel.js";
+import type { Clock } from "../clock.js";
+import { getClock } from "../clock-context.js";
+import * as time from "./time.js";
+import { browser } from "../test/describe.js";
 
 // These tests mirror the Go ticker tests from src/time/tick_test.go at:
 // https://github.com/golang/go/blob/58efaf3859e6a6f9988e69afc59c0792888ca41a/src/time/tick_test.go

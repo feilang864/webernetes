@@ -9,21 +9,21 @@ import type {
 	V1PodCondition,
 	V1PodSpec,
 	V1PodStatus,
-} from "../../../client";
-import type { PodSandboxStatus } from "../../cri";
+} from "../../../client/index.js";
+import type { PodSandboxStatus } from "../../cri/index.js";
 import {
 	newContainerID,
 	newPodStatus,
 	type PodStatus as PodRuntimeStatus,
 	type Status as ContainerRuntimeStatus,
-} from "../container";
+} from "../container/index.js";
 import {
 	generateAllContainersRestartingCondition,
 	generateContainersReadyCondition,
 	generatePodReadyCondition,
 	generatePodReadyToStartContainersCondition,
-} from "./generate";
-import { browser } from "../../../test/describe";
+} from "./generate.js";
+import { browser } from "../../../test/describe.js";
 
 // Models kubernetes/pkg/kubelet/status/generate_test.go TestGenerateContainersReadyCondition.
 browser.describe("generateContainersReadyCondition", () => {

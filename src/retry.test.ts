@@ -1,6 +1,6 @@
 import { expect, it } from "vitest";
-import { backoffDelayMs, retry } from "./retry";
-import { browser } from "./test/describe";
+import { backoffDelayMs, retry } from "./retry.js";
+import { browser } from "./test/describe.js";
 
 browser.describe("retry", ({ ctx }) => {
 	it("retries failed operations", async () => {

@@ -2,9 +2,9 @@
  * SPDX-License-Identifier: Apache-2.0
  * Derived from Kubernetes, translated and modified for Webernetes.
  */
-import { Channel, type ReadOnlyChannel } from "../../../../go/channel";
-import type { V1Pod } from "../../../../client";
-import type { ContainerID } from "../../container";
+import { Channel, type ReadOnlyChannel } from "../../../../go/channel.js";
+import type { V1Pod } from "../../../../client/index.js";
+import type { ContainerID } from "../../container/index.js";
 
 export type ProbeType = "liveness" | "readiness" | "startup";
 

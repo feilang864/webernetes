@@ -2,9 +2,9 @@
  * SPDX-License-Identifier: Apache-2.0
  * Derived from Kubernetes, translated and modified for Webernetes.
  */
-import type { V1Node } from "../../client";
-import { formatIP } from "../../go/net";
-import { isIPv6, parseIPSloppy } from "../../utils/net";
+import type { V1Node } from "../../client/index.js";
+import { formatIP } from "../../go/net/index.js";
+import { isIPv6, parseIPSloppy } from "../../utils/net/index.js";
 
 function formatNodeAddresses(addresses: NonNullable<V1Node["status"]>["addresses"]): string {
 	return `[${(addresses ?? []).map((address) => `{${address.type} ${address.address}}`).join(" ")}]`;

@@ -4,8 +4,8 @@
  */
 import { expect, it } from "vitest";
 
-import { browser } from "../../../test/describe";
-import { Set } from "./fields";
+import { browser } from "../../../test/describe.js";
+import { Set } from "./fields.js";
 import {
 	AndTerm,
 	escapeValue,
@@ -18,8 +18,8 @@ import {
 	splitTerm,
 	splitTerms,
 	unescapeValue,
-} from "./selector";
-import { everything, oneTermEqualSelector } from "./selector";
+} from "./selector.js";
+import { everything, oneTermEqualSelector } from "./selector.js";
 
 browser.describe("fields selector", () => {
 	// Models staging/src/k8s.io/apimachinery/pkg/fields/selector_test.go TestSplitTerms.

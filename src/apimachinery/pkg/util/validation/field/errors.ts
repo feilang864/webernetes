@@ -2,9 +2,9 @@
  * SPDX-License-Identifier: Apache-2.0
  * Derived from Kubernetes, translated and modified for Webernetes.
  */
-import { type Aggregate, filterOut, type Matcher, newAggregate } from "../../errors/errors";
-import { newString } from "../../sets/string";
-import type { Path } from "./path";
+import { type Aggregate, filterOut, type Matcher, newAggregate } from "../../errors/errors.js";
+import { newString } from "../../sets/string.js";
+import type { Path } from "./path.js";
 
 // Models staging/src/k8s.io/apimachinery/pkg/util/validation/field/errors.go Error.
 export class FieldError extends Error {

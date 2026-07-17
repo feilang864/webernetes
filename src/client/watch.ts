@@ -1,6 +1,6 @@
-import { KubeConfig } from "./config";
-import { fieldSelectorMatches, parseFieldSelector } from "./fields";
-import { labelsMatch, parseLabelSelector } from "./labels";
+import { KubeConfig } from "./config.js";
+import { fieldSelectorMatches, parseFieldSelector } from "./fields.js";
+import { labelsMatch, parseLabelSelector } from "./labels.js";
 import {
 	EndpointSliceStore,
 	DeploymentStore,
@@ -12,7 +12,7 @@ import {
 	ServiceStore,
 	Storable,
 	Store,
-} from "../cluster/storage";
+} from "../cluster/storage/index.js";
 
 type WatchCallback = (phase: string, apiObj: unknown, watchObj?: unknown) => void;
 type DoneCallback = (err: unknown) => void;

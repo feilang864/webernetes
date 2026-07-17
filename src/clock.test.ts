@@ -1,8 +1,8 @@
 import { afterEach, beforeEach, expect, it, vi } from "vitest";
 
-import { Clock, MockedDate } from "./clock";
-import { browser } from "./test/describe";
-import { newFakePassiveClock } from "./utils/clock/testing/fake-clock";
+import { Clock, MockedDate } from "./clock.js";
+import { browser } from "./test/describe.js";
+import { newFakePassiveClock } from "./utils/clock/testing/fake-clock.js";
 
 function diffMs(time1: Date, time2: Date): number {
 	return time1.getTime() - time2.getTime();

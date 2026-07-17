@@ -11,11 +11,11 @@ import {
 	type V1Pod,
 	type V1PodStatus,
 	type V1Probe,
-} from "../../../client";
-import { Clock } from "../../../clock";
-import { getClock } from "../../../clock-context";
-import { browser } from "../../../test/describe";
-import { buildContainerID } from "../container";
+} from "../../../client/index.js";
+import { Clock } from "../../../clock.js";
+import { getClock } from "../../../clock-context.js";
+import { browser } from "../../../test/describe.js";
+import { buildContainerID } from "../container/index.js";
 import {
 	FakeExecProber,
 	getTestNotRunningStatus,
@@ -31,10 +31,10 @@ import {
 	testContainerID,
 	testContainerName,
 	testPodUID,
-} from "./common.test";
-import type { ProbeManagerImpl } from "./prober-manager";
-import { ResultsManager, type ProbeType, type ProberResult } from "./results";
-import { ProbeWorker } from "./worker";
+} from "./common.test.js";
+import type { ProbeManagerImpl } from "./prober-manager.js";
+import { ResultsManager, type ProbeType, type ProberResult } from "./results/index.js";
+import { ProbeWorker } from "./worker.js";
 
 const liveness: ProbeType = "liveness";
 const readiness: ProbeType = "readiness";

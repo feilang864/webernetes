@@ -4,9 +4,9 @@
  */
 // oxlint-disable jest/expect-expect
 import { expect, it } from "vitest";
-import { Clock } from "../../../../clock";
-import { browser } from "../../../../test/describe";
-import { BasicWorkQueue } from "./work-queue";
+import { Clock } from "../../../../clock.js";
+import { browser } from "../../../../test/describe.js";
+import { BasicWorkQueue } from "./work-queue.js";
 
 const minute = 60_000;
 const hour = 60 * minute;

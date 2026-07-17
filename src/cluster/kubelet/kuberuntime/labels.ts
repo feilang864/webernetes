@@ -2,9 +2,14 @@
  * SPDX-License-Identifier: Apache-2.0
  * Derived from Kubernetes, translated and modified for Webernetes.
  */
-import type { V1Container, V1ContainerPort, V1LifecycleHandler, V1Pod } from "../../../client";
-import type * as context from "../../../go/context";
-import { hashContainer, type RunContainerOptions } from "../container";
+import type {
+	V1Container,
+	V1ContainerPort,
+	V1LifecycleHandler,
+	V1Pod,
+} from "../../../client/index.js";
+import type * as context from "../../../go/context.js";
+import { hashContainer, type RunContainerOptions } from "../container/index.js";
 
 export const kubernetesPodNameLabel = "io.kubernetes.pod.name";
 export const kubernetesPodNamespaceLabel = "io.kubernetes.pod.namespace";

@@ -1,6 +1,6 @@
-import { Set } from "../apimachinery/pkg/labels/labels";
-import { parse, type Selector } from "../apimachinery/pkg/labels/selector";
-import type { KubernetesObject } from "./types";
+import { Set } from "../apimachinery/pkg/labels/labels.js";
+import { parse, type Selector } from "../apimachinery/pkg/labels/selector.js";
+import type { KubernetesObject } from "./types.js";
 
 export type LabelSelector = Selector;
 

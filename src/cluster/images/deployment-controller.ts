@@ -1,6 +1,6 @@
-import { DeploymentController as Controller } from "../../controller/deployment/deployment-controller";
-import type { ProcessContext } from "../cri";
-import { BaseImage } from "./base";
+import { DeploymentController as Controller } from "../../controller/deployment/deployment-controller.js";
+import type { ProcessContext } from "../cri/index.js";
+import { BaseImage } from "./base.js";
 
 export class DeploymentController extends BaseImage {
 	static readonly imageName = "webernetes/deployment-controller";

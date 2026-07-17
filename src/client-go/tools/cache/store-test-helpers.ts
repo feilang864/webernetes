@@ -1,8 +1,8 @@
 import { expect } from "vitest";
 
-import type { KubernetesObject } from "../../../client/types";
-import type { Indexer } from "./index";
-import { ExplicitKey, type Store } from "./store";
+import type { KubernetesObject } from "../../../client/types.js";
+import type { Indexer } from "./index.js";
+import { ExplicitKey, type Store } from "./store.js";
 
 export interface TestStoreObject extends KubernetesObject {
 	id: string;

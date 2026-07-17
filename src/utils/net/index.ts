@@ -1,2 +1,2 @@
-export * from "./ipfamily";
-export * from "./parse";
+export * from "./ipfamily.js";
+export * from "./parse.js";

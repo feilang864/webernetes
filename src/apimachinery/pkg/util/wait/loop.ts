@@ -2,10 +2,10 @@
  * SPDX-License-Identifier: Apache-2.0
  * Derived from Kubernetes, translated and modified for Webernetes.
  */
-import * as context from "../../../../go/context";
-import { select } from "../../../../go/channel";
-import type { ConditionWithContextFunc } from "./delay";
-import type { Timer } from "./timer";
+import * as context from "../../../../go/context.js";
+import { select } from "../../../../go/channel.js";
+import type { ConditionWithContextFunc } from "./delay.js";
+import type { Timer } from "./timer.js";
 
 // Models staging/src/k8s.io/apimachinery/pkg/util/wait/loop.go loopConditionUntilContext.
 export async function loopConditionUntilContext(

@@ -8,12 +8,12 @@ import type {
 	V1Pod,
 	V1PodCondition,
 	V1PodStatus,
-} from "../../../client";
-import * as podutil from "../../api/v1/pod/util";
-import type { PodStatus as PodRuntimeStatus } from "../container";
-import { allContainersRestartCleanedUp, shouldAllContainersRestart } from "../container";
-import { hasAnyRegularContainerStarted } from "../container/helpers";
-import { podSandboxChanged } from "../kuberuntime/util/util";
+} from "../../../client/index.js";
+import * as podutil from "../../api/v1/pod/util.js";
+import type { PodStatus as PodRuntimeStatus } from "../container/index.js";
+import { allContainersRestartCleanedUp, shouldAllContainersRestart } from "../container/index.js";
+import { hasAnyRegularContainerStarted } from "../container/helpers.js";
+import { podSandboxChanged } from "../kuberuntime/util/util.js";
 
 // Models kubernetes/pkg/kubelet/status/generate.go GenerateContainersReadyCondition.
 export function generateContainersReadyCondition(

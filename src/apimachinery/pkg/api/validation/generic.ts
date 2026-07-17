@@ -2,7 +2,7 @@
  * SPDX-License-Identifier: Apache-2.0
  * Derived from Kubernetes, translated and modified for Webernetes.
  */
-import { isDNS1123Subdomain } from "../validate/content/dns";
+import { isDNS1123Subdomain } from "../validate/content/dns.js";
 
 // Models staging/src/k8s.io/apimachinery/pkg/api/validation/generic.go NameIsDNSSubdomain.
 export function nameIsDNSSubdomain(name: string, prefix: boolean): string[] {

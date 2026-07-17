@@ -1,1 +1,1 @@
-export * from "./dns";
+export * from "./dns.js";

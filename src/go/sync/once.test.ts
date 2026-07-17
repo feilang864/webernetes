@@ -4,9 +4,9 @@
  */
 import { expect, it } from "vitest";
 
-import { browser } from "../../test/describe";
-import { Channel } from "../channel";
-import { Once } from "./once";
+import { browser } from "../../test/describe.js";
+import { Channel } from "../channel.js";
+import { Once } from "./once.js";
 
 browser.describe("Once", () => {
 	// Models Go src/sync/once_test.go TestOnce.

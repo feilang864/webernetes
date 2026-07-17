@@ -1,7 +1,7 @@
-import { V1Node } from "../../client";
-import type * as context from "../../go/context";
-import { Etcd } from "../etcd";
-import { Store } from "./store";
+import { V1Node } from "../../client/index.js";
+import type * as context from "../../go/context.js";
+import { Etcd } from "../etcd.js";
+import { Store } from "./store.js";
 
 export class NodeStore extends Store<V1Node> {
 	public constructor(ctx: context.Context, etcd: Etcd) {

@@ -1,4 +1,4 @@
-import { formatIP, parseIP } from "./go/net";
+import { formatIP, parseIP } from "./go/net/index.js";
 
 export class CIDR {
 	private readonly family: 4 | 6;

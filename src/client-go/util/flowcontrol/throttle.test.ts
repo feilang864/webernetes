@@ -3,14 +3,14 @@
  * Derived from Kubernetes, translated and modified for Webernetes.
  */
 import { expect, it } from "vitest";
-import { getClock } from "../../../clock-context";
-import * as context from "../../../go/context";
-import { browser } from "../../../test/describe";
+import { getClock } from "../../../clock-context.js";
+import * as context from "../../../go/context.js";
+import { browser } from "../../../test/describe.js";
 import {
 	newFakeAlwaysRateLimiter,
 	newFakeNeverRateLimiter,
 	newTokenBucketRateLimiterWithClock,
-} from "./throttle";
+} from "./throttle.js";
 
 browser.describe("flowcontrol throttle", ({ ctx }) => {
 	// Models staging/src/k8s.io/client-go/util/flowcontrol/throttle_test.go TestMultithreadedThrottling.

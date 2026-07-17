@@ -2,9 +2,9 @@
  * SPDX-License-Identifier: Apache-2.0
  * Derived from Kubernetes, translated and modified for Webernetes.
  */
-import type { V1Pod } from "../../../../client";
-import type { PodStatus as PodRuntimeStatus } from "../../container";
-import { isHostNetworkPod } from "../../container";
+import type { V1Pod } from "../../../../client/index.js";
+import type { PodStatus as PodRuntimeStatus } from "../../container/index.js";
+import { isHostNetworkPod } from "../../container/index.js";
 
 // Models kubernetes/pkg/kubelet/util/util.go GetNodenameForKernel.
 export function getNodenameForKernel(

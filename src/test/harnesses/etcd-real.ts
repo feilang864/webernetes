@@ -2,9 +2,9 @@ import { afterAll, beforeAll } from "vitest";
 import { Etcd3 } from "etcd3";
 import { GenericContainer, type StartedTestContainer, Wait } from "testcontainers";
 
-import { node } from "../describe";
-import type { SuiteOptions } from "../describe";
-import type { EtcdSuiteFactory, EtcdTestContext } from "./etcd";
+import { node } from "../describe.js";
+import type { SuiteOptions } from "../describe.js";
+import type { EtcdSuiteFactory, EtcdTestContext } from "./etcd.js";
 
 let containerPromise: Promise<StartedTestContainer> | undefined;
 

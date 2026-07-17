@@ -1,11 +1,11 @@
-import { Clock } from "../../clock";
-import { withClock } from "../../clock-context";
-import type { K8s, KubeConfig } from "../../client/types";
-import type { ClusterApplyResource, ClusterApplyResult } from "../../cluster/apply";
-import * as context from "../../go/context";
-import { withLatencyProvider } from "../../latency";
-import { createKubernetesHelpers } from "./helpers";
-import type { KubernetesTestContext, KubernetesTestTarget, FetchNodePort } from "./kubernetes";
+import { Clock } from "../../clock.js";
+import { withClock } from "../../clock-context.js";
+import type { K8s, KubeConfig } from "../../client/types.js";
+import type { ClusterApplyResource, ClusterApplyResult } from "../../cluster/apply.js";
+import * as context from "../../go/context.js";
+import { withLatencyProvider } from "../../latency.js";
+import { createKubernetesHelpers } from "./helpers.js";
+import type { KubernetesTestContext, KubernetesTestTarget, FetchNodePort } from "./kubernetes.js";
 
 export interface KubernetesRuntimeContext extends KubernetesTestContext {
 	initialize(): Promise<void>;

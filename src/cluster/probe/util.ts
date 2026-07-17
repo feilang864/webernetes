@@ -2,7 +2,7 @@
  * SPDX-License-Identifier: Apache-2.0
  * Derived from Kubernetes, translated and modified for Webernetes.
  */
-import type { V1Container } from "../../client";
+import type { V1Container } from "../../client/index.js";
 
 // Models kubernetes/pkg/probe/util.go ResolveContainerPort.
 export function resolveContainerPort(

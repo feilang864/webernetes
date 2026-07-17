@@ -1,15 +1,15 @@
 import { expect, it } from "vitest";
 
-import * as context from "../../go/context";
-import { browser } from "../../test/describe";
-import { waitFor } from "../../test/wait";
-import { Cluster } from "../cluster";
-import { errCommandTimedOut } from "../cri-client/pkg";
-import { ImageRegistry, type ImageSignal } from "./image";
-import { BaseImage } from "../images/base";
-import type { ProcessContext } from "./runtime";
-import { getCluster } from "../context";
-import { newLatencyProvider } from "../../latency";
+import * as context from "../../go/context.js";
+import { browser } from "../../test/describe.js";
+import { waitFor } from "../../test/wait.js";
+import { Cluster } from "../cluster.js";
+import { errCommandTimedOut } from "../cri-client/pkg.js";
+import { ImageRegistry, type ImageSignal } from "./image.js";
+import { BaseImage } from "../images/base.js";
+import type { ProcessContext } from "./runtime.js";
+import { getCluster } from "../context.js";
+import { newLatencyProvider } from "../../latency.js";
 
 class TestImage extends BaseImage {
 	static readonly imageName = "example/test";

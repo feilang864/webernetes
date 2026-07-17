@@ -3,8 +3,8 @@
  * Derived from Kubernetes, translated and modified for Webernetes.
  */
 import { expect, it } from "vitest";
-import type { V1Pod } from "../../../client";
-import { browser } from "../../../test/describe";
+import type { V1Pod } from "../../../client/index.js";
+import { browser } from "../../../test/describe.js";
 import {
 	buildPodFullName,
 	ContainerID,
@@ -30,7 +30,7 @@ import {
 	toAPIPod,
 	type Pod,
 	type Status,
-} from "./runtime";
+} from "./runtime.js";
 
 // Models kubernetes/pkg/kubelet/container/runtime_test.go TestParseContainerID.
 browser.describe("parseContainerID", () => {

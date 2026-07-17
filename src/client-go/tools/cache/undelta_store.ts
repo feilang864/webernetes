@@ -2,10 +2,10 @@
  * SPDX-License-Identifier: Apache-2.0
  * Derived from Kubernetes, translated and modified for Webernetes.
  */
-import type { KubernetesObject } from "../../../client/types";
-import type { MaybePromise } from "../../../promise";
-import type { ExplicitKey, KeyFunc, Store } from "./store";
-import { newStore } from "./store";
+import type { KubernetesObject } from "../../../client/types.js";
+import type { MaybePromise } from "../../../promise.js";
+import type { ExplicitKey, KeyFunc, Store } from "./store.js";
+import { newStore } from "./store.js";
 
 // Models staging/src/k8s.io/client-go/tools/cache/undelta_store.go UndeltaStore.
 export class UndeltaStore<T extends KubernetesObject> implements Store<T> {

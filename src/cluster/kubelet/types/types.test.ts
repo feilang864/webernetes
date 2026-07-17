@@ -3,13 +3,13 @@
  * Derived from Kubernetes, translated and modified for Webernetes.
  */
 import { expect, it } from "vitest";
-import type { V1Container, V1ContainerStatus, V1Pod } from "../../../client";
-import { browser } from "../../../test/describe";
+import type { V1Container, V1ContainerStatus, V1Pod } from "../../../client/index.js";
+import { browser } from "../../../test/describe.js";
 import {
 	sortedContainerStatuses,
 	sortInitContainerStatuses,
 	sortStatusesOfInitContainers,
-} from "./types";
+} from "./types.js";
 
 // Models kubernetes/pkg/kubelet/types/types_test.go TestLess.
 browser.describe("sortedContainerStatuses", () => {

@@ -1,8 +1,8 @@
 import { expect, it } from "vitest";
-import * as context from "../../../go/context";
-import { browser } from "../../../test/describe";
-import { PodStatusCache } from "./cache";
-import type { PodStatus as PodRuntimeStatus } from "./runtime";
+import * as context from "../../../go/context.js";
+import { browser } from "../../../test/describe.js";
+import { PodStatusCache } from "./cache.js";
+import type { PodStatus as PodRuntimeStatus } from "./runtime.js";
 
 browser.describe("PodStatusCache", () => {
 	it("returns empty status for missing pods once the cache is globally fresh", async () => {

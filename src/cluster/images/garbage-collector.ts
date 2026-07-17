@@ -1,6 +1,6 @@
-import { GarbageCollector as GarbageCollectorController } from "../../controller/garbagecollector/garbage-collector";
-import type { ProcessContext } from "../cri";
-import { BaseImage } from "./base";
+import { GarbageCollector as GarbageCollectorController } from "../../controller/garbagecollector/garbage-collector.js";
+import type { ProcessContext } from "../cri/index.js";
+import { BaseImage } from "./base.js";
 
 export class GarbageCollector extends BaseImage {
 	static readonly imageName = "webernetes/garbage-collector";

@@ -4,10 +4,10 @@
  */
 import { expect, it } from "vitest";
 
-import type { KubernetesObject } from "../../../client/types";
-import { browser } from "../../../test/describe";
-import { ExplicitKey } from "./store";
-import { newUndeltaStore } from "./undelta_store";
+import type { KubernetesObject } from "../../../client/types.js";
+import { browser } from "../../../test/describe.js";
+import { ExplicitKey } from "./store.js";
+import { newUndeltaStore } from "./undelta_store.js";
 
 interface TestUndeltaObject extends KubernetesObject {
 	name: string;

@@ -1,13 +1,13 @@
-import { retryConflicts } from "../../../../retry";
-import { labelSelectorAsSelector } from "../../../../apimachinery/pkg/apis/meta/v1/helpers";
-import { strategicMergePatch } from "../../../../apimachinery/pkg/util/strategicpatch/patch";
-import type { Etcd } from "../../../../cluster/etcd";
-import { DeploymentStore, ReplicaSetStore, Store } from "../../../../cluster/storage";
-import type * as context from "../../../../go/context";
-import { BadRequest, NotFound, UnsupportedMediaType } from "../../../errors";
-import { filterByFields, parseFieldSelector } from "../../../fields";
-import { filterByLabels, parseLabelSelector } from "../../../labels";
-import { PatchStrategy } from "../../../patch";
+import { retryConflicts } from "../../../../retry.js";
+import { labelSelectorAsSelector } from "../../../../apimachinery/pkg/apis/meta/v1/helpers.js";
+import { strategicMergePatch } from "../../../../apimachinery/pkg/util/strategicpatch/patch.js";
+import type { Etcd } from "../../../../cluster/etcd.js";
+import { DeploymentStore, ReplicaSetStore, Store } from "../../../../cluster/storage/index.js";
+import type * as context from "../../../../go/context.js";
+import { BadRequest, NotFound, UnsupportedMediaType } from "../../../errors.js";
+import { filterByFields, parseFieldSelector } from "../../../fields.js";
+import { filterByLabels, parseLabelSelector } from "../../../labels.js";
+import { PatchStrategy } from "../../../patch.js";
 import type {
 	V1Deployment,
 	V1DeploymentList,
@@ -16,7 +16,7 @@ import type {
 	V1ReplicaSetList,
 	V1Scale,
 	V1Status,
-} from "../../models";
+} from "../../models/index.js";
 import type {
 	AppsV1Api as AppsV1ApiInterface,
 	AppsV1ApiCreateNamespacedDeploymentRequest,
@@ -47,10 +47,10 @@ import type {
 	AppsV1ApiReplaceNamespacedReplicaSetRequest,
 	AppsV1ApiReplaceNamespacedReplicaSetScaleRequest,
 	AppsV1ApiReplaceNamespacedReplicaSetStatusRequest,
-} from "../types/AppsV1Api";
-import { rethrowApiErrors } from "./errors";
-import { listResourceVersionOptions } from "./resource-version";
-import { deleteResource } from "./delete";
+} from "../types/AppsV1Api.js";
+import { rethrowApiErrors } from "./errors.js";
+import { listResourceVersionOptions } from "./resource-version.js";
+import { deleteResource } from "./delete.js";
 
 export interface AppsV1ApiOptions {
 	ctx: context.Context;

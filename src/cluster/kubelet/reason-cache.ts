@@ -2,8 +2,8 @@
  * SPDX-License-Identifier: Apache-2.0
  * Derived from Kubernetes, translated and modified for Webernetes.
  */
-import { newLRU, type Cache } from "../../lru";
-import type { PodSyncResult } from "./container";
+import { newLRU, type Cache } from "../../lru.js";
+import type { PodSyncResult } from "./container/index.js";
 
 // Models kubernetes/pkg/kubelet/reason_cache.go maxReasonCacheEntries.
 const maxReasonCacheEntries = 1000;

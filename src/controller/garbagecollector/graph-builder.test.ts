@@ -4,10 +4,10 @@
  */
 import { expect, it } from "vitest";
 
-import { browser } from "../../test/describe";
-import { makeID, makeNode, withOwners } from "./garbage-collector-test-helpers";
-import { getAlternateOwnerIdentity } from "./graph-builder";
-import type { Node, ObjectReference } from "./graph";
+import { browser } from "../../test/describe.js";
+import { makeID, makeNode, withOwners } from "./garbage-collector-test-helpers.js";
+import { getAlternateOwnerIdentity } from "./graph-builder.js";
+import type { Node, ObjectReference } from "./graph.js";
 
 browser.describe("garbagecollector GraphBuilder", () => {
 	// Models kubernetes/pkg/controller/garbagecollector/graph_builder_test.go TestGetAlternateOwnerIdentity.

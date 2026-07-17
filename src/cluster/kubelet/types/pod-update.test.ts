@@ -3,8 +3,8 @@
  * Derived from Kubernetes, translated and modified for Webernetes.
  */
 import { expect, it } from "vitest";
-import type { V1Pod } from "../../../client";
-import { browser } from "../../../test/describe";
+import type { V1Pod } from "../../../client/index.js";
+import { browser } from "../../../test/describe.js";
 import {
 	allSource,
 	apiserverSource,
@@ -29,7 +29,7 @@ import {
 	syncPodUpdate,
 	systemCriticalPriority,
 	systemNodeCritical,
-} from "./pod-update";
+} from "./pod-update.js";
 
 const systemPriority = systemCriticalPriority;
 const systemPriorityUpper = systemPriority + 1000;

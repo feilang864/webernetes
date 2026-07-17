@@ -12,18 +12,18 @@ import type {
 	V1PodStatus,
 	V1Probe,
 	V1TCPSocketAction,
-} from "../../../client";
-import { FakeRecorder, newFakeRecorder } from "../../../client-go/tools/record/fake";
-import { browser } from "../../../test/describe";
-import type { ProbeResult } from "../../probe";
-import { resolveContainerPort } from "../../probe/util";
-import { ClusterNetwork } from "../../cni";
-import { buildContainerID } from "../container";
-import { FakeContainerCommandRunner } from "../container/testing";
-import { FakeExecProber } from "./common.test";
-import { Prober } from "./prober";
-import { probeTypeString } from "./prober-manager";
-import type { ProbeType, ProberResult } from "./results";
+} from "../../../client/index.js";
+import { FakeRecorder, newFakeRecorder } from "../../../client-go/tools/record/fake.js";
+import { browser } from "../../../test/describe.js";
+import type { ProbeResult } from "../../probe/index.js";
+import { resolveContainerPort } from "../../probe/util.js";
+import { ClusterNetwork } from "../../cni/index.js";
+import { buildContainerID } from "../container/index.js";
+import { FakeContainerCommandRunner } from "../container/testing/index.js";
+import { FakeExecProber } from "./common.test.js";
+import { Prober } from "./prober.js";
+import { probeTypeString } from "./prober-manager.js";
+import type { ProbeType, ProberResult } from "./results/index.js";
 
 // Models kubernetes/pkg/kubelet/prober/prober_test.go TestGetURLParts.
 browser.describe("TestGetURLParts", () => {

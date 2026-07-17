@@ -4,14 +4,14 @@
  */
 // oxlint-disable jest/expect-expect
 import { expect, it } from "vitest";
-import type { V1ObjectReference, V1Pod } from "../../../../client";
-import type { DnsConfig } from "../../../cri";
-import { FakeRecorder, newFakeRecorder } from "../../../../client-go/tools/record/fake";
-import * as context from "../../../../go/context";
-import { browser } from "../../../../test/describe";
-import * as validation from "../../../apis/core/validation/validation";
-import { newTestPods } from "../../kubelet-test-helpers";
-import { appendDNSConfig, Configurer, getPodDNSType } from "./dns";
+import type { V1ObjectReference, V1Pod } from "../../../../client/index.js";
+import type { DnsConfig } from "../../../cri/index.js";
+import { FakeRecorder, newFakeRecorder } from "../../../../client-go/tools/record/fake.js";
+import * as context from "../../../../go/context.js";
+import { browser } from "../../../../test/describe.js";
+import * as validation from "../../../apis/core/validation/validation.js";
+import { newTestPods } from "../../kubelet-test-helpers.js";
+import { appendDNSConfig, Configurer, getPodDNSType } from "./dns.js";
 
 const testHostNameserver = "1.2.3.4";
 const testHostDomain = "host.domain";

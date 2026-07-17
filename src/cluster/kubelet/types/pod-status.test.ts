@@ -3,8 +3,8 @@
  * Derived from Kubernetes, translated and modified for Webernetes.
  */
 import { expect, it } from "vitest";
-import { browser } from "../../../test/describe";
-import { podConditionByKubelet, podConditionSharedByKubelet } from "./pod-status";
+import { browser } from "../../../test/describe.js";
+import { podConditionByKubelet, podConditionSharedByKubelet } from "./pod-status.js";
 
 // Models kubernetes/pkg/kubelet/types/pod_status_test.go TestPodConditionByKubelet.
 browser.describe("podConditionByKubelet", () => {

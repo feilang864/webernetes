@@ -3,12 +3,12 @@
  * Derived from Kubernetes, translated and modified for Webernetes.
  */
 import { expect, it } from "vitest";
-import type { V1Pod, V1PodSpec, V1PodStatus } from "../../client";
-import { newFakeRecorder } from "../../client-go/tools/record/fake";
-import { getClock } from "../../clock-context";
-import { browser } from "../../test/describe";
-import { ActiveDeadlineHandler, newActiveDeadlineHandler } from "./active-deadline";
-import { newTestPods } from "./kubelet-test-helpers";
+import type { V1Pod, V1PodSpec, V1PodStatus } from "../../client/index.js";
+import { newFakeRecorder } from "../../client-go/tools/record/fake.js";
+import { getClock } from "../../clock-context.js";
+import { browser } from "../../test/describe.js";
+import { ActiveDeadlineHandler, newActiveDeadlineHandler } from "./active-deadline.js";
+import { newTestPods } from "./kubelet-test-helpers.js";
 
 // Models kubernetes/pkg/kubelet/active_deadline_test.go mockPodStatusProvider.
 class mockPodStatusProvider {

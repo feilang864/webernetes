@@ -2,8 +2,8 @@
  * SPDX-License-Identifier: Apache-2.0
  * Derived from Kubernetes, translated and modified for Webernetes.
  */
-import type { V1Pod } from "../../../client";
-import { isRestartableInitContainer } from "../../api/v1/pod/util";
+import type { V1Pod } from "../../../client/index.js";
+import { isRestartableInitContainer } from "../../api/v1/pod/util.js";
 
 // Models kubernetes/pkg/kubelet/types/pod_update.go ConfigSourceAnnotationKey.
 export const configSourceAnnotationKey = "kubernetes.io/config.source";

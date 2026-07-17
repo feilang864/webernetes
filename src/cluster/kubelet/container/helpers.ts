@@ -8,21 +8,21 @@ import type {
 	V1Pod,
 	V1PodSpec,
 	V1PodStatus,
-} from "../../../client";
-import type * as context from "../../../go/context";
-import * as fnv from "../../../fnv";
-import * as hashutil from "../../../util/hash/hash";
-import * as expansion from "../../../third_party/forked/golang/expansion";
-import type { ContainerPort, DnsConfig, PodSandboxState, PortMapping } from "../../cri";
-import { containerShouldRestart, findMatchingContainerRestartRule } from "../../api/v1/pod/util";
+} from "../../../client/index.js";
+import type * as context from "../../../go/context.js";
+import * as fnv from "../../../fnv.js";
+import * as hashutil from "../../../util/hash/hash.js";
+import * as expansion from "../../../third_party/forked/golang/expansion/index.js";
+import type { ContainerPort, DnsConfig, PodSandboxState, PortMapping } from "../../cri/index.js";
+import { containerShouldRestart, findMatchingContainerRestartRule } from "../../api/v1/pod/util.js";
 import {
 	buildContainerID,
 	findContainerStatusByName,
 	type Pod,
 	type PodStatus as PodRuntimeStatus,
 	type State,
-} from "./runtime";
-import type { ContainerID, EnvVar, RunContainerOptions } from "./runtime";
+} from "./runtime.js";
+import type { ContainerID, EnvVar, RunContainerOptions } from "./runtime.js";
 
 // Models kubernetes/pkg/kubelet/container/helpers.go HandlerRunner.
 export interface HandlerRunner {

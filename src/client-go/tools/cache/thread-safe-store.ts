@@ -2,8 +2,8 @@
  * SPDX-License-Identifier: Apache-2.0
  * Derived from Kubernetes, translated and modified for Webernetes.
  */
-import type { Index, Indices } from "./index";
-import type { Transaction } from "./store";
+import type { Index, Indices } from "./index.js";
+import type { Transaction } from "./store.js";
 
 export type ThreadSafeIndexFunc<T> = (obj: T) => [values: string[], err: Error | undefined];
 export type ThreadSafeIndexers<T> = Record<string, ThreadSafeIndexFunc<T>>;

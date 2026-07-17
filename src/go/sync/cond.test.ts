@@ -4,10 +4,10 @@
  */
 import { expect, it } from "vitest";
 
-import { browser } from "../../test/describe";
-import { Channel, select } from "../channel";
-import { newCond } from "./cond";
-import { Mutex } from "./mutex";
+import { browser } from "../../test/describe.js";
+import { Channel, select } from "../channel.js";
+import { newCond } from "./cond.js";
+import { Mutex } from "./mutex.js";
 
 browser.describe("Cond", () => {
 	// Models Go src/sync/cond_test.go TestCondSignal.

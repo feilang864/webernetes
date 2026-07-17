@@ -1,10 +1,10 @@
 import { beforeEach, expect, it, vi } from "vitest";
 
-import { ListWatch } from "./cache";
-import { KubeConfig } from "./config";
-import { Watch as ClientWatch } from "./watch";
-import type { KubeList, KubernetesObject } from "./types";
-import { browser } from "../test/describe";
+import { ListWatch } from "./cache.js";
+import { KubeConfig } from "./config.js";
+import { Watch as ClientWatch } from "./watch.js";
+import type { KubeList, KubernetesObject } from "./types.js";
+import { browser } from "../test/describe.js";
 
 interface TestPod extends KubernetesObject {
 	metadata: {

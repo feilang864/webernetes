@@ -2,7 +2,7 @@
  * SPDX-License-Identifier: Apache-2.0
  * Derived from Kubernetes, translated and modified for Webernetes.
  */
-import type * as k8s from "../../client";
+import type * as k8s from "../../client/index.js";
 
 export const namespaceDefault = "default";
 export const noTimestamp: Date | undefined = undefined;

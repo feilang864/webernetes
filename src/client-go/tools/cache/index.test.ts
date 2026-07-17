@@ -4,9 +4,9 @@
  */
 import { expect, it } from "vitest";
 
-import { browser } from "../../../test/describe";
-import { type IndexFunc } from "./index";
-import { metaNamespaceKeyFunc, newIndexer } from "./store";
+import { browser } from "../../../test/describe.js";
+import { type IndexFunc } from "./index.js";
+import { metaNamespaceKeyFunc, newIndexer } from "./store.js";
 
 interface TestPod {
 	metadata?: {

@@ -2,14 +2,14 @@
  * SPDX-License-Identifier: Apache-2.0
  * Derived from Kubernetes, translated and modified for Webernetes.
  */
-import { Clock } from "../../../clock";
-import { withClock } from "../../../clock-context";
-import { Channel, select } from "../../../go/channel";
-import * as heap from "../../../go/container/heap/heap";
-import * as context from "../../../go/context";
-import { Once } from "../../../go/sync/once";
-import { Ticker, Timer } from "../../../go/time";
-import { newTyped, Typed, type TypedInterface } from "./queue";
+import { Clock } from "../../../clock.js";
+import { withClock } from "../../../clock-context.js";
+import { Channel, select } from "../../../go/channel.js";
+import * as heap from "../../../go/container/heap/heap.js";
+import * as context from "../../../go/context.js";
+import { Once } from "../../../go/sync/once.js";
+import { Ticker, Timer } from "../../../go/time.js";
+import { newTyped, Typed, type TypedInterface } from "./queue.js";
 
 // Models staging/src/k8s.io/client-go/util/workqueue/delaying_queue.go TypedDelayingInterface.
 export interface TypedDelayingInterface<T> extends TypedInterface<T> {

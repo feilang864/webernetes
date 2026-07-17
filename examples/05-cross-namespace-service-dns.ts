@@ -1,5 +1,5 @@
 import { BaseImage, Cluster, type ProcessContext } from "@ngrok/webernetes";
-import { waitForPodReady } from "./helpers";
+import { waitForPodReady } from "./helpers.js";
 
 class ApiImage extends BaseImage {
 	static readonly imageName = "examples/api";

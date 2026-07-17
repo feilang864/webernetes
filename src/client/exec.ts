@@ -1,6 +1,6 @@
-import { KubeConfig } from "./config";
-import type { V1Status } from "./gen/models";
-import type { Exec as ExecInterface, ExecReadable, ExecWebSocket, ExecWritable } from "./types";
+import { KubeConfig } from "./config.js";
+import type { V1Status } from "./gen/models/index.js";
+import type { Exec as ExecInterface, ExecReadable, ExecWebSocket, ExecWritable } from "./types.js";
 
 export class Exec implements ExecInterface {
 	constructor(

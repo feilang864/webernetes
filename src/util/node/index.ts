@@ -1,1 +1,1 @@
-export { getNodeHostIPs } from "./node";
+export { getNodeHostIPs } from "./node.js";

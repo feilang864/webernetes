@@ -1,7 +1,7 @@
 import { expect, it } from "vitest";
 
-import * as fnv from "./fnv";
-import { browser } from "./test/describe";
+import * as fnv from "./fnv.js";
+import { browser } from "./test/describe.js";
 
 browser.describe("fnv", () => {
 	it("computes FNV-1a 32-bit hashes", () => {

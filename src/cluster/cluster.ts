@@ -1,41 +1,41 @@
 import { EventEmitter } from "events";
 
-import { Clock } from "../clock";
-import * as context from "../go/context";
-import { Etcd } from "./etcd";
-import * as k8s from "../client";
-import type { KubeList } from "../client/types";
-import { Server } from "./server";
-import * as http from "./cni/http";
-import { ClusterNetwork } from "./cni";
-import { ImageRegistry, type ExecResult, type ImageConstructor } from "./cri";
-import { CoreDNS } from "./images/coredns";
-import { BusyBoxImage } from "./images/busybox";
-import { HelloWorldImage } from "./images/hello-world";
-import { HttpEchoImage } from "./images/http-echo";
-import { AgnhostImage } from "./images/agnhost";
-import { DeploymentController } from "./images/deployment-controller";
-import { EndpointSliceController } from "./images/endpointslice-controller";
-import { GarbageCollector } from "./images/garbage-collector";
-import { NamespaceController } from "./images/namespace-controller";
-import { PauseImage, PauseImage39 } from "./images/pause";
-import { KubeProxy } from "./images/proxy";
-import { ReplicaSetController } from "./images/replicaset-controller";
-import { Scheduler } from "./images/scheduler";
-import { type NodePortRange, ServiceStore } from "./storage";
-import { applyResources, type ClusterApplyResource, type ClusterApplyResult } from "./apply";
-import type { KubeletConfiguration } from "./kubelet/apis/config";
-import { buildPodFullName } from "./kubelet/container";
-import { withClock } from "../clock-context";
-import { type LatencyProvider, withLatencyProvider } from "../latency";
-import { withCluster } from "./context";
+import { Clock } from "../clock.js";
+import * as context from "../go/context.js";
+import { Etcd } from "./etcd.js";
+import * as k8s from "../client/index.js";
+import type { KubeList } from "../client/types.js";
+import { Server } from "./server.js";
+import * as http from "./cni/http.js";
+import { ClusterNetwork } from "./cni/index.js";
+import { ImageRegistry, type ExecResult, type ImageConstructor } from "./cri/index.js";
+import { CoreDNS } from "./images/coredns.js";
+import { BusyBoxImage } from "./images/busybox.js";
+import { HelloWorldImage } from "./images/hello-world.js";
+import { HttpEchoImage } from "./images/http-echo.js";
+import { AgnhostImage } from "./images/agnhost.js";
+import { DeploymentController } from "./images/deployment-controller.js";
+import { EndpointSliceController } from "./images/endpointslice-controller.js";
+import { GarbageCollector } from "./images/garbage-collector.js";
+import { NamespaceController } from "./images/namespace-controller.js";
+import { PauseImage, PauseImage39 } from "./images/pause.js";
+import { KubeProxy } from "./images/proxy.js";
+import { ReplicaSetController } from "./images/replicaset-controller.js";
+import { Scheduler } from "./images/scheduler.js";
+import { type NodePortRange, ServiceStore } from "./storage/index.js";
+import { applyResources, type ClusterApplyResource, type ClusterApplyResult } from "./apply.js";
+import type { KubeletConfiguration } from "./kubelet/apis/config/index.js";
+import { buildPodFullName } from "./kubelet/container/index.js";
+import { withClock } from "../clock-context.js";
+import { type LatencyProvider, withLatencyProvider } from "../latency.js";
+import { withCluster } from "./context.js";
 import type {
 	NetworkHop,
 	NetworkRequestEvent,
 	NetworkResponseEvent,
 	PreNetworkRequestEvent,
 	PreNetworkResponseEvent,
-} from "./cni/network";
+} from "./cni/network.js";
 
 const DEFAULT_NODE_PORT_RANGE: NodePortRange = {
 	from: 30000,

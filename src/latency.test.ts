@@ -4,18 +4,18 @@ import type {
 	NetworkHop,
 	PreNetworkRequestEvent,
 	PreNetworkResponseEvent,
-} from "./cluster/cni/network";
-import type { V1Container } from "./client";
-import { Cluster } from "./cluster/cluster";
-import * as context from "./go/context";
-import { getCluster } from "./cluster/context";
+} from "./cluster/cni/network.js";
+import type { V1Container } from "./client/index.js";
+import { Cluster } from "./cluster/cluster.js";
+import * as context from "./go/context.js";
+import { getCluster } from "./cluster/context.js";
 import {
 	getLatencyProvider,
 	newLatencyProvider,
 	withLatencyProvider,
 	type ContainerTerminationLatencyEvent,
-} from "./latency";
-import { browser } from "./test/describe";
+} from "./latency.js";
+import { browser } from "./test/describe.js";
 
 browser.describe("LatencyProvider", () => {
 	const chain: NetworkHop[] = [{ type: "external", host: "example.com" }];

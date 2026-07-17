@@ -1,3 +1,3 @@
-export * from "./pod-status";
-export * from "./pod-update";
-export * from "./types";
+export * from "./pod-status.js";
+export * from "./pod-update.js";
+export * from "./types.js";

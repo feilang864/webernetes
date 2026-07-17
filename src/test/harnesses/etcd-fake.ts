@@ -1,7 +1,7 @@
-import { browser } from "../describe";
-import type { SuiteOptions } from "../describe";
-import { Etcd } from "../../cluster/etcd";
-import type { EtcdSuiteFactory, EtcdTestContext } from "./etcd";
+import { browser } from "../describe.js";
+import type { SuiteOptions } from "../describe.js";
+import { Etcd } from "../../cluster/etcd.js";
+import type { EtcdSuiteFactory, EtcdTestContext } from "./etcd.js";
 
 const testContext: Omit<EtcdTestContext, "ctx" | "createEtcd"> = {
 	target: "fake",

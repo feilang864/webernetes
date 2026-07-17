@@ -1,12 +1,12 @@
 import { afterEach, beforeEach, expect, it } from "vitest";
 
-import { getClock } from "../../clock-context";
-import { fakeEtcd } from "../../test/harnesses/etcd";
-import type * as context from "../../go/context";
-import type { Etcd } from "../etcd";
-import { createBarrier } from "./helpers";
-import { Store, type Storable } from "./store";
-import type { Watcher } from "./watch";
+import { getClock } from "../../clock-context.js";
+import { fakeEtcd } from "../../test/harnesses/etcd.js";
+import type * as context from "../../go/context.js";
+import type { Etcd } from "../etcd.js";
+import { createBarrier } from "./helpers.js";
+import { Store, type Storable } from "./store.js";
+import type { Watcher } from "./watch.js";
 
 interface TestObject extends Storable {
 	metadata: {

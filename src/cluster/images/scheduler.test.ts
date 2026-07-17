@@ -1,8 +1,8 @@
 import { expect, it } from "vitest";
 
-import { browser } from "../../test/describe";
-import { waitFor } from "../../test/wait";
-import { Cluster } from "../cluster";
+import { browser } from "../../test/describe.js";
+import { waitFor } from "../../test/wait.js";
+import { Cluster } from "../cluster.js";
 
 function podCountsByNode(pods: Array<{ spec?: { nodeName?: string } }>): Record<string, number> {
 	const counts: Record<string, number> = {};

@@ -1,6 +1,6 @@
 import { EventEmitter } from "events";
-import { Watcher as EtcdWatcher } from "../etcd";
-import { parseStoredObject } from "./serialization";
+import { Watcher as EtcdWatcher } from "../etcd.js";
+import { parseStoredObject } from "./serialization.js";
 
 export type EventType = "ADDED" | "MODIFIED" | "DELETED";
 

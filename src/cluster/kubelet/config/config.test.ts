@@ -4,15 +4,20 @@
  */
 import { expect, it } from "vitest";
 
-import type { V1Pod } from "../../../client";
-import { FakeRecorder, newFakeRecorder } from "../../../client-go/tools/record/fake";
-import { select, type ReadOnlyChannel, type WriteOnlyChannel } from "../../../go/channel";
-import * as context from "../../../go/context";
-import { deepEqual } from "../../../deep-equal";
-import { browser } from "../../../test/describe";
-import { failedValidation } from "../events";
-import type { PodUpdate } from "../types/pod-update";
-import { newPodConfig, podsDifferSemantically, type PodConfig, type SourceUpdate } from "./config";
+import type { V1Pod } from "../../../client/index.js";
+import { FakeRecorder, newFakeRecorder } from "../../../client-go/tools/record/fake.js";
+import { select, type ReadOnlyChannel, type WriteOnlyChannel } from "../../../go/channel.js";
+import * as context from "../../../go/context.js";
+import { deepEqual } from "../../../deep-equal.js";
+import { browser } from "../../../test/describe.js";
+import { failedValidation } from "../events.js";
+import type { PodUpdate } from "../types/pod-update.js";
+import {
+	newPodConfig,
+	podsDifferSemantically,
+	type PodConfig,
+	type SourceUpdate,
+} from "./config.js";
 
 const testSource = "test";
 

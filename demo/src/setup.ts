@@ -5,8 +5,8 @@ import {
 	DemoDatabaseImage,
 	DemoRedisImage,
 	DemoTrafficGeneratorImage,
-} from "./images";
-import { demoControlPort, demoHealthPort } from "./helpers";
+} from "./images.js";
+import { demoControlPort, demoHealthPort } from "./helpers.js";
 
 export async function setup(cluster: w8s.Cluster): Promise<void> {
 	cluster.registerImage(DemoApiImage);

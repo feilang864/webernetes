@@ -2,15 +2,15 @@
  * SPDX-License-Identifier: Apache-2.0
  * Derived from Kubernetes, translated and modified for Webernetes.
  */
-import { untilWithContext } from "../../apimachinery/pkg/util/wait/backoff";
-import { Channel, select } from "../../go/channel";
-import * as context from "../../go/context";
+import { untilWithContext } from "../../apimachinery/pkg/util/wait/backoff.js";
+import { Channel, select } from "../../go/channel.js";
+import * as context from "../../go/context.js";
 import type {
 	ContainerID,
 	PodStatus as PodRuntimeStatus,
 	Runtime,
 	Status as ContainerStatus,
-} from "./container";
+} from "./container/index.js";
 
 // Models kubernetes/pkg/kubelet/pod_container_deletor.go containerDeletorBufferLimit.
 const containerDeletorBufferLimit = 50;

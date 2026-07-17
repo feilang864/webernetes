@@ -1,20 +1,20 @@
-export { Clock } from "./clock";
-export { getClock, withClock } from "./clock-context";
-export { getCluster } from "./cluster/context";
-export { Cluster, KubeClient } from "./cluster/cluster";
-export { BaseImage } from "./cluster/images/base";
-export { ImageRegistry } from "./cluster/cri";
-export { Listener as HttpListener } from "./cluster/cni/http";
-export { DnsListener } from "./cluster/cni/dns";
-export { healthCheckHeader } from "./cluster/probe/http/request";
+export { Clock } from "./clock.js";
+export { getClock, withClock } from "./clock-context.js";
+export { getCluster } from "./cluster/context.js";
+export { Cluster, KubeClient } from "./cluster/cluster.js";
+export { BaseImage } from "./cluster/images/base.js";
+export { ImageRegistry } from "./cluster/cri/index.js";
+export { Listener as HttpListener } from "./cluster/cni/http.js";
+export { DnsListener } from "./cluster/cni/dns.js";
+export { healthCheckHeader } from "./cluster/probe/http/request.js";
 export {
 	getLatencyProvider as latencyProviderFromContext,
 	newLatencyProvider,
 	withLatencyProvider,
-} from "./latency";
-export * from "./client";
-export type { ClusterApplyResource, ClusterApplyResult } from "./cluster/apply";
-export type { Context } from "./go/context";
+} from "./latency.js";
+export * from "./client/index.js";
+export type { ClusterApplyResource, ClusterApplyResult } from "./cluster/apply.js";
+export type { Context } from "./go/context.js";
 export type {
 	ClusterOptions,
 	ClusterInformerCallback,
@@ -27,11 +27,11 @@ export type {
 	PreNetworkResponseEvent,
 	NetworkRequestEvent,
 	NetworkResponseEvent,
-} from "./cluster/cluster";
-export type { NodePortRange } from "./cluster/storage";
-export type { ImageConstructor, ImageDefinition } from "./cluster/cri";
-export type { ProcessContext } from "./cluster/cri";
-export type { ContainerTerminationLatencyEvent, LatencyProvider } from "./latency";
+} from "./cluster/cluster.js";
+export type { NodePortRange } from "./cluster/storage/index.js";
+export type { ImageConstructor, ImageDefinition } from "./cluster/cri/index.js";
+export type { ProcessContext } from "./cluster/cri/index.js";
+export type { ContainerTerminationLatencyEvent, LatencyProvider } from "./latency.js";
 export type {
 	ContainerFileSystem,
 	ContainerInstance,
@@ -39,17 +39,17 @@ export type {
 	ExecResult,
 	PodSandboxInstance,
 	ProcessInstance,
-} from "./cluster/cri";
+} from "./cluster/cri/index.js";
 export type {
 	Handler as HttpHandler,
 	Header as HttpHeader,
 	Request as HttpRequest,
 	Response as HttpResponse,
-} from "./cluster/cni/http";
+} from "./cluster/cni/http.js";
 export type {
 	DnsAnswer,
 	DnsHandler,
 	DnsRecordType,
 	DnsRequest,
 	DnsResponse,
-} from "./cluster/cni/dns";
+} from "./cluster/cni/dns.js";

@@ -12,20 +12,20 @@ import {
 	type V1Pod,
 	type V1PodCondition,
 	type V1PodStatus,
-} from "../../../client";
-import { NotFound } from "../../../client/errors";
-import { clientAction, TestKubeClient, type ClientAction } from "../../../client/test";
-import { deepEqual, dropUndefinedFields } from "../../../deep-equal";
-import * as context from "../../../go/context";
-import { browser } from "../../../test/describe";
-import * as podutil from "../../api/v1/pod/util";
-import { Etcd } from "../../etcd";
+} from "../../../client/index.js";
+import { NotFound } from "../../../client/errors.js";
+import { clientAction, TestKubeClient, type ClientAction } from "../../../client/test/index.js";
+import { deepEqual, dropUndefinedFields } from "../../../deep-equal.js";
+import * as context from "../../../go/context.js";
+import { browser } from "../../../test/describe.js";
+import * as podutil from "../../api/v1/pod/util.js";
+import { Etcd } from "../../etcd.js";
 import {
 	buildContainerID,
 	containerReasonStatusUnknown,
 	maxPodTerminationMessageLogLength,
-} from "../container";
-import { PodManager } from "../pod";
+} from "../container/index.js";
+import { PodManager } from "../pod/index.js";
 import {
 	apiserverSource,
 	configMirrorAnnotationKey,
@@ -33,7 +33,7 @@ import {
 	fileSource,
 	isMirrorPod,
 	isStaticPod,
-} from "../types";
+} from "../types/index.js";
 import {
 	isPodStatusByKubeletEqual,
 	mergePodStatus,
@@ -41,7 +41,7 @@ import {
 	type StatusManager,
 	StatusManagerImpl,
 	updateLastTransitionTime,
-} from "./status-manager";
+} from "./status-manager.js";
 
 type TestStatusManager = StatusManagerImpl & { kubeClient: TestKubeClient };
 

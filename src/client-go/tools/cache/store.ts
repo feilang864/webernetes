@@ -2,10 +2,10 @@
  * SPDX-License-Identifier: Apache-2.0
  * Derived from Kubernetes, translated and modified for Webernetes.
  */
-import type { KubernetesObject } from "../../../client/types";
-import type { MaybePromise } from "../../../promise";
-import type { Indexer, Indexers } from "./index";
-import { newThreadSafeStore, type ThreadSafeStore } from "./thread-safe-store";
+import type { KubernetesObject } from "../../../client/types.js";
+import type { MaybePromise } from "../../../promise.js";
+import type { Indexer, Indexers } from "./index.js";
+import { newThreadSafeStore, type ThreadSafeStore } from "./thread-safe-store.js";
 
 // Models staging/src/k8s.io/client-go/tools/cache/store.go KeyFunc.
 export type KeyFunc<T> = (

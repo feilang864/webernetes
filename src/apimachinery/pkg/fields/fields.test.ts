@@ -4,8 +4,8 @@
  */
 import { expect, it } from "vitest";
 
-import { browser } from "../../../test/describe";
-import { Set, type Fields } from "./fields";
+import { browser } from "../../../test/describe.js";
+import { Set, type Fields } from "./fields.js";
 
 browser.describe("fields", () => {
 	// Models staging/src/k8s.io/apimachinery/pkg/fields/fields_test.go TestSetString.

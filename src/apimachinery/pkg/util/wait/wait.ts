@@ -2,11 +2,11 @@
  * SPDX-License-Identifier: Apache-2.0
  * Derived from Kubernetes, translated and modified for Webernetes.
  */
-import { select, type ReadOnlyChannel } from "../../../../go/channel";
-import * as context from "../../../../go/context";
-import type { MaybePromise } from "../../../../promise";
-import type { ConditionWithContextFunc } from "./delay";
-import { errWaitTimeout } from "./error";
+import { select, type ReadOnlyChannel } from "../../../../go/channel.js";
+import * as context from "../../../../go/context.js";
+import type { MaybePromise } from "../../../../promise.js";
+import type { ConditionWithContextFunc } from "./delay.js";
+import { errWaitTimeout } from "./error.js";
 
 // Models staging/src/k8s.io/apimachinery/pkg/util/wait/wait.go ForeverTestTimeout.
 export const foreverTestTimeout = 30_000;

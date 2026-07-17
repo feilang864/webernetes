@@ -3,16 +3,16 @@
  * Derived from Kubernetes, translated and modified for Webernetes.
  */
 import { expect, it } from "vitest";
-import { browser } from "../../../test/describe";
-import type { V1Container, V1Pod, V1PodCondition, V1PodStatus } from "../../../client";
+import { browser } from "../../../test/describe.js";
+import type { V1Container, V1Pod, V1PodCondition, V1PodStatus } from "../../../client/index.js";
 import {
 	expandContainerCommandOnlyStatic,
 	hashContainer,
 	hasAnyActiveRegularContainerStarted,
 	shouldAllContainersRestart,
-} from "./helpers";
-import { buildContainerID, type PodStatus, type Status } from "./runtime";
-import type { PodSandboxState, PodSandboxStatus } from "../../cri";
+} from "./helpers.js";
+import { buildContainerID, type PodStatus, type Status } from "./runtime.js";
+import type { PodSandboxState, PodSandboxStatus } from "../../cri/index.js";
 
 browser.describe("hashContainer", () => {
 	it("matches the upstream Kubernetes container hash fixture", () => {

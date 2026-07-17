@@ -1,6 +1,6 @@
 import { expect, it } from "vitest";
-import type { CoreV1Event, V1Container, V1Pod } from "../gen/models";
-import { kubernetes } from "../../test/harnesses/kubernetes";
+import type { CoreV1Event, V1Container, V1Pod } from "../gen/models/index.js";
+import { kubernetes } from "../../test/harnesses/kubernetes.js";
 
 const busyboxImage = "busybox:1.36";
 const pauseImage = "registry.k8s.io/pause:3.10";

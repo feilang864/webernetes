@@ -5,19 +5,19 @@
 // oxlint-disable typescript/no-non-null-assertion
 import { expect, it } from "vitest";
 
-import type * as k8s from "../../client";
+import type * as k8s from "../../client/index.js";
 import {
 	newTestKubeClient,
 	TestKubeClient,
 	type ClientAction,
 	type TestKubeClientObject,
-} from "../../client/test";
-import { keyFunc } from "../controller-utils";
-import * as context from "../../go/context";
-import { browser } from "../../test/describe";
-import { DeploymentController } from "./deployment-controller";
-import { newDeployment, newReplicaSet } from "./test-helpers";
-import { revisionAnnotation } from "./util/deployment-util";
+} from "../../client/test/index.js";
+import { keyFunc } from "../controller-utils.js";
+import * as context from "../../go/context.js";
+import { browser } from "../../test/describe.js";
+import { DeploymentController } from "./deployment-controller.js";
+import { newDeployment, newReplicaSet } from "./test-helpers.js";
+import { revisionAnnotation } from "./util/deployment-util.js";
 
 // Models kubernetes/pkg/controller/deployment/deployment_controller_test.go fixture.
 class Fixture {

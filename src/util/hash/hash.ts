@@ -1,4 +1,4 @@
-import type { Fnv32a } from "../../fnv";
+import type { Fnv32a } from "../../fnv.js";
 
 export type JsonValue =
 	| null

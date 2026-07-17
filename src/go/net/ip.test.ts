@@ -1,7 +1,7 @@
 import { expect, it } from "vitest";
 
-import { browser } from "../../test/describe";
-import { joinHostPort, parseIP } from "./ip";
+import { browser } from "../../test/describe.js";
+import { joinHostPort, parseIP } from "./ip.js";
 
 // Mirrors Go TestParseIP and parseIPTests from:
 // https://github.com/golang/go/blob/go1.16.15/src/net/ip_test.go#L15-L57

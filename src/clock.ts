@@ -1,4 +1,4 @@
-import type { PassiveClock } from "./utils/clock/clock";
+import type { PassiveClock } from "./utils/clock/clock.js";
 
 interface Task {
 	handle: number;

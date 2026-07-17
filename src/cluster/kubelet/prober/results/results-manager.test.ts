@@ -5,12 +5,12 @@
 // oxlint-disable jest/valid-expect
 import { expect, it } from "vitest";
 
-import type { V1Pod } from "../../../../client";
-import { select } from "../../../../go/channel";
-import { browser } from "../../../../test/describe";
-import { buildContainerID } from "../../container";
-import type { ProbeUpdate } from "./results-manager";
-import { ResultsManager } from "./results-manager";
+import type { V1Pod } from "../../../../client/index.js";
+import { select } from "../../../../go/channel.js";
+import { browser } from "../../../../test/describe.js";
+import { buildContainerID } from "../../container/index.js";
+import type { ProbeUpdate } from "./results-manager.js";
+import { ResultsManager } from "./results-manager.js";
 
 // Models kubernetes/pkg/kubelet/prober/results/results_manager_test.go TestCacheOperations.
 browser.describe("TestCacheOperations", () => {

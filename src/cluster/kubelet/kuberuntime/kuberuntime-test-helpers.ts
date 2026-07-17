@@ -3,10 +3,10 @@
  * Derived from Kubernetes, translated and modified for Webernetes.
  */
 import { expect } from "vitest";
-import type { V1Container, V1Pod } from "../../../client";
-import { newBackOff } from "../../../client-go/util/flowcontrol/backoff";
-import { getClock } from "../../../clock-context";
-import * as context from "../../../go/context";
+import type { V1Container, V1Pod } from "../../../client/index.js";
+import { newBackOff } from "../../../client-go/util/flowcontrol/backoff.js";
+import { getClock } from "../../../clock-context.js";
+import * as context from "../../../go/context.js";
 import type {
 	ContainerConfig,
 	ContainerStatus as CRIContainerStatus,
@@ -19,7 +19,7 @@ import type {
 	PodSandboxConfig,
 	PodSandboxStatus,
 	RuntimeService,
-} from "../../cri";
+} from "../../cri/index.js";
 import type {
 	CheckpointContainerRequest,
 	Container as CRIContainer,
@@ -31,12 +31,12 @@ import type {
 	PodSandboxStatusResponse,
 	UpdateRuntimeConfigRequest,
 	VersionResponse,
-} from "../../cri/runtime/v1/api";
-import { hashContainer, type Pod as RuntimePod, type RuntimeHelper } from "../container";
-import type { InternalContainerLifecycle } from "../cm";
-import { ResultsManager } from "../prober/results";
-import { ClusterNetwork } from "../../cni";
-import { KubeGenericRuntimeManager, type PodStateProvider } from "./kuberuntime-manager";
+} from "../../cri/runtime/v1/api.js";
+import { hashContainer, type Pod as RuntimePod, type RuntimeHelper } from "../container/index.js";
+import type { InternalContainerLifecycle } from "../cm/index.js";
+import { ResultsManager } from "../prober/results/index.js";
+import { ClusterNetwork } from "../../cni/index.js";
+import { KubeGenericRuntimeManager, type PodStateProvider } from "./kuberuntime-manager.js";
 
 // Models kubernetes/pkg/kubelet/kuberuntime/kuberuntime_manager_test.go createTestRuntimeManager.
 export type TestRuntimeManagerFixture = [

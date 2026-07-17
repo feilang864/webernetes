@@ -2,14 +2,14 @@
  * SPDX-License-Identifier: Apache-2.0
  * Derived from Kubernetes, translated and modified for Webernetes.
  */
-import { getClock } from "../../../clock-context";
-import type * as context from "../../../go/context";
+import { getClock } from "../../../clock-context.js";
+import type * as context from "../../../go/context.js";
 import {
 	newTokenBucketRateLimiterWithClock,
 	type RateLimiter,
-} from "../../../client-go/util/flowcontrol/throttle";
-import type { ImageFsInfoResponse, PodSandboxConfig } from "../../cri";
-import type { Image, ImageService, ImageSpec, ImageStats } from "../container";
+} from "../../../client-go/util/flowcontrol/throttle.js";
+import type { ImageFsInfoResponse, PodSandboxConfig } from "../../cri/index.js";
+import type { Image, ImageService, ImageSpec, ImageStats } from "../container/index.js";
 
 // Models kubernetes/pkg/kubelet/images/helpers.go throttleImagePulling.
 export function throttleImagePulling(

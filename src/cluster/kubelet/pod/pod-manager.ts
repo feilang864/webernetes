@@ -2,10 +2,10 @@
  * SPDX-License-Identifier: Apache-2.0
  * Derived from Kubernetes, translated and modified for Webernetes.
  */
-import type { V1Pod } from "../../../client";
-import * as kubecontainer from "../container";
-import * as kubetypes from "../types";
-import { getHashFromMirrorPod, getPodHash } from "./mirror-client";
+import type { V1Pod } from "../../../client/index.js";
+import * as kubecontainer from "../container/index.js";
+import * as kubetypes from "../types/index.js";
+import { getHashFromMirrorPod, getPodHash } from "./mirror-client.js";
 
 // Models kubernetes/pkg/kubelet/pod/pod_manager.go basicManager.
 export class PodManager {

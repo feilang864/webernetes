@@ -1,6 +1,6 @@
 import { expect, it } from "vitest";
-import { browser } from "../../../../test/describe";
-import { getNodenameForKernel } from "./util";
+import { browser } from "../../../../test/describe.js";
+import { getNodenameForKernel } from "./util.js";
 
 // Test cases mirror kubernetes/pkg/kubelet/util/util_test.go TestGetNodenameForKernel.
 browser.describe("getNodenameForKernel", () => {

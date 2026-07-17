@@ -2,44 +2,44 @@
  * SPDX-License-Identifier: Apache-2.0
  * Derived from Kubernetes, translated and modified for Webernetes.
  */
-import * as k8s from "../../client";
+import * as k8s from "../../client/index.js";
 import {
 	getControllerOf,
 	newControllerRef,
-} from "../../apimachinery/pkg/apis/meta/v1/controller_ref";
-import { labelSelectorAsSelector } from "../../apimachinery/pkg/apis/meta/v1/helpers";
-import type { Selector } from "../../apimachinery/pkg/labels/selector";
+} from "../../apimachinery/pkg/apis/meta/v1/controller_ref.js";
+import { labelSelectorAsSelector } from "../../apimachinery/pkg/apis/meta/v1/helpers.js";
+import type { Selector } from "../../apimachinery/pkg/labels/selector.js";
 import {
 	GroupResource,
 	GroupVersionKind,
-} from "../../apimachinery/pkg/runtime/schema/group_version";
-import { hasStatusCause, isNotFoundError } from "../../client/errors";
+} from "../../apimachinery/pkg/runtime/schema/group_version.js";
+import { hasStatusCause, isNotFoundError } from "../../client/errors.js";
 import {
 	newReplicaSetLister,
 	type ReplicaSetLister,
-} from "../../client-go/listers/apps/v1/replicaset";
-import { newPodLister, type PodLister } from "../../client-go/listers/core/v1/pod";
-import type { Indexer } from "../../client-go/tools/cache/index";
+} from "../../client-go/listers/apps/v1/replicaset.js";
+import { newPodLister, type PodLister } from "../../client-go/listers/core/v1/pod.js";
+import type { Indexer } from "../../client-go/tools/cache/index.js";
 import {
 	DeletedFinalStateUnknown,
 	metaNamespaceKeyFunc,
 	newIndexer,
 	splitMetaNamespaceKey,
-} from "../../client-go/tools/cache/store";
-import * as podutil from "../../cluster/api/v1/pod/util";
-import { defaultTypedControllerRateLimiter } from "../../client-go/util/workqueue/default-rate-limiters";
+} from "../../client-go/tools/cache/store.js";
+import * as podutil from "../../cluster/api/v1/pod/util.js";
+import { defaultTypedControllerRateLimiter } from "../../client-go/util/workqueue/default-rate-limiters.js";
 import {
 	newTypedRateLimitingQueueWithConfig,
 	type TypedRateLimitingInterface,
-} from "../../client-go/util/workqueue/rate-limiting-queue";
-import { EventRecorderImpl } from "../../cluster/events";
-import { getClock } from "../../clock-context";
-import { newPodControllerRefManager, recheckDeletionTimestamp } from "../controller-ref-manager";
+} from "../../client-go/util/workqueue/rate-limiting-queue.js";
+import { EventRecorderImpl } from "../../cluster/events.js";
+import { getClock } from "../../clock-context.js";
+import { newPodControllerRefManager, recheckDeletionTimestamp } from "../controller-ref-manager.js";
 import {
 	newConsistencyStore,
 	type ConsistencyStore,
 	type LastSyncRVGetter,
-} from "../util/consistency/consistency";
+} from "../util/consistency/consistency.js";
 import {
 	ActivePodsWithRanks,
 	addPodControllerIndexer,
@@ -56,12 +56,12 @@ import {
 	podKey,
 	type PodControlInterface,
 	type UIDTrackingControllerExpectations,
-} from "../controller-utils";
-import { deepEqual } from "../../deep-equal";
-import type * as context from "../../go/context";
-import type { Clock } from "../../clock";
-import { untilWithContext } from "../../apimachinery/pkg/util/wait/backoff";
-import { calculateStatus, updateReplicaSetStatus } from "./replica-set-utils";
+} from "../controller-utils.js";
+import { deepEqual } from "../../deep-equal.js";
+import type * as context from "../../go/context.js";
+import type { Clock } from "../../clock.js";
+import { untilWithContext } from "../../apimachinery/pkg/util/wait/backoff.js";
+import { calculateStatus, updateReplicaSetStatus } from "./replica-set-utils.js";
 
 const defaultBurstReplicas = 500;
 const slowStartInitialBatchSize = 1;

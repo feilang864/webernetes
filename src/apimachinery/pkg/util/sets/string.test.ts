@@ -3,8 +3,8 @@
  * Derived from Kubernetes, translated and modified for Webernetes.
  */
 import { expect, it } from "vitest";
-import { browser } from "../../../../test/describe";
-import { newString } from "./string";
+import { browser } from "../../../../test/describe.js";
+import { newString } from "./string.js";
 
 browser.describe("sets string", () => {
 	// Models staging/src/k8s.io/apimachinery/pkg/util/sets/string.go NewString.

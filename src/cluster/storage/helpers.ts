@@ -1,4 +1,4 @@
-import type { V1LabelSelector } from "../../client";
+import type { V1LabelSelector } from "../../client/index.js";
 
 // Returns a function that blocks each caller until it has been called `count`
 // times, letting tests force concurrent operations past a specific hook.

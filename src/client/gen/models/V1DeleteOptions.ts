@@ -2,7 +2,7 @@
  * SPDX-License-Identifier: Apache-2.0
  * Derived from Kubernetes, translated and modified for Webernetes.
  */
-import { V1Preconditions } from "./V1Preconditions";
+import { V1Preconditions } from "./V1Preconditions.js";
 
 export interface V1DeleteOptions {
 	apiVersion?: string;

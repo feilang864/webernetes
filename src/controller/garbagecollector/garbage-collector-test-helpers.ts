@@ -2,16 +2,16 @@
  * SPDX-License-Identifier: Apache-2.0
  * Derived from Kubernetes, translated and modified for Webernetes.
  */
-import * as k8s from "../../client";
+import * as k8s from "../../client/index.js";
 import { expect } from "vitest";
-import { Clock } from "../../clock";
-import { withClock } from "../../clock-context";
-import { KubeConfig } from "../../client/config";
-import { TestKubeClient } from "../../client/test";
-import { Etcd } from "../../cluster/etcd";
-import * as context from "../../go/context";
-import { GraphBuilder, type GraphEvent } from "./graph-builder";
-import { Node, type ObjectReference } from "./graph";
+import { Clock } from "../../clock.js";
+import { withClock } from "../../clock-context.js";
+import { KubeConfig } from "../../client/config.js";
+import { TestKubeClient } from "../../client/test/index.js";
+import { Etcd } from "../../cluster/etcd.js";
+import * as context from "../../go/context.js";
+import { GraphBuilder, type GraphEvent } from "./graph-builder.js";
+import { Node, type ObjectReference } from "./graph.js";
 
 // Models kubernetes/pkg/controller/garbagecollector/garbagecollector_test.go makeID.
 export function makeID(

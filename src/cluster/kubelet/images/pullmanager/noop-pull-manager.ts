@@ -2,8 +2,8 @@
  * SPDX-License-Identifier: Apache-2.0
  * Derived from Kubernetes, translated and modified for Webernetes.
  */
-import type * as context from "../../../../go/context";
-import type { GetPodCredentials, ImagePullManager } from "./interfaces";
+import type * as context from "../../../../go/context.js";
+import type { GetPodCredentials, ImagePullManager } from "./interfaces.js";
 
 // Models kubernetes/pkg/kubelet/images/pullmanager/noop_pull_manager.go NoopImagePullManager.
 export class NoopImagePullManager implements ImagePullManager {

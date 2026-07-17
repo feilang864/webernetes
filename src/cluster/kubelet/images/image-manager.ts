@@ -2,19 +2,19 @@
  * SPDX-License-Identifier: Apache-2.0
  * Derived from Kubernetes, translated and modified for Webernetes.
  */
-import type { V1ObjectReference, V1Pod } from "../../../client";
-import { getClock } from "../../../clock-context";
-import type { Backoff } from "../../../client-go/util/flowcontrol/backoff";
-import { Channel, select } from "../../../go/channel";
-import * as context from "../../../go/context";
-import type { PodSandboxConfig } from "../../cri";
-import type { EventRecorder } from "../../../client-go/tools/record/event";
-import { parseImageName } from "../../../util/parsers/parsers";
-import type { ImageService, ImageSpec } from "../container";
-import { throttleImagePulling } from "./helpers";
-import { NoopImagePullManager, type ImagePullManager } from "./pullmanager";
-import { newParallelImagePuller, type ImagePuller, type PullResult } from "./puller";
-import { ImagePullError, type ImageManager } from "./types";
+import type { V1ObjectReference, V1Pod } from "../../../client/index.js";
+import { getClock } from "../../../clock-context.js";
+import type { Backoff } from "../../../client-go/util/flowcontrol/backoff.js";
+import { Channel, select } from "../../../go/channel.js";
+import * as context from "../../../go/context.js";
+import type { PodSandboxConfig } from "../../cri/index.js";
+import type { EventRecorder } from "../../../client-go/tools/record/event.js";
+import { parseImageName } from "../../../util/parsers/parsers.js";
+import type { ImageService, ImageSpec } from "../container/index.js";
+import { throttleImagePulling } from "./helpers.js";
+import { NoopImagePullManager, type ImagePullManager } from "./pullmanager/index.js";
+import { newParallelImagePuller, type ImagePuller, type PullResult } from "./puller.js";
+import { ImagePullError, type ImageManager } from "./types.js";
 
 export interface NewImageManagerOptions {
 	ctx: context.Context;

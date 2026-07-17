@@ -4,19 +4,19 @@
  */
 // oxlint-disable jest/no-conditional-expect
 import { expect, it } from "vitest";
-import type { Clock } from "../../../clock";
-import { getClock } from "../../../clock-context";
-import { Channel, select, type ReadOnlyChannel } from "../../../go/channel";
-import * as context from "../../../go/context";
-import { Timer } from "../../../go/time";
-import type { Backoff } from "../../../client-go/util/flowcontrol/backoff";
-import type { V1Pod } from "../../../client";
-import { browser } from "../../../test/describe";
+import type { Clock } from "../../../clock.js";
+import { getClock } from "../../../clock-context.js";
+import { Channel, select, type ReadOnlyChannel } from "../../../go/channel.js";
+import * as context from "../../../go/context.js";
+import { Timer } from "../../../go/time.js";
+import type { Backoff } from "../../../client-go/util/flowcontrol/backoff.js";
+import type { V1Pod } from "../../../client/index.js";
+import { browser } from "../../../test/describe.js";
 import type {
 	ImageFsInfoResponse,
 	MetricDescriptor,
 	PodSandboxMetrics,
-} from "../../cri/runtime/v1/api";
+} from "../../cri/runtime/v1/api.js";
 import {
 	buildContainerID,
 	newPod,
@@ -38,15 +38,15 @@ import {
 	type SwapBehavior,
 	type State as ContainerState,
 	type Version,
-} from "../container";
+} from "../container/index.js";
 import {
 	ContainerDied,
 	ContainerRemoved,
 	ContainerStarted,
 	PodSync,
 	type PodLifecycleEvent,
-} from "./pleg";
-import { GenericPLEG } from "./generic";
+} from "./pleg.js";
+import { GenericPLEG } from "./generic.js";
 
 const testContainerRuntimeType = "fooRuntime";
 const largeChannelCap = 100;

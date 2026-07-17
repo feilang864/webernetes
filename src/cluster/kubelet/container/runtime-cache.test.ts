@@ -3,11 +3,11 @@
  * Derived from Kubernetes, translated and modified for Webernetes.
  */
 import { expect, it } from "vitest";
-import { getClock } from "../../../clock-context";
-import * as context from "../../../go/context";
-import { browser } from "../../../test/describe";
-import { RuntimeCacheImpl } from "./runtime-cache";
-import type { Pod } from "./runtime";
+import { getClock } from "../../../clock-context.js";
+import * as context from "../../../go/context.js";
+import { browser } from "../../../test/describe.js";
+import { RuntimeCacheImpl } from "./runtime-cache.js";
+import type { Pod } from "./runtime.js";
 
 browser.describe("RuntimeCache", ({ ctx }) => {
 	// Models kubernetes/pkg/kubelet/container/runtime_cache_test.go TestGetPods.

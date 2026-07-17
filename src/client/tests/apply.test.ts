@@ -1,5 +1,5 @@
 import { expect, it } from "vitest";
-import { kubernetes } from "../../test/harnesses/kubernetes";
+import { kubernetes } from "../../test/harnesses/kubernetes.js";
 
 const LAST_APPLIED_ANNOTATION = "kubectl.kubernetes.io/last-applied-configuration";
 

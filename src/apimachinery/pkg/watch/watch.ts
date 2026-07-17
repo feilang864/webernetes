@@ -2,10 +2,10 @@
  * SPDX-License-Identifier: Apache-2.0
  * Derived from Kubernetes, translated and modified for Webernetes.
  */
-import { Channel, type ReadOnlyChannel } from "../../../go/channel";
-import { Mutex } from "../../../go/sync/mutex";
-import type { KubernetesObject } from "../../../client/types";
-import type { MaybePromise } from "../../../promise";
+import { Channel, type ReadOnlyChannel } from "../../../go/channel.js";
+import { Mutex } from "../../../go/sync/mutex.js";
+import type { KubernetesObject } from "../../../client/types.js";
+import type { MaybePromise } from "../../../promise.js";
 
 // Models staging/src/k8s.io/apimachinery/pkg/watch/watch.go EventType.
 export type EventType = "ADDED" | "MODIFIED" | "DELETED" | "BOOKMARK" | "ERROR";

@@ -4,9 +4,9 @@
  */
 import { expect, it } from "vitest";
 
-import type { V1Pod } from "../../../../client";
-import { browser } from "../../../../test/describe";
-import { isPodTerminal } from "./util";
+import type { V1Pod } from "../../../../client/index.js";
+import { browser } from "../../../../test/describe.js";
+import { isPodTerminal } from "./util.js";
 
 browser.describe("pod util", () => {
 	// Models kubernetes/pkg/api/v1/pod/util_test.go TestIsPodTerminal.

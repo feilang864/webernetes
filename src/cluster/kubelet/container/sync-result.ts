@@ -2,7 +2,7 @@
  * SPDX-License-Identifier: Apache-2.0
  * Derived from Kubernetes, translated and modified for Webernetes.
  */
-import { newAggregate } from "../../../apimachinery/pkg/util/errors/errors";
+import { newAggregate } from "../../../apimachinery/pkg/util/errors/errors.js";
 
 // Models kubernetes/pkg/kubelet/container/sync_result.go BackoffError.
 export class BackoffError extends Error {

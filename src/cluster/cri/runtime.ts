@@ -1,25 +1,25 @@
-import type { Clock } from "../../clock";
-import { getClock } from "../../clock-context";
-import { Channel, ReadOnlyChannel, select } from "../../go/channel";
-import * as context from "../../go/context";
-import * as time from "../../go/time";
-import type { KubeConfig } from "../../client/config";
+import type { Clock } from "../../clock.js";
+import { getClock } from "../../clock-context.js";
+import { Channel, ReadOnlyChannel, select } from "../../go/channel.js";
+import * as context from "../../go/context.js";
+import * as time from "../../go/time.js";
+import type { KubeConfig } from "../../client/config.js";
 import {
 	AppsV1Api,
 	CoreV1Api,
 	DiscoveryV1Api,
 	type KubeClient,
 	type V1Container,
-} from "../../client";
-import { newCommandTimedOutError } from "../cri-client/pkg";
-import { getLatencyProvider } from "../../latency";
-import type { DnsHandler, DnsListener } from "../cni/dns";
-import * as http from "../cni/http";
-import { ClusterNetwork, type NetworkRegistration } from "../cni/network";
-import { parseContainerID } from "../kubelet/container/runtime";
-import type { ImageDefinition, ImageSignal } from "./image";
-import { ImageRegistry } from "./image";
-import type { ImageManagerService, RuntimeService, ServiceError } from "./apis/services";
+} from "../../client/index.js";
+import { newCommandTimedOutError } from "../cri-client/pkg.js";
+import { getLatencyProvider } from "../../latency.js";
+import type { DnsHandler, DnsListener } from "../cni/dns.js";
+import * as http from "../cni/http.js";
+import { ClusterNetwork, type NetworkRegistration } from "../cni/network.js";
+import { parseContainerID } from "../kubelet/container/runtime.js";
+import type { ImageDefinition, ImageSignal } from "./image.js";
+import { ImageRegistry } from "./image.js";
+import type { ImageManagerService, RuntimeService, ServiceError } from "./apis/services.js";
 import type {
 	Container,
 	ContainerConfig,
@@ -45,7 +45,7 @@ import type {
 	StatusResponse,
 	UpdateRuntimeConfigRequest,
 	VersionResponse,
-} from "./runtime/v1/api";
+} from "./runtime/v1/api.js";
 
 function rawContainerID(id: string): string {
 	const parsed = parseContainerID(id);

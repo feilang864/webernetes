@@ -4,15 +4,15 @@
  */
 import { expect, it } from "vitest";
 
-import { Channel, select } from "../../../go/channel";
-import { browser } from "../../../test/describe";
+import { Channel, select } from "../../../go/channel.js";
+import { browser } from "../../../test/describe.js";
 import {
 	defaultQueue,
 	new as newQueue,
 	newWithConfig,
 	type Queue,
 	type TypedInterface,
-} from "./queue";
+} from "./queue.js";
 
 class TraceQueue<T> implements Queue<T> {
 	touched = new Set<T>();

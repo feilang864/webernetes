@@ -2,12 +2,12 @@
  * SPDX-License-Identifier: Apache-2.0
  * Derived from Kubernetes, translated and modified for Webernetes.
  */
-import * as k8s from "../../client";
-import { isNotFoundError } from "../../client/errors";
-import { retryConflicts } from "../../retry";
-import { Channel, select } from "../../go/channel";
-import type { ProcessContext } from "../cri";
-import { BaseImage } from "./base";
+import * as k8s from "../../client/index.js";
+import { isNotFoundError } from "../../client/errors.js";
+import { retryConflicts } from "../../retry.js";
+import { Channel, select } from "../../go/channel.js";
+import type { ProcessContext } from "../cri/index.js";
+import { BaseImage } from "./base.js";
 
 // Models kubernetes/staging/src/k8s.io/api/core/v1/types.go FinalizerKubernetes.
 const finalizerKubernetes = "kubernetes";

@@ -1,2 +1,2 @@
-export * from "./fake-cache";
-export * from "./fake-runtime";
+export * from "./fake-cache.js";
+export * from "./fake-runtime.js";

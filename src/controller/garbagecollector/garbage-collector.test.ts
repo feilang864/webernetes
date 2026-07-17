@@ -4,30 +4,30 @@
  */
 import { expect, it } from "vitest";
 
-import * as k8s from "../../client";
-import { isNotFoundError, NotFound } from "../../client/errors";
-import { finalizerDeleteDependents } from "../../client/gen/apis/impls/delete";
-import { newTestKubeClient, TestKubeClient, type ClientAction } from "../../client/test";
-import type { EventRecorder } from "../../client-go/tools/record/event";
-import { newFakeRecorder, type FakeRecorder } from "../../client-go/tools/record/fake";
-import { defaultTypedControllerRateLimiter } from "../../client-go/util/workqueue/default-rate-limiters";
+import * as k8s from "../../client/index.js";
+import { isNotFoundError, NotFound } from "../../client/errors.js";
+import { finalizerDeleteDependents } from "../../client/gen/apis/impls/delete.js";
+import { newTestKubeClient, TestKubeClient, type ClientAction } from "../../client/test/index.js";
+import type { EventRecorder } from "../../client-go/tools/record/event.js";
+import { newFakeRecorder, type FakeRecorder } from "../../client-go/tools/record/fake.js";
+import { defaultTypedControllerRateLimiter } from "../../client-go/util/workqueue/default-rate-limiters.js";
 import {
 	newTypedRateLimitingQueue,
 	type TypedRateLimitingInterface,
-} from "../../client-go/util/workqueue/rate-limiting-queue";
-import * as context from "../../go/context";
-import { browser } from "../../test/describe";
-import { GarbageCollector } from "./garbage-collector";
+} from "../../client-go/util/workqueue/rate-limiting-queue.js";
+import * as context from "../../go/context.js";
+import { browser } from "../../test/describe.js";
+import { GarbageCollector } from "./garbage-collector.js";
 import {
 	createEvent,
 	makeNode,
 	newTestGraphBuilder,
 	verifyGraphInvariants,
 	withOwners,
-} from "./garbage-collector-test-helpers";
-import { GraphBuilder, type GraphBuilderQueues, type GraphEvent } from "./graph-builder";
-import { identityFor, Node, type ModeledObject, type ObjectReference } from "./graph";
-import { newReferenceCache } from "./uid-cache";
+} from "./garbage-collector-test-helpers.js";
+import { GraphBuilder, type GraphBuilderQueues, type GraphEvent } from "./graph-builder.js";
+import { identityFor, Node, type ModeledObject, type ObjectReference } from "./graph.js";
+import { newReferenceCache } from "./uid-cache.js";
 
 browser.describe("garbagecollector GarbageCollector", ({ ctx }) => {
 	// Models kubernetes/pkg/controller/garbagecollector/garbagecollector_test.go TestAttemptToDeleteItem.

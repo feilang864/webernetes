@@ -1,6 +1,6 @@
 import { expect, it } from "vitest";
-import { browser } from "../../test/describe";
-import { parse, parseImageName, parseNormalizedNamed } from "./parsers";
+import { browser } from "../../test/describe.js";
+import { parse, parseImageName, parseNormalizedNamed } from "./parsers.js";
 
 function tagOf(ref: unknown): string {
 	if (ref !== undefined && ref !== null && typeof (ref as { tag?: unknown }).tag === "function") {

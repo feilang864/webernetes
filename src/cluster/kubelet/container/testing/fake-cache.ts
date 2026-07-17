@@ -2,8 +2,8 @@
  * SPDX-License-Identifier: Apache-2.0
  * Derived from Kubernetes, translated and modified for Webernetes.
  */
-import * as context from "../../../../go/context";
-import type { Cache, PodStatusResult, Runtime } from "../index";
+import * as context from "../../../../go/context.js";
+import type { Cache, PodStatusResult, Runtime } from "../index.js";
 
 // Models kubernetes/pkg/kubelet/container/testing/fake_cache.go fakeCache.
 class FakeCache implements Cache {

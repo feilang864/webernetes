@@ -1,4 +1,9 @@
-import { V1DeleteOptions, V1EndpointSlice, V1EndpointSliceList, V1Status } from "../../models";
+import {
+	V1DeleteOptions,
+	V1EndpointSlice,
+	V1EndpointSliceList,
+	V1Status,
+} from "../../models/index.js";
 
 export interface DiscoveryV1ApiCreateNamespacedEndpointSliceRequest {
 	namespace: string;

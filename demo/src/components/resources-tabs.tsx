@@ -31,8 +31,8 @@ import {
 	podIdsForLabelSelector,
 	podIdsForService,
 	sortByName,
-} from "../helpers";
-import { useInformer } from "../hooks";
+} from "../helpers.js";
+import { useInformer } from "../hooks.js";
 
 type ResourceTab =
 	| "pods"

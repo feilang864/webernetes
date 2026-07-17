@@ -9,15 +9,15 @@ import {
 	type V1Pod,
 	type V1PodStatus,
 	type V1Probe,
-} from "../../../client";
-import { getClock } from "../../../clock-context";
-import { poll as waitPoll } from "../../../apimachinery/pkg/util/wait/poll";
-import { Channel, select } from "../../../go/channel";
-import * as context from "../../../go/context";
-import { browser } from "../../../test/describe";
-import { newContainerID, parseContainerID } from "../container";
-import { ProbeManagerImpl } from "./prober-manager";
-import { type ProbeKey, type ProbeUpdate } from "./results";
+} from "../../../client/index.js";
+import { getClock } from "../../../clock-context.js";
+import { poll as waitPoll } from "../../../apimachinery/pkg/util/wait/poll.js";
+import { Channel, select } from "../../../go/channel.js";
+import * as context from "../../../go/context.js";
+import { browser } from "../../../test/describe.js";
+import { newContainerID, parseContainerID } from "../container/index.js";
+import { ProbeManagerImpl } from "./prober-manager.js";
+import { type ProbeKey, type ProbeUpdate } from "./results/index.js";
 import {
 	getTestPod,
 	getTestRunningStatus,
@@ -28,7 +28,7 @@ import {
 	testContainerID,
 	testContainerName,
 	testPodUID,
-} from "./common.test";
+} from "./common.test.js";
 
 // Models kubernetes/pkg/kubelet/prober/prober_manager_test.go defaultProbe.
 const defaultProbe: V1Probe = {

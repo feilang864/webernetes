@@ -2,15 +2,15 @@
  * SPDX-License-Identifier: Apache-2.0
  * Derived from Kubernetes, translated and modified for Webernetes.
  */
-import { V1AttachedVolume } from "./V1AttachedVolume";
-import { V1ContainerImage } from "./V1ContainerImage";
-import { V1NodeAddress } from "./V1NodeAddress";
-import { V1NodeCondition } from "./V1NodeCondition";
-import { V1NodeConfigStatus } from "./V1NodeConfigStatus";
-import { V1NodeDaemonEndpoints } from "./V1NodeDaemonEndpoints";
-import { V1NodeFeatures } from "./V1NodeFeatures";
-import { V1NodeRuntimeHandler } from "./V1NodeRuntimeHandler";
-import { V1NodeSystemInfo } from "./V1NodeSystemInfo";
+import { V1AttachedVolume } from "./V1AttachedVolume.js";
+import { V1ContainerImage } from "./V1ContainerImage.js";
+import { V1NodeAddress } from "./V1NodeAddress.js";
+import { V1NodeCondition } from "./V1NodeCondition.js";
+import { V1NodeConfigStatus } from "./V1NodeConfigStatus.js";
+import { V1NodeDaemonEndpoints } from "./V1NodeDaemonEndpoints.js";
+import { V1NodeFeatures } from "./V1NodeFeatures.js";
+import { V1NodeRuntimeHandler } from "./V1NodeRuntimeHandler.js";
+import { V1NodeSystemInfo } from "./V1NodeSystemInfo.js";
 
 export interface V1NodeStatus {
 	addresses?: Array<V1NodeAddress>;

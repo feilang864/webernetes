@@ -5,7 +5,7 @@ import {
 	K3S_CONTAINER_NAME,
 	K3S_SETUP_MARKER_ROOT,
 	K3S_START_LOCK_DIR,
-} from "./kubernetes-k3s-setup";
+} from "./kubernetes-k3s-setup.js";
 
 const markerPaths = [K3S_START_LOCK_DIR, K3S_SETUP_MARKER_ROOT];
 

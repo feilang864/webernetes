@@ -1,5 +1,5 @@
 import { vi } from "vitest";
-import { currentTestEnvironment } from "./describe";
+import { currentTestEnvironment } from "./describe.js";
 
 const WAIT_FOR_OPTIONS =
 	currentTestEnvironment === "browser"

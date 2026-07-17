@@ -4,10 +4,10 @@
  */
 import { expect, it } from "vitest";
 
-import type { KubernetesObject } from "../../../client/types";
-import { browser } from "../../../test/describe";
-import { errFIFOClosed, newFIFO, type FIFO, type Queue } from "./fifo";
-import { ExplicitKey } from "./store";
+import type { KubernetesObject } from "../../../client/types.js";
+import { browser } from "../../../test/describe.js";
+import { errFIFOClosed, newFIFO, type FIFO, type Queue } from "./fifo.js";
+import { ExplicitKey } from "./store.js";
 
 interface TestFifoObject extends KubernetesObject {
 	name: string;

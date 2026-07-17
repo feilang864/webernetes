@@ -1,7 +1,7 @@
 import { expect, it } from "vitest";
 
-import { SortedMap, KeyFnMap } from "./collections";
-import { browser } from "./test/describe";
+import { SortedMap, KeyFnMap } from "./collections.js";
+import { browser } from "./test/describe.js";
 
 browser.describe("SortedMap", () => {
 	it("keeps entries sorted by key", () => {

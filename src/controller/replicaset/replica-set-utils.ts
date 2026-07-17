@@ -2,11 +2,11 @@
  * SPDX-License-Identifier: Apache-2.0
  * Derived from Kubernetes, translated and modified for Webernetes.
  */
-import * as k8s from "../../client";
-import { Set as LabelSet } from "../../apimachinery/pkg/labels/labels";
-import * as podutil from "../../cluster/api/v1/pod/util";
-import { deepEqual } from "../../deep-equal";
-import type { ReplicaSetControllerFeatures } from "./replica-set";
+import * as k8s from "../../client/index.js";
+import { Set as LabelSet } from "../../apimachinery/pkg/labels/labels.js";
+import * as podutil from "../../cluster/api/v1/pod/util.js";
+import { deepEqual } from "../../deep-equal.js";
+import type { ReplicaSetControllerFeatures } from "./replica-set.js";
 
 const statusUpdateRetries = 1;
 

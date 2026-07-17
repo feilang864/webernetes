@@ -3,11 +3,11 @@
  * Derived from Kubernetes, translated and modified for Webernetes.
  */
 import { expect, it } from "vitest";
-import type { V1Container, V1Pod } from "../../../client";
-import { getClock } from "../../../clock-context";
-import { browser } from "../../../test/describe";
-import type { ContainerStatus as CRIContainerStatus } from "../../cri";
-import type { PodSandbox } from "../../cri/runtime/v1/api";
+import type { V1Container, V1Pod } from "../../../client/index.js";
+import { getClock } from "../../../clock-context.js";
+import { browser } from "../../../test/describe.js";
+import type { ContainerStatus as CRIContainerStatus } from "../../cri/index.js";
+import type { PodSandbox } from "../../cri/runtime/v1/api.js";
 import {
 	createTestRuntimeManager,
 	FakePodStateProvider,
@@ -17,7 +17,7 @@ import {
 	makeTestPod,
 	type ContainerTemplate,
 	type SandboxTemplate,
-} from "./kuberuntime-test-helpers";
+} from "./kuberuntime-test-helpers.js";
 
 // Models kubernetes/pkg/kubelet/kuberuntime/kuberuntime_gc_test.go TestSandboxGC.
 browser.describe("sandboxGC", ({ ctx }) => {

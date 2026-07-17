@@ -1,20 +1,20 @@
 import { expect, it, vi } from "vitest";
 
-import { getClock } from "../../clock-context";
-import type { V1Node, V1Pod, V1Service } from "../../client";
-import * as context from "../../go/context";
-import type { Context } from "../../go/context";
-import { withLatencyProvider, newLatencyProvider } from "../../latency";
-import { browser } from "../../test/describe";
-import { waitFor } from "../../test/wait";
-import { PodSandboxInstance } from "../cri/runtime";
+import { getClock } from "../../clock-context.js";
+import type { V1Node, V1Pod, V1Service } from "../../client/index.js";
+import * as context from "../../go/context.js";
+import type { Context } from "../../go/context.js";
+import { withLatencyProvider, newLatencyProvider } from "../../latency.js";
+import { browser } from "../../test/describe.js";
+import { waitFor } from "../../test/wait.js";
+import { PodSandboxInstance } from "../cri/runtime.js";
 import {
 	ClusterNetwork,
 	networkRequestIDHeader,
 	type NetworkHop,
 	type NetworkRequestEvent,
 	type NetworkResponseEvent,
-} from "./network";
+} from "./network.js";
 
 browser.describe("ClusterNetwork", ({ ctx }) => {
 	it("matches Node fetch errors for invalid and unreachable targets", async () => {

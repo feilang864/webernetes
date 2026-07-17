@@ -4,11 +4,11 @@
  */
 // oxlint-disable jest/no-conditional-expect
 import { expect, it } from "vitest";
-import type { V1Node, V1NodeAddress } from "../../../client";
-import * as context from "../../../go/context";
-import { browser } from "../../../test/describe";
-import { FakeVersion } from "../container/testing";
-import { RuntimeFeatures, RuntimeHandler, type Image } from "../container";
+import type { V1Node, V1NodeAddress } from "../../../client/index.js";
+import * as context from "../../../go/context.js";
+import { browser } from "../../../test/describe.js";
+import { FakeVersion } from "../container/testing/index.js";
+import { RuntimeFeatures, RuntimeHandler, type Image } from "../container/index.js";
 import {
 	daemonEndpoints,
 	goRuntime,
@@ -20,7 +20,7 @@ import {
 	runtimeHandlers,
 	versionInfo,
 	type CadvisorVersionInfo,
-} from "./setters";
+} from "./setters.js";
 
 const testKubeletHostname = "test-hostname";
 const annotationAlphaProvidedIPAddr = "alpha.kubernetes.io/provided-node-ip";

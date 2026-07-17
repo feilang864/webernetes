@@ -2,14 +2,14 @@
  * SPDX-License-Identifier: Apache-2.0
  * Derived from Kubernetes, translated and modified for Webernetes.
  */
-import type { V1Deployment } from "../../client";
-import { labelSelectorAsSelector } from "../../apimachinery/pkg/apis/meta/v1/helpers";
-import { Set as LabelSet } from "../../apimachinery/pkg/labels/labels";
-import { Invalid } from "../../client/errors";
-import type * as context from "../../go/context";
-import { Etcd } from "../etcd";
-import { formatLabelSelector, formatStringMap } from "./helpers";
-import { Store } from "./store";
+import type { V1Deployment } from "../../client/index.js";
+import { labelSelectorAsSelector } from "../../apimachinery/pkg/apis/meta/v1/helpers.js";
+import { Set as LabelSet } from "../../apimachinery/pkg/labels/labels.js";
+import { Invalid } from "../../client/errors.js";
+import type * as context from "../../go/context.js";
+import { Etcd } from "../etcd.js";
+import { formatLabelSelector, formatStringMap } from "./helpers.js";
+import { Store } from "./store.js";
 
 export class DeploymentStore extends Store<V1Deployment> {
 	constructor(ctx: context.Context, etcd: Etcd) {

@@ -1,5 +1,5 @@
-import { Clock } from "./clock";
-import * as context from "./go/context";
+import { Clock } from "./clock.js";
+import * as context from "./go/context.js";
 
 const key = Symbol("clock");
 

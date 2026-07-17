@@ -3,8 +3,8 @@
  * Derived from Kubernetes, translated and modified for Webernetes.
  */
 import { expect, it } from "vitest";
-import { browser } from "../../../../test/describe";
-import { normalizeName } from "./sysctl";
+import { browser } from "../../../../test/describe.js";
+import { normalizeName } from "./sysctl.js";
 
 // Models staging/src/k8s.io/component-helpers/node/util/sysctl/sysctl_test.go TestConvertSysctlVariableToDotsSeparator.
 browser.describe("TestConvertSysctlVariableToDotsSeparator", () => {

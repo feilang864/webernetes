@@ -2,7 +2,7 @@
  * SPDX-License-Identifier: Apache-2.0
  * Derived from Kubernetes, translated and modified for Webernetes.
  */
-import type { ReadOnlyChannel } from "../../../go/channel";
+import type { ReadOnlyChannel } from "../../../go/channel.js";
 
 // Models kubernetes/pkg/kubelet/pleg/pleg.go PodLifeCycleEventType.
 export type PodLifeCycleEventType =

@@ -2,7 +2,7 @@
  * SPDX-License-Identifier: Apache-2.0
  * Derived from Kubernetes, translated and modified for Webernetes.
  */
-import { V1PortStatus } from "./V1PortStatus";
+import { V1PortStatus } from "./V1PortStatus.js";
 
 export interface V1LoadBalancerIngress {
 	hostname?: string;

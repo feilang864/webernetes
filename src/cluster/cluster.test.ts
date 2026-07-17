@@ -1,14 +1,14 @@
 import { expect, it } from "vitest";
 
-import { select } from "../go/channel";
-import { browser } from "../test/describe";
-import { waitFor } from "../test/wait";
-import { Cluster, type ClusterInformerEventType, type ClusterInformerResource } from "./cluster";
-import type { NetworkRequestEvent, NetworkResponseEvent } from "./cni/network";
-import { BaseImage } from "./images/base";
-import type { Kubelet } from "./kubelet";
-import { ProbeManagerImpl } from "./kubelet/prober";
-import { getLatencyProvider, newLatencyProvider } from "../latency";
+import { select } from "../go/channel.js";
+import { browser } from "../test/describe.js";
+import { waitFor } from "../test/wait.js";
+import { Cluster, type ClusterInformerEventType, type ClusterInformerResource } from "./cluster.js";
+import type { NetworkRequestEvent, NetworkResponseEvent } from "./cni/network.js";
+import { BaseImage } from "./images/base.js";
+import type { Kubelet } from "./kubelet/index.js";
+import { ProbeManagerImpl } from "./kubelet/prober/index.js";
+import { getLatencyProvider, newLatencyProvider } from "../latency.js";
 
 type InformerObject = { metadata?: { name?: string } };
 

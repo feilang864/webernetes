@@ -4,9 +4,14 @@
  */
 /* eslint-disable jest/expect-expect */
 import { it } from "vitest";
-import { Aggregate, newAggregate } from "../../../apimachinery/pkg/util/errors/errors";
-import { browser } from "../../../test/describe";
-import { minBackoffExpiration, newBackoffError, newSyncResult, PodSyncResult } from "./sync-result";
+import { Aggregate, newAggregate } from "../../../apimachinery/pkg/util/errors/errors.js";
+import { browser } from "../../../test/describe.js";
+import {
+	minBackoffExpiration,
+	newBackoffError,
+	newSyncResult,
+	PodSyncResult,
+} from "./sync-result.js";
 
 // Models kubernetes/pkg/kubelet/container/sync_result_test.go TestPodSyncResult.
 browser.describe("TestPodSyncResult", () => {

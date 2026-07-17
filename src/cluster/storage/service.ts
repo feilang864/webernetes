@@ -1,8 +1,8 @@
-import { V1Service, V1ServicePort, V1ServiceSpec } from "../../client";
-import type * as context from "../../go/context";
-import { Etcd } from "../etcd";
-import { IpRange, PortRange } from "./allocatable";
-import { FinishFunc, Store } from "./store";
+import { V1Service, V1ServicePort, V1ServiceSpec } from "../../client/index.js";
+import type * as context from "../../go/context.js";
+import { Etcd } from "../etcd.js";
+import { IpRange, PortRange } from "./allocatable.js";
+import { FinishFunc, Store } from "./store.js";
 
 const DEFAULT_SERVICE_CIDR = "10.96.0.0/12";
 

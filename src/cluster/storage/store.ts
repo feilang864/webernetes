@@ -1,10 +1,10 @@
-import { V1ObjectMeta } from "../../client";
-import { Conflict, NotFound } from "../../client/errors";
-import { getClock } from "../../clock-context";
-import type * as context from "../../go/context";
-import type { Etcd } from "../etcd";
-import { parseStoredObject } from "./serialization";
-import { Watcher } from "./watch";
+import { V1ObjectMeta } from "../../client/index.js";
+import { Conflict, NotFound } from "../../client/errors.js";
+import { getClock } from "../../clock-context.js";
+import type * as context from "../../go/context.js";
+import type { Etcd } from "../etcd.js";
+import { parseStoredObject } from "./serialization.js";
+import { Watcher } from "./watch.js";
 
 export interface StoreOpts {
 	namespaced?: boolean;

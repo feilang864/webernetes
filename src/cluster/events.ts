@@ -1,9 +1,9 @@
-import * as k8s from "../client";
-import { isNotFoundError } from "../client/errors";
-import type { V1ObjectReference } from "../client";
-import type { EventObject, EventRecorder } from "../client-go/tools/record/event";
-import { getClock } from "../clock-context";
-import type * as context from "../go/context";
+import * as k8s from "../client/index.js";
+import { isNotFoundError } from "../client/errors.js";
+import type { V1ObjectReference } from "../client/index.js";
+import type { EventObject, EventRecorder } from "../client-go/tools/record/event.js";
+import { getClock } from "../clock-context.js";
+import type * as context from "../go/context.js";
 
 export interface EventRecorderOptions {
 	ctx: context.Context;

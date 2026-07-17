@@ -1,9 +1,9 @@
 import { expect, it } from "vitest";
 
-import { Clock } from "./clock";
-import { getClock, withClock } from "./clock-context";
-import * as context from "./go/context";
-import { browser } from "./test/describe";
+import { Clock } from "./clock.js";
+import { getClock, withClock } from "./clock-context.js";
+import * as context from "./go/context.js";
+import { browser } from "./test/describe.js";
 
 browser.describe("Clock context", () => {
 	it("stores and retrieves a clock through context", () => {

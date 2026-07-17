@@ -1,6 +1,6 @@
-import { getClock } from "./clock-context";
-import { isConflictError } from "./client/errors";
-import type * as context from "./go/context";
+import { getClock } from "./clock-context.js";
+import { isConflictError } from "./client/errors.js";
+import type * as context from "./go/context.js";
 
 export interface RetryOptions {
 	retries?: number;

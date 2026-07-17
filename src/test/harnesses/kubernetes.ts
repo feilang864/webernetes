@@ -1,9 +1,9 @@
-import { browser, currentTestEnvironment, node } from "../describe";
-import type { SuiteOptions } from "../describe";
-import type { AppsV1Api, CoreV1Api, DiscoveryV1Api } from "../../client/gen/apis/types";
-import type { K8s, KubeConfig } from "../../client/types";
-import type * as context from "../../go/context";
-import type { KubernetesHelpers } from "./helpers";
+import { browser, currentTestEnvironment, node } from "../describe.js";
+import type { SuiteOptions } from "../describe.js";
+import type { AppsV1Api, CoreV1Api, DiscoveryV1Api } from "../../client/gen/apis/types/index.js";
+import type { K8s, KubeConfig } from "../../client/types.js";
+import type * as context from "../../go/context.js";
+import type { KubernetesHelpers } from "./helpers.js";
 
 export interface KubernetesTestContext {
 	ctx: context.Context;
@@ -56,12 +56,12 @@ interface KubernetesRuntime {
 
 const k3sRuntime =
 	currentTestEnvironment === "node"
-		? await import(/* @vite-ignore */ "./kubernetes-k3s")
+		? await import(/* @vite-ignore */ "./kubernetes-k3s.js")
 		: undefined;
 
 const simulatorRuntime =
 	currentTestEnvironment === "browser"
-		? await import(/* @vite-ignore */ "./kubernetes-simulator")
+		? await import(/* @vite-ignore */ "./kubernetes-simulator.js")
 		: undefined;
 
 export const k3s: KubernetesDescribe = {

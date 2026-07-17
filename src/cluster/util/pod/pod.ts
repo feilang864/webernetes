@@ -8,10 +8,10 @@ import {
 	type V1Pod,
 	type V1PodCondition,
 	type V1PodStatus,
-} from "../../../client";
-import type { KubeClient } from "../../cluster";
-import * as podutil from "../../api/v1/pod/util";
-import { deepEqual, dropUndefinedFields } from "../../../deep-equal";
+} from "../../../client/index.js";
+import type { KubeClient } from "../../cluster.js";
+import * as podutil from "../../api/v1/pod/util.js";
+import { deepEqual, dropUndefinedFields } from "../../../deep-equal.js";
 
 export interface PatchPodStatusResult {
 	pod: V1Pod | undefined;

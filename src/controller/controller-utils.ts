@@ -2,29 +2,32 @@
  * SPDX-License-Identifier: Apache-2.0
  * Derived from Kubernetes, translated and modified for Webernetes.
  */
-import * as k8s from "../client";
-import { getControllerOf, isControlledBy } from "../apimachinery/pkg/apis/meta/v1/controller_ref";
-import { getDeletionCostFromPodAnnotations } from "../apis/core/helper/helpers";
-import { validatePodName } from "../apis/core/validation/validation";
-import { Set as LabelSet } from "../apimachinery/pkg/labels/labels";
-import type { Selector } from "../apimachinery/pkg/labels/selector";
-import { safeEncodeString } from "../apimachinery/pkg/util/rand/rand";
-import { hasStatusCause, isNotFoundError } from "../client/errors";
-import type { EventRecorder } from "../client-go/tools/record/event";
-import type { Indexer } from "../client-go/tools/cache/index";
+import * as k8s from "../client/index.js";
+import {
+	getControllerOf,
+	isControlledBy,
+} from "../apimachinery/pkg/apis/meta/v1/controller_ref.js";
+import { getDeletionCostFromPodAnnotations } from "../apis/core/helper/helpers.js";
+import { validatePodName } from "../apis/core/validation/validation.js";
+import { Set as LabelSet } from "../apimachinery/pkg/labels/labels.js";
+import type { Selector } from "../apimachinery/pkg/labels/selector.js";
+import { safeEncodeString } from "../apimachinery/pkg/util/rand/rand.js";
+import { hasStatusCause, isNotFoundError } from "../client/errors.js";
+import type { EventRecorder } from "../client-go/tools/record/event.js";
+import type { Indexer } from "../client-go/tools/cache/index.js";
 import {
 	ExplicitKey,
 	metaNamespaceKeyFunc,
 	newStore,
 	type Store,
-} from "../client-go/tools/cache/store";
-import { getClock } from "../clock-context";
-import * as podutil from "../cluster/api/v1/pod/util";
-import * as fnv from "../fnv";
-import type * as context from "../go/context";
-import { Mutex } from "../go/sync/mutex";
-import type { PassiveClock } from "../utils/clock/clock";
-import * as hashutil from "../util/hash/hash";
+} from "../client-go/tools/cache/store.js";
+import { getClock } from "../clock-context.js";
+import * as podutil from "../cluster/api/v1/pod/util.js";
+import * as fnv from "../fnv.js";
+import type * as context from "../go/context.js";
+import { Mutex } from "../go/sync/mutex.js";
+import type { PassiveClock } from "../utils/clock/clock.js";
+import * as hashutil from "../util/hash/hash.js";
 
 const podPhaseToOrdinal: Record<string, number> = { Pending: 0, Unknown: 1, Running: 2 };
 const podControllerIndex = "podController";

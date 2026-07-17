@@ -4,9 +4,9 @@
  */
 import { expect, it } from "vitest";
 
-import { browser } from "../../../test/describe";
-import { newIndexer } from "./store";
-import { KeyError, newStore, withTransformer } from "./store";
+import { browser } from "../../../test/describe.js";
+import { newIndexer } from "./store.js";
+import { KeyError, newStore, withTransformer } from "./store.js";
 import {
 	doTestIndex,
 	doTestStore,
@@ -14,7 +14,7 @@ import {
 	testStoreIndexers,
 	testStoreKeyFunc,
 	type TestStoreObject,
-} from "./store-test-helpers";
+} from "./store-test-helpers.js";
 
 browser.describe("Store", () => {
 	// Models staging/src/k8s.io/client-go/tools/cache/store_test.go TestCache.

@@ -2,10 +2,10 @@
  * SPDX-License-Identifier: Apache-2.0
  * Derived from Kubernetes, translated and modified for Webernetes.
  */
-import { Channel, select, type ChannelReceive } from "../../../go/channel";
-import * as context from "../../../go/context";
-import { RWMutex } from "../../../go/sync/mutex";
-import { newPodStatus, type PodStatus } from "./runtime";
+import { Channel, select, type ChannelReceive } from "../../../go/channel.js";
+import * as context from "../../../go/context.js";
+import { RWMutex } from "../../../go/sync/mutex.js";
+import { newPodStatus, type PodStatus } from "./runtime.js";
 
 // Models kubernetes/pkg/kubelet/container/cache.go ROCache.
 export interface ROCache {

@@ -3,8 +3,8 @@
  * Derived from Kubernetes, translated and modified for Webernetes.
  */
 import { expect, it } from "vitest";
-import { browser } from "../test/describe";
-import { formatMap } from "./fieldpath";
+import { browser } from "../test/describe.js";
+import { formatMap } from "./fieldpath.js";
 
 // Models kubernetes/pkg/fieldpath/fieldpath_test.go TestFormatMap test case.
 interface FormatMapUpstreamTestCase {

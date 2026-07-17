@@ -2,10 +2,10 @@
  * SPDX-License-Identifier: Apache-2.0
  * Derived from Kubernetes, translated and modified for Webernetes.
  */
-import { getClock } from "../../../clock-context";
-import type * as context from "../../../go/context";
-import { Mutex } from "../../../go/sync/mutex";
-import type { Pod } from "./runtime";
+import { getClock } from "../../../clock-context.js";
+import type * as context from "../../../go/context.js";
+import { Mutex } from "../../../go/sync/mutex.js";
+import type { Pod } from "./runtime.js";
 
 // Models kubernetes/pkg/kubelet/container/runtime_cache.go podsGetter.
 export interface PodsGetter {

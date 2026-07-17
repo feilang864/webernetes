@@ -2,9 +2,9 @@
  * SPDX-License-Identifier: Apache-2.0
  * Derived from Kubernetes, translated and modified for Webernetes.
  */
-import { deepMerge } from "../../../deep-merge";
-import type { DeepPartial } from "../../../utility-types";
-import { V1NodeSwapStatus } from "./V1NodeSwapStatus";
+import { deepMerge } from "../../../deep-merge.js";
+import type { DeepPartial } from "../../../utility-types.js";
+import { V1NodeSwapStatus } from "./V1NodeSwapStatus.js";
 
 export interface V1NodeSystemInfo {
 	architecture: string;

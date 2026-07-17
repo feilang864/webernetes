@@ -4,9 +4,9 @@
  */
 import { expect, it } from "vitest";
 
-import type { IntOrString } from "../../../../client";
-import { browser } from "../../../../test/describe";
-import { getIntOrPercentValueSafely, getScaledValueFromIntOrPercent } from "./intstr";
+import type { IntOrString } from "../../../../client/index.js";
+import { browser } from "../../../../test/describe.js";
+import { getIntOrPercentValueSafely, getScaledValueFromIntOrPercent } from "./intstr.js";
 
 browser.describe("intstr", () => {
 	// Models staging/src/k8s.io/apimachinery/pkg/util/intstr/intstr_test.go TestGetIntFromIntOrString.

@@ -2,9 +2,9 @@
  * SPDX-License-Identifier: Apache-2.0
  * Derived from Kubernetes, translated and modified for Webernetes.
  */
-import { errCommandTimedOut } from "../../cri-client/pkg";
-import { isExitError } from "../../kubelet/container";
-import type { ProbeResult } from "../probe";
+import { errCommandTimedOut } from "../../cri-client/pkg.js";
+import { isExitError } from "../../kubelet/container/index.js";
+import type { ProbeResult } from "../probe.js";
 
 // Models kubernetes/pkg/probe/exec/exec.go maxReadLength.
 const maxReadLength = (10 * 1) << 10;

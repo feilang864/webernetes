@@ -5,15 +5,15 @@
 // oxlint-disable jest/expect-expect
 // oxlint-disable jest/no-conditional-expect
 import { expect, it } from "vitest";
-import type { V1Container, V1Pod } from "../../../client";
-import { newBackOff, type Backoff } from "../../../client-go/util/flowcontrol/backoff";
-import type { Clock } from "../../../clock";
-import { getClock } from "../../../clock-context";
-import { KeyFnMap } from "../../../collections";
-import * as context from "../../../go/context";
-import { browser } from "../../../test/describe";
-import type { ContainerConfig, PodSandboxStatus } from "../../cri";
-import type { ExecSyncResponse } from "../../cri/runtime/v1/api";
+import type { V1Container, V1Pod } from "../../../client/index.js";
+import { newBackOff, type Backoff } from "../../../client-go/util/flowcontrol/backoff.js";
+import type { Clock } from "../../../clock.js";
+import { getClock } from "../../../clock-context.js";
+import { KeyFnMap } from "../../../collections.js";
+import * as context from "../../../go/context.js";
+import { browser } from "../../../test/describe.js";
+import type { ContainerConfig, PodSandboxStatus } from "../../cri/index.js";
+import type { ExecSyncResponse } from "../../cri/runtime/v1/api.js";
 import {
 	buildContainerID,
 	convertPodStatusToRunningPod,
@@ -25,10 +25,10 @@ import {
 	runtimeProtocol,
 	type Pod as RuntimePod,
 	type Status as ContainerStatus,
-} from "../container";
-import { KubeGenericRuntimeManager, type PodActions } from "./kuberuntime-manager";
-import { getBackoffKey } from "./helpers";
-import { newContainerAnnotations, newContainerLabels } from "./labels";
+} from "../container/index.js";
+import { KubeGenericRuntimeManager, type PodActions } from "./kuberuntime-manager.js";
+import { getBackoffKey } from "./helpers.js";
+import { newContainerAnnotations, newContainerLabels } from "./labels.js";
 import {
 	createTestRuntimeManager,
 	fakeCreatedAt,
@@ -39,7 +39,7 @@ import {
 	type TestPodSandboxRecord,
 	TestRuntimeHelper,
 	withoutTimestamp,
-} from "./kuberuntime-test-helpers";
+} from "./kuberuntime-test-helpers.js";
 
 // Models kubernetes/pkg/kubelet/kuberuntime/kuberuntime_container_linux_test.go makeExpectedConfig.
 async function makeExpectedConfig(

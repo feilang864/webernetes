@@ -1,11 +1,11 @@
-import { KubeConfig } from "../config";
-import { isNotFoundError } from "../errors";
+import { KubeConfig } from "../config.js";
+import { isNotFoundError } from "../errors.js";
 import {
 	AppsV1Api as AppsV1ApiImpl,
 	CoreV1Api as CoreV1ApiImpl,
 	DiscoveryV1Api as DiscoveryV1ApiImpl,
-} from "../gen/apis/impls";
-import type { AppsV1Api, CoreV1Api, DiscoveryV1Api } from "../gen/apis/types";
+} from "../gen/apis/impls/index.js";
+import type { AppsV1Api, CoreV1Api, DiscoveryV1Api } from "../gen/apis/types/index.js";
 import type {
 	CoreV1Event,
 	CoreV1EventList,
@@ -26,11 +26,11 @@ import type {
 	V1Service,
 	V1ServiceList,
 	V1Status,
-} from "../gen/models";
-import type { KubeClient } from "../types";
-import type { MaybePromise } from "../../promise";
-import { Etcd } from "../../cluster/etcd";
-import type * as context from "../../go/context";
+} from "../gen/models/index.js";
+import type { KubeClient } from "../types.js";
+import type { MaybePromise } from "../../promise.js";
+import { Etcd } from "../../cluster/etcd.js";
+import type * as context from "../../go/context.js";
 
 export type ClientAction = {
 	verb: string;

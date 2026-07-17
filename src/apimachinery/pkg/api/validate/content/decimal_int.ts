@@ -2,7 +2,7 @@
  * SPDX-License-Identifier: Apache-2.0
  * Derived from Kubernetes, translated and modified for Webernetes.
  */
-import { emptyError } from "./errors";
+import { emptyError } from "./errors.js";
 
 // Models staging/src/k8s.io/apimachinery/pkg/api/validate/content/decimal_int.go decimalIntegerErrMsg.
 const decimalIntegerErrMsg = "must be a valid decimal integer in canonical form";

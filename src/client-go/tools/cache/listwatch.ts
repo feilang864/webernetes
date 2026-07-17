@@ -2,15 +2,15 @@
  * SPDX-License-Identifier: Apache-2.0
  * Derived from Kubernetes, translated and modified for Webernetes.
  */
-import type { ListOptions } from "../../../apimachinery/pkg/apis/meta/v1/types";
-import type { Selector } from "../../../apimachinery/pkg/fields/selector";
-import type { Interface } from "../../../apimachinery/pkg/watch/watch";
-import * as context from "../../../go/context";
-import type { KubernetesObject, KubeList } from "../../../client/types";
+import type { ListOptions } from "../../../apimachinery/pkg/apis/meta/v1/types.js";
+import type { Selector } from "../../../apimachinery/pkg/fields/selector.js";
+import type { Interface } from "../../../apimachinery/pkg/watch/watch.js";
+import * as context from "../../../go/context.js";
+import type { KubernetesObject, KubeList } from "../../../client/types.js";
 import {
 	doesClientNotSupportWatchListSemantics,
 	type UnsupportedWatchListSemantics,
-} from "../../util/watchlist/watch_list";
+} from "../../util/watchlist/watch_list.js";
 
 export type ListResult<T extends KubernetesObject> = [
 	object: KubeList<T> | undefined,

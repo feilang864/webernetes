@@ -1,8 +1,8 @@
 import { expect, it } from "vitest";
-import type { V1Pod, V1Service } from "../gen/models";
-import { kubernetes } from "../../test/harnesses/kubernetes";
-import { apiErrorCode, apiStatusMessage } from "../../test/harnesses/helpers";
-import { expectRecentCreationTimestamp, expectResourceUid } from "./assertions";
+import type { V1Pod, V1Service } from "../gen/models/index.js";
+import { kubernetes } from "../../test/harnesses/kubernetes.js";
+import { apiErrorCode, apiStatusMessage } from "../../test/harnesses/helpers.js";
+import { expectRecentCreationTimestamp, expectResourceUid } from "./assertions.js";
 
 kubernetes.describe("Services", ({ core, discovery, k8s, helpers, target }) => {
 	const { exec, getSuiteNamespace, fetchNodePort, waitFor, waitForPodReady } = helpers;

@@ -2,10 +2,10 @@
  * SPDX-License-Identifier: Apache-2.0
  * Derived from Kubernetes, translated and modified for Webernetes.
  */
-import { Channel, select } from "../../../go/channel";
-import type * as context from "../../../go/context";
-import type { MaybePromise } from "../../../promise";
-import type { SourceUpdate } from "./config";
+import { Channel, select } from "../../../go/channel.js";
+import type * as context from "../../../go/context.js";
+import type { MaybePromise } from "../../../promise.js";
+import type { SourceUpdate } from "./config.js";
 
 // Models kubernetes/pkg/kubelet/config/mux.go merger.
 export interface Merger {

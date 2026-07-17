@@ -1,5 +1,5 @@
-import type { ProcessContext } from "../cri";
-import { BaseImage } from "./base";
+import type { ProcessContext } from "../cri/index.js";
+import { BaseImage } from "./base.js";
 
 export class HttpEchoImage extends BaseImage {
 	static readonly imageName = "hashicorp/http-echo";

@@ -2,23 +2,23 @@
  * SPDX-License-Identifier: Apache-2.0
  * Derived from Kubernetes, translated and modified for Webernetes.
  */
-import type { V1Container, V1Pod, V1PodStatus, V1Probe } from "../../../client";
-import type { EventRecorder } from "../../../client-go/tools/record/event";
-import type * as context from "../../../go/context";
-import type { ClusterNetwork } from "../../cni";
+import type { V1Container, V1Pod, V1PodStatus, V1Probe } from "../../../client/index.js";
+import type { EventRecorder } from "../../../client-go/tools/record/event.js";
+import type * as context from "../../../go/context.js";
+import type { ClusterNetwork } from "../../cni/index.js";
 import {
 	expandContainerCommandOnlyStatic,
 	generateContainerRef,
 	type CommandRunner,
 	type ContainerID,
-} from "../container";
-import { ExecProber, HTTPProber, TCPProber } from "../../probe";
-import type { ByteWriter, ExecCmd, ExecProbe, ProbeResult } from "../../probe";
-import { healthCheckHeader, newRequestForHTTPGetAction } from "../../probe/http/request";
-import * as http from "../../cni/http";
-import { resolveContainerPort } from "../../probe/util";
-import { probeTypeString } from "./prober-manager";
-import type { ProbeType, ProberResult } from "./results";
+} from "../container/index.js";
+import { ExecProber, HTTPProber, TCPProber } from "../../probe/index.js";
+import type { ByteWriter, ExecCmd, ExecProbe, ProbeResult } from "../../probe/index.js";
+import { healthCheckHeader, newRequestForHTTPGetAction } from "../../probe/http/request.js";
+import * as http from "../../cni/http.js";
+import { resolveContainerPort } from "../../probe/util.js";
+import { probeTypeString } from "./prober-manager.js";
+import type { ProbeType, ProberResult } from "./results/index.js";
 
 // Models kubernetes/pkg/kubelet/prober/prober.go maxProbeRetries.
 const maxProbeRetries = 3;

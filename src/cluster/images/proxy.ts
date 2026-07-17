@@ -1,6 +1,6 @@
-import * as k8s from "../../client";
-import type { ProcessContext } from "../cri";
-import { BaseImage } from "./base";
+import * as k8s from "../../client/index.js";
+import type { ProcessContext } from "../cri/index.js";
+import { BaseImage } from "./base.js";
 
 export class KubeProxy extends BaseImage {
 	static readonly imageName = "webernetes/kube-proxy";

@@ -1,3 +1,3 @@
-export * from "./kuberuntime-container";
-export * from "./helpers";
-export * from "./kuberuntime-manager";
+export * from "./kuberuntime-container.js";
+export * from "./helpers.js";
+export * from "./kuberuntime-manager.js";

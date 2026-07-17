@@ -2,29 +2,29 @@
  * SPDX-License-Identifier: Apache-2.0
  * Derived from Kubernetes, translated and modified for Webernetes.
  */
-import type { ListOptions } from "../../../apimachinery/pkg/apis/meta/v1/types";
+import type { ListOptions } from "../../../apimachinery/pkg/apis/meta/v1/types.js";
 import {
 	type EventType,
 	type Interface as WatchInterface,
-} from "../../../apimachinery/pkg/watch/watch";
-import * as k8s from "../../../client";
-import type { V1Pod } from "../../../client";
-import { Channel, select, type ReadOnlyChannel, type SendChannel } from "../../../go/channel";
-import * as context from "../../../go/context";
-import { Mutex } from "../../../go/sync/mutex";
-import * as time from "../../../go/time";
-import { oneTermEqualSelector } from "../../../apimachinery/pkg/fields/selector";
+} from "../../../apimachinery/pkg/watch/watch.js";
+import * as k8s from "../../../client/index.js";
+import type { V1Pod } from "../../../client/index.js";
+import { Channel, select, type ReadOnlyChannel, type SendChannel } from "../../../go/channel.js";
+import * as context from "../../../go/context.js";
+import { Mutex } from "../../../go/sync/mutex.js";
+import * as time from "../../../go/time.js";
+import { oneTermEqualSelector } from "../../../apimachinery/pkg/fields/selector.js";
 import {
 	type ListResult,
 	newListWatchFromClient,
 	type ListerWatcher,
 	type ListWatchClient,
 	type WatchResult,
-} from "../../../client-go/tools/cache/listwatch";
-import { newReflectorWithOptions } from "../../../client-go/tools/cache/reflector";
-import { metaNamespaceKeyFunc } from "../../../client-go/tools/cache/store";
-import { newUndeltaStore } from "../../../client-go/tools/cache/undelta_store";
-import type { SourceUpdate } from "./config";
+} from "../../../client-go/tools/cache/listwatch.js";
+import { newReflectorWithOptions } from "../../../client-go/tools/cache/reflector.js";
+import { metaNamespaceKeyFunc } from "../../../client-go/tools/cache/store.js";
+import { newUndeltaStore } from "../../../client-go/tools/cache/undelta_store.js";
+import type { SourceUpdate } from "./config.js";
 
 // Models kubernetes/pkg/kubelet/config/apiserver.go WaitForAPIServerSyncPeriod.
 export const waitForAPIServerSyncPeriodMs = 1000;

@@ -4,8 +4,8 @@
  */
 import { expect, it } from "vitest";
 
-import { browser } from "../../../test/describe";
-import { formatURL, v1HeaderToHTTPHeader } from "./request";
+import { browser } from "../../../test/describe.js";
+import { formatURL, v1HeaderToHTTPHeader } from "./request.js";
 
 // Models kubernetes/pkg/probe/http/request_test.go TestFormatURL.
 browser.describe("TestFormatURL", () => {

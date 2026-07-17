@@ -5,10 +5,10 @@
 // oxlint-disable jest/no-conditional-expect
 // oxlint-disable typescript-eslint/no-non-null-assertion
 import { expect, it } from "vitest";
-import { newFakeRecorder } from "../../client-go/tools/record/fake";
-import { newContainerStatus } from "../../client";
-import { Set as LabelSet } from "../../apimachinery/pkg/labels/labels";
-import type { Selector } from "../../apimachinery/pkg/labels/selector";
+import { newFakeRecorder } from "../../client-go/tools/record/fake.js";
+import { newContainerStatus } from "../../client/index.js";
+import { Set as LabelSet } from "../../apimachinery/pkg/labels/labels.js";
+import type { Selector } from "../../apimachinery/pkg/labels/selector.js";
 import type {
 	V1Container,
 	V1ContainerStatus,
@@ -17,9 +17,9 @@ import type {
 	V1PodCondition,
 	V1PodStatus,
 	V1Service,
-} from "../../client";
-import { browser } from "../../test/describe";
-import { ClusterNetwork } from "../cni";
+} from "../../client/index.js";
+import { browser } from "../../test/describe.js";
+import { ClusterNetwork } from "../cni/index.js";
 import {
 	buildContainerID,
 	ContainerID,
@@ -30,17 +30,17 @@ import {
 	type Pod as RuntimePod,
 	type PodStatus as PodRuntimeStatus,
 	type Status as ContainerRuntimeStatus,
-} from "./container";
-import { FakeContainerCommandRunner, newFakePod, type FakePod } from "./container/testing";
+} from "./container/index.js";
+import { FakeContainerCommandRunner, newFakePod, type FakePod } from "./container/testing/index.js";
 import {
 	createPodWorkers,
 	drainAllWorkers,
 	newTestKubelet,
 	podWithUIDNameNs,
 	type syncPodRecord,
-} from "./kubelet-test-helpers";
-import { getPhase, truncatePodHostnameIfNeeded } from "./kubelet-pods";
-import type { ServiceLister } from "./kubelet";
+} from "./kubelet-test-helpers.js";
+import { getPhase, truncatePodHostnameIfNeeded } from "./kubelet-pods.js";
+import type { ServiceLister } from "./kubelet.js";
 import {
 	isDeleted,
 	isFinished,
@@ -50,9 +50,9 @@ import {
 	newPodSyncerFuncs,
 	newUpdatePodOptions,
 	PodWorkersImpl,
-} from "./pod-workers";
-import { ProbeManagerImpl, ResultsManager } from "./prober";
-import * as kubetypes from "./types";
+} from "./pod-workers.js";
+import { ProbeManagerImpl, ResultsManager } from "./prober/index.js";
+import * as kubetypes from "./types/index.js";
 
 interface ConvertToAPIContainerStatusesUpstreamTestCase {
 	name: string;

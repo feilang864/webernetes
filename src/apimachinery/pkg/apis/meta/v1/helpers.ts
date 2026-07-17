@@ -2,7 +2,7 @@
  * SPDX-License-Identifier: Apache-2.0
  * Derived from Kubernetes, translated and modified for Webernetes.
  */
-import type { V1LabelSelector } from "../../../../../client";
+import type { V1LabelSelector } from "../../../../../client/index.js";
 import {
 	everything,
 	newRequirement,
@@ -10,7 +10,7 @@ import {
 	nothing,
 	type Requirement,
 	type Selector,
-} from "../../../labels/selector";
+} from "../../../labels/selector.js";
 import {
 	doesNotExist,
 	equals,
@@ -18,7 +18,7 @@ import {
 	inOperator,
 	notIn,
 	type Operator,
-} from "../../../selection/operator";
+} from "../../../selection/operator.js";
 
 // Models staging/src/k8s.io/apimachinery/pkg/apis/meta/v1/helpers.go LabelSelectorAsSelector.
 export function labelSelectorAsSelector(

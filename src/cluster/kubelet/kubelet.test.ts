@@ -9,9 +9,9 @@ import {
 	type V1ContainerStatus,
 	type V1Pod,
 	type V1PodStatus,
-} from "../../client";
-import { Channel } from "../../go/channel";
-import { browser } from "../../test/describe";
+} from "../../client/index.js";
+import { Channel } from "../../go/channel.js";
+import { browser } from "../../test/describe.js";
 import {
 	ContainerID,
 	PodSyncResult,
@@ -19,8 +19,8 @@ import {
 	type Status as ContainerRuntimeStatus,
 	newPodStatus,
 	newSyncResult,
-} from "./container";
-import { newFakePod, type FakePod } from "./container/testing";
+} from "./container/index.js";
+import { newFakePod, type FakePod } from "./container/testing/index.js";
 import {
 	FakePodWorkers,
 	type TestKubelet,
@@ -28,12 +28,12 @@ import {
 	newTestKubelet,
 	podWithUIDNameNs,
 	podWithUIDNameNsSpec,
-} from "./kubelet-test-helpers";
-import type { PodLifecycleEvent } from "./pleg";
-import { newReasonCache } from "./reason-cache";
-import { configSourceAnnotationKey } from "./types";
-import type { PodUpdate } from "./types/pod-update";
-import type { ShouldEvictResponse } from "./lifecycle";
+} from "./kubelet-test-helpers.js";
+import type { PodLifecycleEvent } from "./pleg/index.js";
+import { newReasonCache } from "./reason-cache.js";
+import { configSourceAnnotationKey } from "./types/index.js";
+import type { PodUpdate } from "./types/pod-update.js";
+import type { ShouldEvictResponse } from "./lifecycle/index.js";
 
 function runtimeStatus(
 	name: string,

@@ -1,6 +1,6 @@
 import { expect, it } from "vitest";
-import type { V1Pod } from "../gen/models";
-import { kubernetes } from "../../test/harnesses/kubernetes";
+import type { V1Pod } from "../gen/models/index.js";
+import { kubernetes } from "../../test/harnesses/kubernetes.js";
 
 const IMAGE = "crccheck/hello-world:latest";
 

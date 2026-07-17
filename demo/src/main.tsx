@@ -1,4 +1,4 @@
-import { installDevPerformanceMeasureCleanup } from "./dev-performance";
+import { installDevPerformanceMeasureCleanup } from "./dev-performance.js";
 import { MantleStyleSheets, ThemeProvider, mantleStyleSheetUrls } from "@ngrok/mantle/theme";
 import { TooltipProvider } from "@ngrok/mantle/tooltip";
 import { StrictMode } from "react";
@@ -8,7 +8,7 @@ import darkHighContrastCssUrl from "@ngrok/mantle/mantle-dark-high-contrast.css?
 import darkCssUrl from "@ngrok/mantle/mantle-dark.css?url";
 import lightHighContrastCssUrl from "@ngrok/mantle/mantle-light-high-contrast.css?url";
 import "./styles.css";
-import { App } from "./app";
+import { App } from "./app.js";
 
 const root = document.getElementById("root");
 if (!root) {

@@ -1,5 +1,5 @@
-import type { Cluster } from "./cluster";
-import * as context from "../go/context";
+import type { Cluster } from "./cluster.js";
+import * as context from "../go/context.js";
 
 const key = Symbol("cluster");
 

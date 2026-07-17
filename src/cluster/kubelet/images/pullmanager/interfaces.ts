@@ -2,7 +2,7 @@
  * SPDX-License-Identifier: Apache-2.0
  * Derived from Kubernetes, translated and modified for Webernetes.
  */
-import type * as context from "../../../../go/context";
+import type * as context from "../../../../go/context.js";
 
 // Models kubernetes/pkg/kubelet/images/pullmanager/interfaces.go GetPodCredentials.
 export type GetPodCredentials = () => Promise<[pullCredentials: unknown[], err: Error | undefined]>;

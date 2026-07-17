@@ -4,11 +4,11 @@
  */
 import { expect, it } from "vitest";
 
-import { browser } from "../../../test/describe";
-import { ClusterNetwork } from "../../cni";
-import { PodSandboxInstance } from "../../cri";
-import type { ProbeResult } from "../probe";
-import { TCPProber } from "./tcp";
+import { browser } from "../../../test/describe.js";
+import { ClusterNetwork } from "../../cni/index.js";
+import { PodSandboxInstance } from "../../cri/index.js";
+import type { ProbeResult } from "../probe.js";
+import { TCPProber } from "./tcp.js";
 
 function bindTestHTTP(network: ClusterNetwork, port: number): string {
 	const sandbox = new PodSandboxInstance(
