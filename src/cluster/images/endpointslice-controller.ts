@@ -321,6 +321,7 @@ export class EndpointSliceController extends BaseImage {
 							finalizers: current.metadata?.finalizers,
 							ownerReferences: current.metadata?.ownerReferences,
 							resourceVersion: current.metadata?.resourceVersion,
+							uid: current.metadata?.uid,
 						},
 					};
 					if (

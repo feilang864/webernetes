@@ -981,7 +981,7 @@ kubernetes.describe("Pods", (context) => {
 		expect(current.metadata?.labels?.app).toBe("fresh");
 	});
 
-	it("should allow replacing a pod without a resourceVersion", async () => {
+	it("should preserve the UID when replacing a pod without server-managed metadata", async () => {
 		await createPod({
 			metadata: {
 				name: "replace-without-resource-version",
@@ -989,7 +989,8 @@ kubernetes.describe("Pods", (context) => {
 		});
 		const namespace = await getTestNamespace();
 		const current = await waitForPodReady("replace-without-resource-version", namespace);
-		const { resourceVersion: _resourceVersion, ...metadata } = current.metadata ?? {};
+		const uid = current.metadata?.uid;
+		const { resourceVersion: _resourceVersion, uid: _uid, ...metadata } = current.metadata ?? {};
 
 		const replaced = await core.replaceNamespacedPod({
 			name: "replace-without-resource-version",
@@ -1004,6 +1005,7 @@ kubernetes.describe("Pods", (context) => {
 		});
 
 		expect(replaced.metadata?.labels?.revision).toBe("unconditional");
+		expect(replaced.metadata?.uid).toBe(uid);
 	});
 
 	it("should list pods from an exact resourceVersion snapshot", async () => {

@@ -1,12 +1,12 @@
 import { expect, it } from "vitest";
 import type { V1Endpoint, V1EndpointSlice, V1Pod } from "../gen/models";
 import { kubernetes } from "../../test/harnesses/kubernetes";
-import { apiErrorCode } from "../../test/harnesses/helpers";
+import { apiErrorCode, apiStatusMessage } from "../../test/harnesses/helpers";
 import { expectRecentCreationTimestamp, expectResourceUid } from "./assertions";
 
 const READY_IMAGE = "crccheck/hello-world:latest";
 
-kubernetes.describe("EndpointSlices", ({ core, discovery, helpers }) => {
+kubernetes.describe("EndpointSlices", ({ core, discovery, k8s, kubeConfig, helpers }) => {
 	const {
 		createAgnhostPod,
 		createNodePortFor,
@@ -45,6 +45,14 @@ kubernetes.describe("EndpointSlices", ({ core, discovery, helpers }) => {
 				...overrides.metadata,
 			},
 		};
+	}
+
+	function withoutUid(slice: V1EndpointSlice): V1EndpointSlice {
+		const replacement = structuredClone(slice);
+		if (replacement.metadata) {
+			delete replacement.metadata.uid;
+		}
+		return replacement;
 	}
 
 	async function serviceEndpointSlice(serviceName: string): Promise<V1EndpointSlice | undefined> {
@@ -413,6 +421,126 @@ kubernetes.describe("EndpointSlices", ({ core, discovery, helpers }) => {
 		expect(replaced.endpoints[0]?.addresses).toEqual(["10.0.0.17"]);
 	});
 
+	it("should preserve the UID when replacing an endpoint slice without one", async () => {
+		const namespace = await getSuiteNamespace();
+		const name = "replace-without-uid";
+		const created = await discovery.createNamespacedEndpointSlice({
+			namespace,
+			body: endpointSlice(namespace, {
+				metadata: { name },
+			}),
+		});
+		const uid = created.metadata?.uid;
+		expectResourceUid(created);
+
+		const replaced = await discovery.replaceNamespacedEndpointSlice({
+			name,
+			namespace,
+			body: {
+				...withoutUid(created),
+				endpoints: [{ addresses: ["10.0.0.18"] }],
+			},
+		});
+
+		expect(replaced.metadata?.uid).toBe(uid);
+		const listed = await discovery.listNamespacedEndpointSlice({
+			namespace,
+			fieldSelector: `metadata.name=${name}`,
+		});
+		expect(listed.items).toHaveLength(1);
+		expect(listed.items[0]?.metadata?.uid).toBe(uid);
+	});
+
+	it("should preserve the UID in MODIFIED watch events", async () => {
+		const namespace = await getSuiteNamespace();
+		const name = "watch-replace-without-uid";
+		const created = await discovery.createNamespacedEndpointSlice({
+			namespace,
+			body: endpointSlice(namespace, {
+				metadata: { name },
+			}),
+		});
+		const uid = created.metadata?.uid;
+		expectResourceUid(created);
+
+		const events: Array<{ phase: string; object: V1EndpointSlice }> = [];
+		let watchError: unknown;
+		const watch = new k8s.Watch(kubeConfig);
+		const controller = await watch.watch(
+			`/apis/discovery.k8s.io/v1/namespaces/${namespace}/endpointslices`,
+			{
+				fieldSelector: `metadata.name=${name}`,
+				resourceVersion: created.metadata?.resourceVersion,
+			},
+			(phase, object) => {
+				events.push({ phase, object: object as V1EndpointSlice });
+			},
+			(error) => {
+				if (!(error instanceof Error && error.name === "AbortError")) {
+					watchError = error;
+				}
+			},
+		);
+
+		try {
+			await discovery.replaceNamespacedEndpointSlice({
+				name,
+				namespace,
+				body: {
+					...withoutUid(created),
+					endpoints: [{ addresses: ["10.0.0.19"] }],
+				},
+			});
+
+			await waitFor(() => {
+				if (watchError) {
+					throw watchError;
+				}
+				expect(events).toContainEqual({
+					phase: "MODIFIED",
+					object: expect.objectContaining({
+						metadata: expect.objectContaining({ name, namespace, uid }),
+					}),
+				});
+			});
+		} finally {
+			controller.abort();
+		}
+	});
+
+	it("should reject replacing an endpoint slice with a different UID", async () => {
+		const namespace = await getSuiteNamespace();
+		const name = "replace-different-uid";
+		const created = await discovery.createNamespacedEndpointSlice({
+			namespace,
+			body: endpointSlice(namespace, {
+				metadata: { name },
+			}),
+		});
+		let replaceError: unknown;
+
+		try {
+			await discovery.replaceNamespacedEndpointSlice({
+				name,
+				namespace,
+				body: {
+					...created,
+					metadata: {
+						...created.metadata,
+						uid: "different-uid",
+					},
+				},
+			});
+		} catch (error) {
+			replaceError = error;
+		}
+
+		expect(apiErrorCode(replaceError)).toBe(409);
+		expect(apiStatusMessage(replaceError)).toBe(
+			`Operation cannot be fulfilled on endpointslices.discovery.k8s.io "${name}": StorageError: invalid object, Code: 4, Key: /registry/endpointslices/${namespace}/${name}, ResourceVersion: 0, AdditionalErrorMsg: Precondition failed: UID in precondition: different-uid, UID in object meta: ${created.metadata?.uid}`,
+		);
+	});
+
 	it("should reject deleting an endpoint slice with a stale resourceVersion precondition", async () => {
 		const namespace = await getSuiteNamespace();
 		const slice = await discovery.createNamespacedEndpointSlice({
@@ -584,6 +712,99 @@ kubernetes.describe("EndpointSlices", ({ core, discovery, helpers }) => {
 			expect(endpoint?.conditions?.ready).toBe(false);
 			expect(readyEndpointAddresses(slice)).not.toContain(ip);
 		});
+	});
+
+	it("should preserve generated endpoint slice UIDs when pod readiness changes", async () => {
+		const serviceName = "readiness-uid-service";
+		const app = "endpoint-slice-readiness-uid";
+		const podName = "readiness-uid-pod";
+
+		await createSelectedPod(podName, app, READY_IMAGE, 8000);
+		let ip = "";
+		await waitFor(async () => {
+			ip = await podIp(podName);
+		});
+		await core.createNamespacedService({
+			namespace: await getSuiteNamespace(),
+			body: {
+				metadata: {
+					name: "readiness-uid-warmup-service",
+				},
+				spec: {
+					selector: { app },
+					ports: [{ name: "http", port: 80, targetPort: 8000, protocol: "TCP" }],
+				},
+			},
+		});
+		await waitFor(async () => {
+			expect(
+				endpointForPod(
+					await serviceEndpointSliceWithAddress("readiness-uid-warmup-service", ip),
+					podName,
+				),
+			).toBeTruthy();
+		});
+		const events: Array<{ phase: string; object: V1EndpointSlice }> = [];
+		let watchError: unknown;
+		const watch = new k8s.Watch(kubeConfig);
+		const controller = await watch.watch(
+			`/apis/discovery.k8s.io/v1/namespaces/${await getSuiteNamespace()}/endpointslices`,
+			{ labelSelector: `kubernetes.io/service-name=${serviceName}` },
+			(phase, object) => {
+				events.push({ phase, object: object as V1EndpointSlice });
+			},
+			(error) => {
+				if (!(error instanceof Error && error.name === "AbortError")) {
+					watchError = error;
+				}
+			},
+		);
+
+		try {
+			await core.createNamespacedService({
+				namespace: await getSuiteNamespace(),
+				body: {
+					metadata: {
+						name: serviceName,
+					},
+					spec: {
+						selector: { app },
+						ports: [{ name: "http", port: 80, targetPort: 8000, protocol: "TCP" }],
+					},
+				},
+			});
+
+			let uid: string | undefined;
+			await waitFor(() => {
+				if (watchError) {
+					throw watchError;
+				}
+				const added = events.find(
+					(event) =>
+						event.phase === "ADDED" &&
+						endpointForPod(event.object, podName)?.addresses.includes(ip),
+				);
+				expectResourceUid(added?.object ?? {});
+				uid = added?.object.metadata?.uid;
+			});
+
+			await waitFor(async () => {
+				await markPodNotReady(podName);
+				if (watchError) {
+					throw watchError;
+				}
+				const modified = [...events]
+					.reverse()
+					.find(
+						(event) =>
+							event.phase === "MODIFIED" &&
+							endpointForPod(event.object, podName)?.conditions?.ready === false,
+					);
+				expect(modified?.object.metadata?.uid).toBe(uid);
+			});
+		} finally {
+			controller.abort();
+		}
 	});
 
 	it("should copy service labels and set service owner references on generated slices", async () => {

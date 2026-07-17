@@ -294,7 +294,7 @@ kubernetes.describe("Namespaces", ({ core, discovery, k8s, helpers }) => {
 		}
 	});
 
-	it("should allow replacing a namespace without a resourceVersion", async () => {
+	it("should preserve the UID when replacing a namespace without server-managed metadata", async () => {
 		const namespace = await core.createNamespace({
 			body: {
 				metadata: {
@@ -306,7 +306,8 @@ kubernetes.describe("Namespaces", ({ core, discovery, k8s, helpers }) => {
 		if (!name) {
 			throw new Error("Expected namespace name");
 		}
-		const { resourceVersion: _resourceVersion, ...metadata } = namespace.metadata ?? {};
+		const uid = namespace.metadata?.uid;
+		const { resourceVersion: _resourceVersion, uid: _uid, ...metadata } = namespace.metadata ?? {};
 
 		try {
 			const replaced = await core.replaceNamespace({
@@ -321,6 +322,7 @@ kubernetes.describe("Namespaces", ({ core, discovery, k8s, helpers }) => {
 			});
 
 			expect(replaced.metadata?.labels?.revision).toBe("unconditional");
+			expect(replaced.metadata?.uid).toBe(uid);
 		} finally {
 			await core.deleteNamespace({ name });
 		}

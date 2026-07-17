@@ -127,6 +127,43 @@ kubernetes.describe("Deployments", ({ apps, core, k8s, kubeConfig, helpers }) =>
 		expectResourceUid(deployment);
 	});
 
+	it("should preserve the UID when replacing a deployment without one", async () => {
+		const namespace = await getTestNamespace();
+		const created = await createDeployment({
+			metadata: { name: "replace-without-uid-deployment" },
+		});
+		const uid = created.metadata?.uid;
+		let replaced: V1Deployment | undefined;
+		await waitFor(async () => {
+			const replacement = await apps.readNamespacedDeployment({
+				name: "replace-without-uid-deployment",
+				namespace,
+			});
+			if (replacement.metadata) {
+				delete replacement.metadata.uid;
+			}
+			if (!replacement.spec) {
+				throw new Error("Expected deployment spec");
+			}
+			replacement.spec.replicas = 2;
+			try {
+				replaced = await apps.replaceNamespacedDeployment({
+					name: "replace-without-uid-deployment",
+					namespace,
+					body: replacement,
+				});
+			} catch (error) {
+				if (apiErrorCode(error) === 409) {
+					throw new Error("Deployment update conflict", { cause: error });
+				}
+				throw error;
+			}
+		});
+
+		expect(replaced?.metadata?.uid).toBe(uid);
+		expect(replaced?.spec?.replicas).toBe(2);
+	});
+
 	it("should create, read, list, and delete a deployment", async () => {
 		const namespace = await getTestNamespace();
 		const created = await createDeployment({ metadata: { name: "crud-deployment" } });

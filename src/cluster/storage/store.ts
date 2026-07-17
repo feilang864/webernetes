@@ -90,6 +90,20 @@ export class Store<T extends Storable> {
 		return `/registry/${this.opts.defaultQualifiedResource}/`;
 	}
 
+	private qualifiedResource(): string {
+		const [group, resource] = this.opts.defaultQualifiedResource.split("/", 2);
+		return resource ? `${resource}.${group}` : group;
+	}
+
+	private storageErrorKey(name: string, namespace?: string): string {
+		const resource = this.opts.defaultQualifiedResource.split("/").at(-1) ?? "";
+		let k = `/registry/${resource}`;
+		if (this.opts.namespaced) {
+			k += `/${namespace ?? "default"}`;
+		}
+		return `${k}/${name}`;
+	}
+
 	private async namespaceExists(namespace: string): Promise<boolean> {
 		const k = `/registry/namespaces/${namespace}`;
 		const value = await this.etcd.get(k).json();
@@ -233,6 +247,13 @@ export class Store<T extends Storable> {
 		if (!existing) {
 			throw new NotFound(`${this.opts.singularQualifiedResource} "${name}" not found`);
 		}
+		const existingUid = existing.obj.metadata?.uid;
+		if (obj.metadata.uid && obj.metadata.uid !== existingUid) {
+			throw new Conflict(
+				`Operation cannot be fulfilled on ${this.qualifiedResource()} "${name}": StorageError: invalid object, Code: 4, Key: ${this.storageErrorKey(name, obj.metadata.namespace)}, ResourceVersion: 0, AdditionalErrorMsg: Precondition failed: UID in precondition: ${obj.metadata.uid}, UID in object meta: ${existingUid}`,
+			);
+		}
+		obj.metadata.uid = existingUid;
 
 		if (obj.metadata.resourceVersion && obj.metadata.resourceVersion !== existing.resourceVersion) {
 			throw new Conflict(

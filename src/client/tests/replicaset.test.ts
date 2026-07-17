@@ -94,6 +94,39 @@ kubernetes.describe("ReplicaSets", ({ apps, core, k8s, kubeConfig, helpers }) =>
 		expectResourceUid(replicaSet);
 	});
 
+	it("should preserve the UID when replacing a replica set without one", async () => {
+		const namespace = await getTestNamespace();
+		const created = await createReplicaSet({ metadata: { name: "replace-without-uid-rs" } });
+		const uid = created.metadata?.uid;
+		let replaced: V1ReplicaSet | undefined;
+		await waitFor(async () => {
+			const replacement = await apps.readNamespacedReplicaSet({
+				name: "replace-without-uid-rs",
+				namespace,
+			});
+			if (replacement.metadata) {
+				delete replacement.metadata.uid;
+			}
+			replacement.spec ??= { selector: {} };
+			replacement.spec.replicas = 2;
+			try {
+				replaced = await apps.replaceNamespacedReplicaSet({
+					name: "replace-without-uid-rs",
+					namespace,
+					body: replacement,
+				});
+			} catch (error) {
+				if (apiErrorCode(error) === 409) {
+					throw new Error("ReplicaSet update conflict", { cause: error });
+				}
+				throw error;
+			}
+		});
+
+		expect(replaced?.metadata?.uid).toBe(uid);
+		expect(replaced?.spec?.replicas).toBe(2);
+	});
+
 	it("should create, read, list, and delete a replicaset", async () => {
 		const namespace = await getTestNamespace();
 		const created = await createReplicaSet({ metadata: { name: "crud-rs" } });

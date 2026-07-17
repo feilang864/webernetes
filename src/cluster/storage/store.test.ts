@@ -60,6 +60,82 @@ fakeEtcd.describe("Store resourceVersion", ({ ctx, createEtcd }) => {
 		expect(stored?.metadata.creationTimestamp?.getTime()).toBe(now.getTime());
 	});
 
+	it("assigns a non-empty UID when creating an object", async () => {
+		const created = await store.create({ metadata: { name: "identified" } });
+
+		expect(created.metadata.uid).toEqual(expect.any(String));
+		expect(created.metadata.uid?.length).toBeGreaterThan(0);
+		expect((await store.get("identified"))?.metadata.uid).toBe(created.metadata.uid);
+	});
+
+	it("preserves an existing UID when an update omits it", async () => {
+		const created = await store.create({ metadata: { name: "preserved" }, value: "initial" });
+		const watcher = store.watch(undefined, Number(created.metadata.resourceVersion) + 1);
+		const event = nextStoreEvent(watcher);
+
+		const updated = await store.update("preserved", {
+			metadata: { name: "preserved", resourceVersion: created.metadata.resourceVersion },
+			value: "updated",
+		});
+
+		expect(updated.metadata.uid).toBe(created.metadata.uid);
+		expect((await store.get("preserved"))?.metadata.uid).toBe(created.metadata.uid);
+		expect(
+			(await store.list()).find((item) => item.metadata.name === "preserved")?.metadata.uid,
+		).toBe(created.metadata.uid);
+		await expect(event).resolves.toEqual({
+			phase: "MODIFIED",
+			object: expect.objectContaining({
+				metadata: expect.objectContaining({ uid: created.metadata.uid }),
+			}),
+		});
+		await watcher.cancel();
+	});
+
+	it("accepts an update containing the existing UID", async () => {
+		const created = await store.create({ metadata: { name: "matching" }, value: "initial" });
+
+		const updated = await store.update("matching", {
+			metadata: {
+				name: "matching",
+				resourceVersion: created.metadata.resourceVersion,
+				uid: created.metadata.uid,
+			},
+			value: "updated",
+		});
+
+		expect(updated.metadata.uid).toBe(created.metadata.uid);
+	});
+
+	it("rejects an update containing a different UID", async () => {
+		const created = await store.create({ metadata: { name: "immutable" }, value: "initial" });
+
+		await expect(
+			store.update("immutable", {
+				metadata: {
+					name: "immutable",
+					resourceVersion: created.metadata.resourceVersion,
+					uid: "different-uid",
+				},
+				value: "updated",
+			}),
+		).rejects.toThrow(
+			`Operation cannot be fulfilled on tests "immutable": StorageError: invalid object, Code: 4, Key: /registry/tests/immutable, ResourceVersion: 0, AdditionalErrorMsg: Precondition failed: UID in precondition: different-uid, UID in object meta: ${created.metadata.uid}`,
+		);
+		expect((await store.get("immutable"))?.metadata.uid).toBe(created.metadata.uid);
+		expect((await store.get("immutable"))?.value).toBe("initial");
+	});
+
+	it("assigns a new UID after an object is deleted and recreated", async () => {
+		const created = await store.create({ metadata: { name: "recreated" } });
+		await store.delete("recreated");
+
+		const recreated = await store.create({ metadata: { name: "recreated" } });
+
+		expect(recreated.metadata.uid).toEqual(expect.any(String));
+		expect(recreated.metadata.uid).not.toBe(created.metadata.uid);
+	});
+
 	it("returns a list resourceVersion at least as new as every listed item", async () => {
 		const first = await store.create({ metadata: { name: "first" }, value: "one" });
 		const second = await store.create({ metadata: { name: "second" }, value: "two" });

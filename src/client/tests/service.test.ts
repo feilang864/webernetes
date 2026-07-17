@@ -401,7 +401,7 @@ kubernetes.describe("Services", ({ core, discovery, k8s, helpers, target }) => {
 		expect(current.metadata?.labels?.revision).toBe("fresh");
 	});
 
-	it("should allow replacing a service without a resourceVersion", async () => {
+	it("should preserve the UID when replacing a service without server-managed metadata", async () => {
 		const namespace = await getSuiteNamespace();
 		const service = await createService({
 			metadata: {
@@ -412,7 +412,8 @@ kubernetes.describe("Services", ({ core, discovery, k8s, helpers, target }) => {
 				ports: [{ port: 80 }],
 			},
 		});
-		const { resourceVersion: _resourceVersion, ...metadata } = service.metadata ?? {};
+		const uid = service.metadata?.uid;
+		const { resourceVersion: _resourceVersion, uid: _uid, ...metadata } = service.metadata ?? {};
 
 		const replaced = await core.replaceNamespacedService({
 			name: "replace-without-resource-version",
@@ -427,6 +428,7 @@ kubernetes.describe("Services", ({ core, discovery, k8s, helpers, target }) => {
 		});
 
 		expect(replaced.metadata?.labels?.revision).toBe("unconditional");
+		expect(replaced.metadata?.uid).toBe(uid);
 	});
 
 	it("should delete services", async () => {

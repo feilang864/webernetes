@@ -48,6 +48,26 @@ kubernetes.describe("Events", ({ apps, core, helpers }) => {
 		expectResourceUid(event);
 	});
 
+	it("should preserve the UID when replacing an event without one", async () => {
+		const namespace = await getSuiteNamespace();
+		const created = await createEvent({ metadata: { name: "replace-without-uid-event" } });
+		const uid = created.metadata?.uid;
+		const replacement = structuredClone(created);
+		if (replacement.metadata) {
+			delete replacement.metadata.uid;
+		}
+		replacement.message = "updated event";
+
+		const replaced = await core.replaceNamespacedEvent({
+			name: "replace-without-uid-event",
+			namespace,
+			body: replacement,
+		});
+
+		expect(replaced.metadata?.uid).toBe(uid);
+		expect(replaced.message).toBe("updated event");
+	});
+
 	it("should set first and last timestamps on kubelet-generated events", async () => {
 		const pod = await createPod({ metadata: { name: "event-timestamps" } });
 		await waitForPodReady(pod);

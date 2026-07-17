@@ -273,7 +273,7 @@ kubernetes.describe("Nodes", ({ core, k8s }) => {
 		}
 	});
 
-	it("should allow replacing a node without a resourceVersion", async () => {
+	it("should preserve the UID when replacing a node without server-managed metadata", async () => {
 		const node = await core.createNode({
 			body: {
 				metadata: {
@@ -292,7 +292,8 @@ kubernetes.describe("Nodes", ({ core, k8s }) => {
 
 		try {
 			const current = await core.readNode({ name });
-			const { resourceVersion: _resourceVersion, ...metadata } = current.metadata ?? {};
+			const uid = current.metadata?.uid;
+			const { resourceVersion: _resourceVersion, uid: _uid, ...metadata } = current.metadata ?? {};
 			const replaced = await core.replaceNode({
 				name,
 				body: {
@@ -305,6 +306,7 @@ kubernetes.describe("Nodes", ({ core, k8s }) => {
 			});
 
 			expect(replaced.metadata?.labels?.revision).toBe("unconditional");
+			expect(replaced.metadata?.uid).toBe(uid);
 		} finally {
 			await core.deleteNode({ name });
 		}
