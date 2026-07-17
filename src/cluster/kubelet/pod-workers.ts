@@ -2,19 +2,19 @@
  * SPDX-License-Identifier: Apache-2.0
  * Derived from Kubernetes, translated and modified for Webernetes.
  */
-import { Channel, type ReadOnlyChannel, type SendChannel } from "../../go/channel";
-import * as context from "../../go/context";
-import type { V1Pod, V1PodStatus } from "../../client";
-import { deepMerge } from "../../deep-merge";
-import * as kubecontainer from "./container";
-import type { PodStatus as PodRuntimeStatus } from "./container";
-import { networkNotReadyErrorMsg } from "./errors";
-import { isStaticPod, type SyncPodType } from "./types/pod-update";
-import type { WorkQueue } from "./util/queue/work-queue";
-import type { PassiveClock } from "../../utils/clock/clock";
-import type { DeepPartial } from "../../utility-types";
-import { Mutex } from "../../go/sync/mutex";
-import type { MaybePromise } from "../../promise";
+import { Channel, type ReadOnlyChannel, type SendChannel } from "../../go/channel.js";
+import * as context from "../../go/context.js";
+import type { V1Pod, V1PodStatus } from "../../client/index.js";
+import { deepMerge } from "../../deep-merge.js";
+import * as kubecontainer from "./container/index.js";
+import type { PodStatus as PodRuntimeStatus } from "./container/index.js";
+import { networkNotReadyErrorMsg } from "./errors.js";
+import { isStaticPod, type SyncPodType } from "./types/pod-update.js";
+import type { WorkQueue } from "./util/queue/work-queue.js";
+import type { PassiveClock } from "../../utils/clock/clock.js";
+import type { DeepPartial } from "../../utility-types.js";
+import { Mutex } from "../../go/sync/mutex.js";
+import type { MaybePromise } from "../../promise.js";
 
 // Models kubernetes/pkg/kubelet/pod_workers.go workerResyncIntervalJitterFactor.
 const workerResyncIntervalJitterFactor = 0.5;

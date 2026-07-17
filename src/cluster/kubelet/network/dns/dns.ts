@@ -2,17 +2,17 @@
  * SPDX-License-Identifier: Apache-2.0
  * Derived from Kubernetes, translated and modified for Webernetes.
  */
-import type { V1ObjectReference, V1Pod } from "../../../../client";
-import * as context from "../../../../go/context";
-import { dns1123SubdomainMaxLength } from "../../../../apimachinery/pkg/util/validation/validation";
+import type { V1ObjectReference, V1Pod } from "../../../../client/index.js";
+import * as context from "../../../../go/context.js";
+import { dns1123SubdomainMaxLength } from "../../../../apimachinery/pkg/util/validation/validation.js";
 import {
 	maxDNSNameservers,
 	maxDNSSearchListChars,
 	maxDNSSearchPaths,
-} from "../../../apis/core/validation/validation";
-import type { DnsConfig } from "../../../cri";
-import type { EventRecorder } from "../../../../client-go/tools/record/event";
-import { isHostNetworkPod } from "../../container";
+} from "../../../apis/core/validation/validation.js";
+import type { DnsConfig } from "../../../cri/index.js";
+import type { EventRecorder } from "../../../../client-go/tools/record/event.js";
+import { isHostNetworkPod } from "../../container/index.js";
 
 export type PodDNSConfig = NonNullable<NonNullable<V1Pod["spec"]>["dnsConfig"]>;
 export type PodDNSType = "cluster" | "host" | "none";

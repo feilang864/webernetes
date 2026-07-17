@@ -2,9 +2,9 @@
  * SPDX-License-Identifier: Apache-2.0
  * Derived from Kubernetes, translated and modified for Webernetes.
  */
-import type { V1Pod } from "../client";
-import { isQualifiedName } from "../apimachinery/pkg/api/validate/content/kube";
-import { appendQuote } from "../go/strconv";
+import type { V1Pod } from "../client/index.js";
+import { isQualifiedName } from "../apimachinery/pkg/api/validate/content/kube.js";
+import { appendQuote } from "../go/strconv.js";
 
 // Models kubernetes/pkg/fieldpath/fieldpath.go FormatMap.
 export function formatMap(m: Record<string, string> | undefined): string {

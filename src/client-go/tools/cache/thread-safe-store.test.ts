@@ -4,15 +4,15 @@
  */
 import { expect, it } from "vitest";
 
-import { browser } from "../../../test/describe";
+import { both } from "../../../test/describe.js";
 import {
 	newThreadSafeStore,
 	ThreadSafeMap,
 	type ThreadSafeIndexers,
 	type ThreadSafeStoreTransaction,
-} from "./thread-safe-store";
+} from "./thread-safe-store.js";
 
-browser.describe("ThreadSafeStore", () => {
+both.describe("ThreadSafeStore", () => {
 	// Models staging/src/k8s.io/client-go/tools/cache/thread_safe_store_test.go TestThreadSafeStoreDeleteRemovesEmptySetsFromIndex.
 	it("TestThreadSafeStoreDeleteRemovesEmptySetsFromIndex", () => {
 		const testIndexer = "testIndexer";

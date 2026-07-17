@@ -2,8 +2,8 @@
  * SPDX-License-Identifier: Apache-2.0
  * Derived from Kubernetes, translated and modified for Webernetes.
  */
-import type { V1PodSecurityContext } from "../../../client";
-import { normalizeName } from "../../../component-helpers/node/util/sysctl";
+import type { V1PodSecurityContext } from "../../../client/index.js";
+import { normalizeName } from "../../../component-helpers/node/util/sysctl/index.js";
 
 // Models kubernetes/pkg/kubelet/sysctl/util.go ConvertPodSysctlsVariableToDotsSeparator.
 export function convertPodSysctlsVariableToDotsSeparator(

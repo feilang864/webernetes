@@ -2,16 +2,20 @@
  * SPDX-License-Identifier: Apache-2.0
  * Derived from Kubernetes, translated and modified for Webernetes.
  */
-import type { V1Container, V1LifecycleHandler, V1Pod } from "../../../client";
-import { select } from "../../../go/channel";
-import type * as context from "../../../go/context";
-import * as time from "../../../go/time";
-import type { ClusterNetwork } from "../../cni";
-import type { EventRecorder } from "../../../client-go/tools/record/event";
-import { resolveContainerPort } from "../../probe/util";
-import type { HandlerRunner, Pod as RuntimePod, PodStatus as PodRuntimeStatus } from "../container";
-import type { CommandRunner, ContainerID } from "../container";
-import * as format from "../util/format";
+import type { V1Container, V1LifecycleHandler, V1Pod } from "../../../client/index.js";
+import { select } from "../../../go/channel.js";
+import type * as context from "../../../go/context.js";
+import * as time from "../../../go/time.js";
+import type { ClusterNetwork } from "../../cni/index.js";
+import type { EventRecorder } from "../../../client-go/tools/record/event.js";
+import { resolveContainerPort } from "../../probe/util.js";
+import type {
+	HandlerRunner,
+	Pod as RuntimePod,
+	PodStatus as PodRuntimeStatus,
+} from "../container/index.js";
+import type { CommandRunner, ContainerID } from "../container/index.js";
+import * as format from "../util/format/index.js";
 
 // Models kubernetes/pkg/kubelet/lifecycle/handlers.go podStatusProvider.
 interface PodStatusProvider {

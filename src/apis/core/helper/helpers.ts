@@ -2,8 +2,8 @@
  * SPDX-License-Identifier: Apache-2.0
  * Derived from Kubernetes, translated and modified for Webernetes.
  */
-import { parseInt } from "../../../go/strconv";
-import { podDeletionCost } from "../annotation-key-constants";
+import { parseInt } from "../../../go/strconv.js";
+import { podDeletionCost } from "../annotation-key-constants.js";
 
 // Models kubernetes/pkg/apis/core/helper/helpers.go GetDeletionCostFromPodAnnotations.
 export function getDeletionCostFromPodAnnotations(

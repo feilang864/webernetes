@@ -4,14 +4,14 @@
  */
 import { expect, it } from "vitest";
 
-import { Channel, type ReadOnlyChannel } from "../../../../go/channel";
-import * as context from "../../../../go/context";
-import { browser } from "../../../../test/describe";
-import { DelayFunc } from "./delay";
-import { loopConditionUntilContext } from "./loop";
-import { newNoopTimer, type Timer, VariableTimer } from "./timer";
+import { Channel, type ReadOnlyChannel } from "../../../../go/channel.js";
+import * as context from "../../../../go/context.js";
+import { both } from "../../../../test/describe.js";
+import { DelayFunc } from "./delay.js";
+import { loopConditionUntilContext } from "./loop.js";
+import { newNoopTimer, type Timer, VariableTimer } from "./timer.js";
 
-browser.describe("loopConditionUntilContext", ({ ctx }) => {
+both.describe("loopConditionUntilContext", ({ ctx }) => {
 	// Models staging/src/k8s.io/apimachinery/pkg/util/wait/loop_test.go Test_loopConditionWithContextImmediateDelay.
 	it("waits for the timer before the first non-immediate condition call", async () => {
 		const expectedError = new Error("Expected error");

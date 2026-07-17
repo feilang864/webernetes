@@ -4,10 +4,10 @@
  */
 // oxlint-disable jest/no-conditional-expect
 import { expect, it } from "vitest";
-import { browser } from "../../../../../test/describe";
-import { isDecimalInteger } from "./decimal_int";
+import { both } from "../../../../../test/describe.js";
+import { isDecimalInteger } from "./decimal_int.js";
 
-browser.describe("content decimal integer validation", () => {
+both.describe("content decimal integer validation", () => {
 	// Models staging/src/k8s.io/apimachinery/pkg/api/validate/content/decimal_int_test.go TestIsDecimalInteger.
 	const testCases = [
 		{ name: "zero", input: "0", shouldPass: true },

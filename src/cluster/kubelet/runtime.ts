@@ -2,11 +2,11 @@
  * SPDX-License-Identifier: Apache-2.0
  * Derived from Kubernetes, translated and modified for Webernetes.
  */
-import { newAggregate } from "../../apimachinery/pkg/util/errors/errors";
-import { getClock } from "../../clock-context";
-import type * as context from "../../go/context";
-import { RuntimeFeatures, RuntimeHandler } from "./container";
-import { errNetworkUnknown } from "./errors";
+import { newAggregate } from "../../apimachinery/pkg/util/errors/errors.js";
+import { getClock } from "../../clock-context.js";
+import type * as context from "../../go/context.js";
+import { RuntimeFeatures, RuntimeHandler } from "./container/index.js";
+import { errNetworkUnknown } from "./errors.js";
 
 // Models kubernetes/pkg/kubelet/runtime.go healthCheckFnType.
 export type HealthCheckFnType = () => [ok: boolean, err: Error | undefined];

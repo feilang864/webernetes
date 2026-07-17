@@ -1,4 +1,4 @@
-import type { MaybePromise } from "../promise";
+import type { MaybePromise } from "../promise.js";
 
 export interface ReceiveResult<T> {
 	ok: true;

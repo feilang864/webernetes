@@ -5,7 +5,7 @@
 import {
 	isLabelValue,
 	labelValueMaxLength as contentLabelValueMaxLength,
-} from "../../api/validate/content/kube";
+} from "../../api/validate/content/kube.js";
 
 // Models staging/src/k8s.io/apimachinery/pkg/util/validation/validation.go dns1123LabelFmt.
 const dns1123LabelFmt = "[a-z0-9]([-a-z0-9]*[a-z0-9])?";

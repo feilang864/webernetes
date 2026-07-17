@@ -5,15 +5,15 @@
 // oxlint-disable jest/no-conditional-expect
 import { expect, it } from "vitest";
 
-import { getClock } from "../../../clock-context";
-import * as context from "../../../go/context";
-import { browser } from "../../../test/describe";
-import { ClusterNetwork, type FetchOrigin } from "../../cni";
-import * as http from "../../cni/http";
-import { PodSandboxInstance } from "../../cri";
-import type { ProbeResult } from "../probe";
-import { doHTTPProbe, HTTPProber, type GetHTTPInterface } from "./http";
-import { formatURL, newProbeRequest } from "./request";
+import { getClock } from "../../../clock-context.js";
+import * as context from "../../../go/context.js";
+import { both } from "../../../test/describe.js";
+import { ClusterNetwork, type FetchOrigin } from "../../cni/index.js";
+import * as http from "../../cni/http.js";
+import { PodSandboxInstance } from "../../cri/index.js";
+import type { ProbeResult } from "../probe.js";
+import { doHTTPProbe, HTTPProber, type GetHTTPInterface } from "./http.js";
+import { formatURL, newProbeRequest } from "./request.js";
 
 const failureCode = -1;
 const testOrigin: FetchOrigin = {
@@ -155,7 +155,7 @@ function handleReq(s: number, body: string): HTTPHandler {
 	};
 }
 
-browser.describe("HTTPProber cancellation", ({ ctx }) => {
+both.describe("HTTPProber cancellation", ({ ctx }) => {
 	it("cancels the request context when the probe times out", async () => {
 		const clock = getClock(ctx);
 		clock.pause();
@@ -199,7 +199,7 @@ browser.describe("HTTPProber cancellation", ({ ctx }) => {
 });
 
 // Models kubernetes/pkg/probe/http/http_test.go TestHTTPProbeChecker.
-browser.describe("TestHTTPProbeChecker", () => {
+both.describe("TestHTTPProbeChecker", () => {
 	it("checks HTTP probe responses", async () => {
 		const headerEchoHandler: HTTPHandler = (w, r) => {
 			w.writeHeader(200);
@@ -475,7 +475,7 @@ browser.describe("TestHTTPProbeChecker", () => {
 });
 
 // Models kubernetes/pkg/probe/http/http_test.go TestHTTPProbeChecker_NonLocalRedirects.
-browser.describe("TestHTTPProbeChecker_NonLocalRedirects", () => {
+both.describe("TestHTTPProbeChecker_NonLocalRedirects", () => {
 	it("checks non-local redirect handling", async () => {
 		const handler: HTTPHandler = (w, r) => {
 			switch (r.url.pathname) {
@@ -561,7 +561,7 @@ browser.describe("TestHTTPProbeChecker_NonLocalRedirects", () => {
 });
 
 // Models kubernetes/pkg/probe/http/http_test.go TestHTTPProbeChecker_HostHeaderPreservedAfterRedirect.
-browser.describe("TestHTTPProbeChecker_HostHeaderPreservedAfterRedirect", () => {
+both.describe("TestHTTPProbeChecker_HostHeaderPreservedAfterRedirect", () => {
 	it("preserves Host header after redirect", async () => {
 		const successHostHeader = "www.success.com";
 		const failHostHeader = "www.fail.com";
@@ -612,7 +612,7 @@ browser.describe("TestHTTPProbeChecker_HostHeaderPreservedAfterRedirect", () => 
 });
 
 // Models kubernetes/pkg/probe/http/http_test.go TestHTTPProbeChecker_PayloadTruncated.
-browser.describe("TestHTTPProbeChecker_PayloadTruncated", () => {
+both.describe("TestHTTPProbeChecker_PayloadTruncated", () => {
 	it("truncates oversized payloads", async () => {
 		const successHostHeader = "www.success.com";
 		const oversizePayload = "a".repeat((10 << 10) + 1);
@@ -648,7 +648,7 @@ browser.describe("TestHTTPProbeChecker_PayloadTruncated", () => {
 });
 
 // Models kubernetes/pkg/probe/http/http_test.go TestHTTPProbeChecker_PayloadNormal.
-browser.describe("TestHTTPProbeChecker_PayloadNormal", () => {
+both.describe("TestHTTPProbeChecker_PayloadNormal", () => {
 	it("returns normal payloads", async () => {
 		const successHostHeader = "www.success.com";
 		const normalPayload = "a".repeat((10 << 10) - 1);

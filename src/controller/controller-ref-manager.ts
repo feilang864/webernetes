@@ -2,16 +2,16 @@
  * SPDX-License-Identifier: Apache-2.0
  * Derived from Kubernetes, translated and modified for Webernetes.
  */
-import * as k8s from "../client";
-import { getControllerOf } from "../apimachinery/pkg/apis/meta/v1/controller_ref";
-import { Set as LabelSet } from "../apimachinery/pkg/labels/labels";
-import type { Selector } from "../apimachinery/pkg/labels/selector";
-import type { GroupVersionKind } from "../apimachinery/pkg/runtime/schema/group_version";
-import { newAggregate } from "../apimachinery/pkg/util/errors/errors";
-import { isInvalidError, isNotFoundError } from "../client/errors";
-import type * as context from "../go/context";
-import { Once } from "../go/sync/once";
-import type { PodControlInterface, RSControlInterface } from "./controller-utils";
+import * as k8s from "../client/index.js";
+import { getControllerOf } from "../apimachinery/pkg/apis/meta/v1/controller_ref.js";
+import { Set as LabelSet } from "../apimachinery/pkg/labels/labels.js";
+import type { Selector } from "../apimachinery/pkg/labels/selector.js";
+import type { GroupVersionKind } from "../apimachinery/pkg/runtime/schema/group_version.js";
+import { newAggregate } from "../apimachinery/pkg/util/errors/errors.js";
+import { isInvalidError, isNotFoundError } from "../client/errors.js";
+import type * as context from "../go/context.js";
+import { Once } from "../go/sync/once.js";
+import type { PodControlInterface, RSControlInterface } from "./controller-utils.js";
 
 // Models kubernetes/pkg/controller/controller_ref_manager.go BaseControllerRefManager.
 export class BaseControllerRefManager {

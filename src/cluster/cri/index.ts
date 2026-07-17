@@ -1,5 +1,5 @@
-export * from "./image";
-export * from "./runtime";
-export * from "./runtime/v1/api";
-export * from "./apis";
-export * as runtimeApi from "./runtime/v1";
+export * from "./image.js";
+export * from "./runtime.js";
+export * from "./runtime/v1/api.js";
+export * from "./apis/index.js";
+export * as runtimeApi from "./runtime/v1/index.js";

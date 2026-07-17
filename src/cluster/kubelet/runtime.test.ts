@@ -3,12 +3,12 @@
  * Derived from Kubernetes, translated and modified for Webernetes.
  */
 import { expect, it } from "vitest";
-import { browser } from "../../test/describe";
-import { RuntimeHandler } from "./container";
-import { RuntimeState } from "./runtime";
+import { both } from "../../test/describe.js";
+import { RuntimeHandler } from "./container/index.js";
+import { RuntimeState } from "./runtime.js";
 
 // Models kubernetes/pkg/kubelet/runtime_test.go TestRuntimeStateSetRuntimeHandlersSortsAndCopies.
-browser.describe("runtimeStateSetRuntimeHandlersSortsAndCopies", ({ ctx }) => {
+both.describe("runtimeStateSetRuntimeHandlersSortsAndCopies", ({ ctx }) => {
 	const testCases: Array<{
 		name: string;
 		handlers: RuntimeHandler[];

@@ -2,9 +2,9 @@
  * SPDX-License-Identifier: Apache-2.0
  * Derived from Kubernetes, translated and modified for Webernetes.
  */
-import { Clock } from "../../../clock";
-import { select } from "../../../go/channel";
-import type * as context from "../../../go/context";
+import { Clock } from "../../../clock.js";
+import { select } from "../../../go/channel.js";
+import type * as context from "../../../go/context.js";
 
 // Models staging/src/k8s.io/client-go/util/flowcontrol/throttle.go PassiveRateLimiter.
 export interface PassiveRateLimiter {

@@ -1,9 +1,9 @@
 import { expect, it } from "vitest";
 
-import { SortedMap, KeyFnMap } from "./collections";
-import { browser } from "./test/describe";
+import { SortedMap, KeyFnMap } from "./collections.js";
+import { both } from "./test/describe.js";
 
-browser.describe("SortedMap", () => {
+both.describe("SortedMap", () => {
 	it("keeps entries sorted by key", () => {
 		const map = new SortedMap<number, string>((left, right) => left - right);
 
@@ -51,7 +51,7 @@ browser.describe("SortedMap", () => {
 	});
 });
 
-browser.describe("KeyFnMap", () => {
+both.describe("KeyFnMap", () => {
 	it("uses stable JSON stringification by default", () => {
 		const map = new KeyFnMap<{ left: string; right: { b: number; a: number } }, string>();
 

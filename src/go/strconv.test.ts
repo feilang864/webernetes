@@ -3,8 +3,16 @@
  * Derived from Kubernetes, translated and modified for Webernetes.
  */
 import { expect, it } from "vitest";
-import { browser } from "../test/describe";
-import { appendQuote, errRange, errSyntax, NumError, parseInt, parseUint, quote } from "./strconv";
+import { both } from "../test/describe.js";
+import {
+	appendQuote,
+	errRange,
+	errSyntax,
+	NumError,
+	parseInt,
+	parseUint,
+	quote,
+} from "./strconv.js";
 
 function numErr(fn: string, num: string, err: Error): NumError {
 	return new NumError(fn, num, err);
@@ -129,7 +137,7 @@ const quoteTests: QuoteUpstreamTestCase[] = [
 	{ in: "\x7f", out: `"\\x7f"` },
 ];
 
-browser.describe("strconv", () => {
+both.describe("strconv", () => {
 	// Models go stdlib strconv/quote_test.go TestQuote.
 	it("TestQuote", () => {
 		for (const test of quoteTests) {

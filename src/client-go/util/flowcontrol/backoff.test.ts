@@ -1,9 +1,9 @@
 import { afterEach, beforeEach, expect, it, vi } from "vitest";
-import { Clock } from "../../../clock";
-import { browser } from "../../../test/describe";
-import { newBackOff } from "./backoff";
+import { Clock } from "../../../clock.js";
+import { both } from "../../../test/describe.js";
+import { newBackOff } from "./backoff.js";
 
-browser.describe("flowcontrol backoff", () => {
+both.describe("flowcontrol backoff", () => {
 	let clock: Clock;
 
 	beforeEach(() => {

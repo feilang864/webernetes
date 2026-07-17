@@ -1,4 +1,4 @@
-import type { ImageDefinition, ProcessContext } from "../cri";
+import type { ImageDefinition, ProcessContext } from "../cri/index.js";
 
 export abstract class BaseImage implements ImageDefinition {
 	async exec(ctx: ProcessContext, argv: readonly string[]): Promise<number> {

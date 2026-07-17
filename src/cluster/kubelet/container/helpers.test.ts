@@ -3,18 +3,18 @@
  * Derived from Kubernetes, translated and modified for Webernetes.
  */
 import { expect, it } from "vitest";
-import { browser } from "../../../test/describe";
-import type { V1Container, V1Pod, V1PodCondition, V1PodStatus } from "../../../client";
+import { both } from "../../../test/describe.js";
+import type { V1Container, V1Pod, V1PodCondition, V1PodStatus } from "../../../client/index.js";
 import {
 	expandContainerCommandOnlyStatic,
 	hashContainer,
 	hasAnyActiveRegularContainerStarted,
 	shouldAllContainersRestart,
-} from "./helpers";
-import { buildContainerID, type PodStatus, type Status } from "./runtime";
-import type { PodSandboxState, PodSandboxStatus } from "../../cri";
+} from "./helpers.js";
+import { buildContainerID, type PodStatus, type Status } from "./runtime.js";
+import type { PodSandboxState, PodSandboxStatus } from "../../cri/index.js";
 
-browser.describe("hashContainer", () => {
+both.describe("hashContainer", () => {
 	it("matches the upstream Kubernetes container hash fixture", () => {
 		/*
 		package main
@@ -121,7 +121,7 @@ browser.describe("hashContainer", () => {
 });
 
 // Simulator-only test, upstream doesn't test this function.
-browser.describe("expandContainerCommandOnlyStatic", () => {
+both.describe("expandContainerCommandOnlyStatic", () => {
 	it("expands only static container env values", () => {
 		expect(
 			expandContainerCommandOnlyStatic(
@@ -136,7 +136,7 @@ browser.describe("expandContainerCommandOnlyStatic", () => {
 });
 
 // Models kubernetes/pkg/kubelet/container/helpers_test.go TestShouldAllContainersRestart.
-browser.describe("shouldAllContainersRestart", () => {
+both.describe("shouldAllContainersRestart", () => {
 	const restartPolicyNever = "Never";
 	const restartPolicyAlways = "Always";
 	const restartRuleRestartAllContainers: NonNullable<V1Container["restartPolicyRules"]>[number] = {
@@ -317,7 +317,7 @@ function podStatus(containerStatuses: Status[]): PodStatus {
 }
 
 // Models kubernetes/pkg/kubelet/container/helpers_test.go TestHasAnyActiveRegularContainerStarted.
-browser.describe("hasAnyActiveRegularContainerStarted", () => {
+both.describe("hasAnyActiveRegularContainerStarted", () => {
 	it.each([
 		{
 			desc: "pod has no active container",

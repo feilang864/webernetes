@@ -1,9 +1,9 @@
-import * as k8s from "../client";
-import { isNotFoundError } from "../client/errors";
-import { deepEqual } from "../deep-equal";
-import { retryConflicts } from "../retry";
-import type { KubernetesObject } from "../client";
-import type { Cluster } from "./cluster";
+import * as k8s from "../client/index.js";
+import { isNotFoundError } from "../client/errors.js";
+import { deepEqual } from "../deep-equal.js";
+import { retryConflicts } from "../retry.js";
+import type { KubernetesObject } from "../client/index.js";
+import type { Cluster } from "./cluster.js";
 
 const LAST_APPLIED_ANNOTATION = "kubectl.kubernetes.io/last-applied-configuration";
 const MERGE_PATCH_OPTIONS = k8s.setHeaderOptions("Content-Type", k8s.PatchStrategy.MergePatch);

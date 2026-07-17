@@ -2,9 +2,9 @@
  * SPDX-License-Identifier: Apache-2.0
  * Derived from Kubernetes, translated and modified for Webernetes.
  */
-import type { V1ObjectReference, V1Pod } from "../../../client";
-import type * as context from "../../../go/context";
-import type { PodSandboxConfig } from "../../cri";
+import type { V1ObjectReference, V1Pod } from "../../../client/index.js";
+import type * as context from "../../../go/context.js";
+import type { PodSandboxConfig } from "../../cri/index.js";
 
 export class ImagePullError extends Error {
 	constructor(

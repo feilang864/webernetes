@@ -2,9 +2,9 @@
  * SPDX-License-Identifier: Apache-2.0
  * Derived from Kubernetes, translated and modified for Webernetes.
  */
-import type { V1Container, V1HTTPGetAction } from "../../../client";
-import * as http from "../../cni/http";
-import { resolveContainerPort } from "../util";
+import type { V1Container, V1HTTPGetAction } from "../../../client/index.js";
+import * as http from "../../cni/http.js";
+import { resolveContainerPort } from "../util.js";
 
 export const healthCheckHeader = "X-Webernetes-Health-Check";
 

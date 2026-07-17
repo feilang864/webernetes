@@ -2,9 +2,9 @@
  * SPDX-License-Identifier: Apache-2.0
  * Derived from Kubernetes, translated and modified for Webernetes.
  */
-import type { V1Pod, V1PodStatus } from "../../../../client";
-import type { Context } from "../../../../go/context";
-import type { ProbeManager } from "../prober-manager";
+import type { V1Pod, V1PodStatus } from "../../../../client/index.js";
+import type { Context } from "../../../../go/context.js";
+import type { ProbeManager } from "../prober-manager.js";
 
 // Models kubernetes/pkg/kubelet/prober/testing/fake_manager.go FakeManager.
 export class FakeManager implements ProbeManager {

@@ -2,12 +2,12 @@
  * SPDX-License-Identifier: Apache-2.0
  * Derived from Kubernetes, translated and modified for Webernetes.
  */
-import type { V1Pod, V1PodStatus } from "../../client";
-import type { EventRecorder } from "../../client-go/tools/record/event";
-import type { Clock } from "../../clock";
-import { getClock } from "../../clock-context";
-import type * as context from "../../go/context";
-import type { PodSyncLoopHandler, PodSyncHandler, ShouldEvictResponse } from "./lifecycle";
+import type { V1Pod, V1PodStatus } from "../../client/index.js";
+import type { EventRecorder } from "../../client-go/tools/record/event.js";
+import type { Clock } from "../../clock.js";
+import { getClock } from "../../clock-context.js";
+import type * as context from "../../go/context.js";
+import type { PodSyncLoopHandler, PodSyncHandler, ShouldEvictResponse } from "./lifecycle/index.js";
 
 const reason = "DeadlineExceeded";
 const message = "Pod was active on the node longer than the specified deadline";

@@ -1,8 +1,8 @@
 import { expect, it } from "vitest";
-import type { V1Endpoint, V1EndpointSlice, V1Pod } from "../gen/models";
-import { kubernetes } from "../../test/harnesses/kubernetes";
-import { apiErrorCode, apiStatusMessage } from "../../test/harnesses/helpers";
-import { expectRecentCreationTimestamp, expectResourceUid } from "./assertions";
+import type { V1Endpoint, V1EndpointSlice, V1Pod } from "../gen/models/index.js";
+import { kubernetes } from "../../test/harnesses/kubernetes.js";
+import { apiErrorCode, apiStatusMessage } from "../../test/harnesses/helpers.js";
+import { expectRecentCreationTimestamp, expectResourceUid } from "./assertions.js";
 
 const READY_IMAGE = "crccheck/hello-world:latest";
 

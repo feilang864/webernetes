@@ -1,5 +1,5 @@
-import { ConsoleK3sSetupProgress } from "./kubernetes-k3s-progress";
-import { setupK3sInfrastructure } from "./kubernetes-k3s-setup";
+import { ConsoleK3sSetupProgress } from "./kubernetes-k3s-progress.js";
+import { setupK3sInfrastructure } from "./kubernetes-k3s-setup.js";
 
 export default async function globalSetup(): Promise<void> {
 	if (!shouldRunK3sGlobalSetup()) {

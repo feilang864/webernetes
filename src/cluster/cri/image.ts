@@ -1,4 +1,4 @@
-import type { ProcessContext } from "./runtime";
+import type { ProcessContext } from "./runtime.js";
 
 export type ImageSignal = "SIGTERM" | "SIGKILL";
 

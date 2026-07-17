@@ -4,20 +4,20 @@
  */
 // oxlint-disable jest/expect-expect
 import { expect, it } from "vitest";
-import type { V1ObjectReference, V1Pod } from "../../../../client";
-import type { DnsConfig } from "../../../cri";
-import { FakeRecorder, newFakeRecorder } from "../../../../client-go/tools/record/fake";
-import * as context from "../../../../go/context";
-import { browser } from "../../../../test/describe";
-import * as validation from "../../../apis/core/validation/validation";
-import { newTestPods } from "../../kubelet-test-helpers";
-import { appendDNSConfig, Configurer, getPodDNSType } from "./dns";
+import type { V1ObjectReference, V1Pod } from "../../../../client/index.js";
+import type { DnsConfig } from "../../../cri/index.js";
+import { FakeRecorder, newFakeRecorder } from "../../../../client-go/tools/record/fake.js";
+import * as context from "../../../../go/context.js";
+import { both } from "../../../../test/describe.js";
+import * as validation from "../../../apis/core/validation/validation.js";
+import { newTestPods } from "../../kubelet-test-helpers.js";
+import { appendDNSConfig, Configurer, getPodDNSType } from "./dns.js";
 
 const testHostNameserver = "1.2.3.4";
 const testHostDomain = "host.domain";
 
 // Models kubernetes/pkg/kubelet/network/dns/dns_test.go TestFormDNSSearchFitsLimits.
-browser.describe("TestFormDNSSearchFitsLimits", () => {
+both.describe("TestFormDNSSearchFitsLimits", () => {
 	const searchPathList2048Chars = [
 		"A".repeat(128),
 		"A".repeat(127),
@@ -290,7 +290,7 @@ browser.describe("TestFormDNSSearchFitsLimits", () => {
 });
 
 // Models kubernetes/pkg/kubelet/network/dns/dns_test.go TestFormDNSNameserversFitsLimits.
-browser.describe("TestFormDNSNameserversFitsLimits", () => {
+both.describe("TestFormDNSNameserversFitsLimits", () => {
 	const recorder = newFakeRecorder(20);
 	const nodeRef: V1ObjectReference = {
 		kind: "Node",
@@ -364,7 +364,7 @@ browser.describe("TestFormDNSNameserversFitsLimits", () => {
 });
 
 // Models kubernetes/pkg/kubelet/network/dns/dns_test.go TestMergeDNSOptions.
-browser.describe("TestMergeDNSOptions", () => {
+both.describe("TestMergeDNSOptions", () => {
 	const testOptionValue = "3";
 
 	const testCases: Array<{
@@ -410,7 +410,7 @@ browser.describe("TestMergeDNSOptions", () => {
 });
 
 // Models kubernetes/pkg/kubelet/network/dns/dns_test.go TestGetPodDNSType.
-browser.describe("TestGetPodDNSType", () => {
+both.describe("TestGetPodDNSType", () => {
 	const recorder = newFakeRecorder(20);
 	const nodeRef: V1ObjectReference = {
 		kind: "Node",
@@ -530,7 +530,7 @@ browser.describe("TestGetPodDNSType", () => {
 });
 
 // Models kubernetes/pkg/kubelet/network/dns/dns_test.go TestGetPodDNS.
-browser.describe("TestGetPodDNS", () => {
+both.describe("TestGetPodDNS", () => {
 	it("generates pod DNS config", async () => {
 		const recorder = newFakeRecorder(20);
 		const nodeRef: V1ObjectReference = {
@@ -673,7 +673,7 @@ browser.describe("TestGetPodDNS", () => {
 });
 
 // Models kubernetes/pkg/kubelet/network/dns/dns_test.go TestGetPodDNSCustom.
-browser.describe("TestGetPodDNSCustom", () => {
+both.describe("TestGetPodDNSCustom", () => {
 	const recorder = newFakeRecorder(20);
 	const nodeRef: V1ObjectReference = {
 		kind: "Node",
@@ -822,7 +822,7 @@ browser.describe("TestGetPodDNSCustom", () => {
 	}
 });
 
-browser.describe("GetPodDNS local event coverage", () => {
+both.describe("GetPodDNS local event coverage", () => {
 	it("returns host DNS config errors", async () => {
 		const recorder = newFakeRecorder(20);
 		const hostDNSErr = new Error("host dns config failed");

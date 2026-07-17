@@ -33,12 +33,12 @@
 
 import { Buffer } from "buffer";
 import { EventEmitter } from "events";
-import { type Clock } from "../clock";
-import { getClock } from "../clock-context";
-import { SortedMap } from "../collections";
-import { Channel, select, type ReadOnlyChannel } from "../go/channel";
-import type * as context from "../go/context";
-import * as time from "../go/time";
+import { type Clock } from "../clock.js";
+import { getClock } from "../clock-context.js";
+import { SortedMap } from "../collections.js";
+import { Channel, select, type ReadOnlyChannel } from "../go/channel.js";
+import type * as context from "../go/context.js";
+import * as time from "../go/time.js";
 
 const zeroKey = "\0";
 

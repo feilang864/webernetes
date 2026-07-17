@@ -2,7 +2,7 @@
  * SPDX-License-Identifier: Apache-2.0
  * Derived from Kubernetes, translated and modified for Webernetes.
  */
-import { regexError } from "./errors";
+import { regexError } from "./errors.js";
 
 // Models staging/src/k8s.io/apimachinery/pkg/api/validate/content/identifier.go cIdentifierFmt.
 const cIdentifierFmt = "[A-Za-z_][A-Za-z0-9_]*";

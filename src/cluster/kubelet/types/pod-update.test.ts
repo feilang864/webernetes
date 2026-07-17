@@ -3,8 +3,8 @@
  * Derived from Kubernetes, translated and modified for Webernetes.
  */
 import { expect, it } from "vitest";
-import type { V1Pod } from "../../../client";
-import { browser } from "../../../test/describe";
+import type { V1Pod } from "../../../client/index.js";
+import { both } from "../../../test/describe.js";
 import {
 	allSource,
 	apiserverSource,
@@ -29,7 +29,7 @@ import {
 	syncPodUpdate,
 	systemCriticalPriority,
 	systemNodeCritical,
-} from "./pod-update";
+} from "./pod-update.js";
 
 const systemPriority = systemCriticalPriority;
 const systemPriorityUpper = systemPriority + 1000;
@@ -64,7 +64,7 @@ function configMirrorAnnotation(): Record<string, string> {
 }
 
 // Models kubernetes/pkg/kubelet/types/pod_update_test.go TestGetValidatedSources.
-browser.describe("getValidatedSources", () => {
+both.describe("getValidatedSources", () => {
 	const tests: Array<{
 		name: string;
 		sources: string[];
@@ -107,7 +107,7 @@ browser.describe("getValidatedSources", () => {
 });
 
 // Models kubernetes/pkg/kubelet/types/pod_update_test.go TestGetPodSource.
-browser.describe("getPodSource", () => {
+both.describe("getPodSource", () => {
 	const tests: Array<{
 		name: string;
 		pod: V1Pod;
@@ -138,7 +138,7 @@ browser.describe("getPodSource", () => {
 });
 
 // Models kubernetes/pkg/kubelet/types/pod_update_test.go TestString.
-browser.describe("syncPodString", () => {
+both.describe("syncPodString", () => {
 	const tests: Array<{
 		sp: string | number;
 		expected: string;
@@ -173,7 +173,7 @@ browser.describe("syncPodString", () => {
 });
 
 // Models kubernetes/pkg/kubelet/types/pod_update_test.go TestIsMirrorPod.
-browser.describe("isMirrorPod", () => {
+both.describe("isMirrorPod", () => {
 	const tests: Array<{
 		name: string;
 		pod: V1Pod;
@@ -199,7 +199,7 @@ browser.describe("isMirrorPod", () => {
 });
 
 // Models kubernetes/pkg/kubelet/types/pod_update_test.go TestIsStaticPod.
-browser.describe("isStaticPod", () => {
+both.describe("isStaticPod", () => {
 	const tests: Array<{
 		name: string;
 		pod: V1Pod;
@@ -230,7 +230,7 @@ browser.describe("isStaticPod", () => {
 });
 
 // Models kubernetes/pkg/kubelet/types/pod_update_test.go TestIsCriticalPod.
-browser.describe("isCriticalPod", () => {
+both.describe("isCriticalPod", () => {
 	const tests: Array<{
 		name: string;
 		pod: V1Pod;
@@ -276,7 +276,7 @@ browser.describe("isCriticalPod", () => {
 });
 
 // Models kubernetes/pkg/kubelet/types/pod_update_test.go TestPreemptable.
-browser.describe("preemptable", () => {
+both.describe("preemptable", () => {
 	const tests: Array<{
 		name: string;
 		preemptor: V1Pod;
@@ -329,7 +329,7 @@ browser.describe("preemptable", () => {
 });
 
 // Models kubernetes/pkg/kubelet/types/pod_update_test.go TestIsCriticalPodBasedOnPriority.
-browser.describe("isCriticalPodBasedOnPriority", () => {
+both.describe("isCriticalPodBasedOnPriority", () => {
 	const tests: Array<{
 		priority: number;
 		name: string;
@@ -355,7 +355,7 @@ browser.describe("isCriticalPodBasedOnPriority", () => {
 });
 
 // Models kubernetes/pkg/kubelet/types/pod_update_test.go TestIsNodeCriticalPod.
-browser.describe("isNodeCriticalPod", () => {
+both.describe("isNodeCriticalPod", () => {
 	const tests: Array<{
 		name: string;
 		pod: V1Pod;
@@ -406,7 +406,7 @@ browser.describe("isNodeCriticalPod", () => {
 });
 
 // Models kubernetes/pkg/kubelet/types/pod_update_test.go TestHasRestartableInitContainer.
-browser.describe("hasRestartableInitContainer", () => {
+both.describe("hasRestartableInitContainer", () => {
 	const containerRestartPolicyAlways = "Always";
 	const tests: Array<{
 		name: string;

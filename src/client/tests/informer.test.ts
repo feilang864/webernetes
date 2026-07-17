@@ -1,6 +1,6 @@
 import { expect, it, vi } from "vitest";
-import type { V1Namespace, V1Pod } from "../gen/models";
-import { kubernetes } from "../../test/harnesses/kubernetes";
+import type { V1Namespace, V1Pod } from "../gen/models/index.js";
+import { kubernetes } from "../../test/harnesses/kubernetes.js";
 
 kubernetes.describe("Informer", ({ core, k8s, kubeConfig, helpers }) => {
 	const { createPod, replacePod, getTestNamespace, createNamespace, waitFor } = helpers;

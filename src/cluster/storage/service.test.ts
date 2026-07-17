@@ -1,12 +1,12 @@
 import { afterEach, beforeEach, expect, it } from "vitest";
 
-import type { V1Service } from "../../client";
-import type * as context from "../../go/context";
-import { fakeEtcd } from "../../test/harnesses/etcd";
-import type { Etcd } from "../etcd";
-import { createBarrier } from "./helpers";
-import { NamespaceStore } from "./namespace";
-import { ServiceStore } from "./service";
+import type { V1Service } from "../../client/index.js";
+import type * as context from "../../go/context.js";
+import { fakeEtcd } from "../../test/harnesses/etcd.js";
+import type { Etcd } from "../etcd.js";
+import { createBarrier } from "./helpers.js";
+import { NamespaceStore } from "./namespace.js";
+import { ServiceStore } from "./service.js";
 
 fakeEtcd.describe("ServiceStore allocation transactions", ({ ctx, createEtcd }) => {
 	let etcd: Etcd;

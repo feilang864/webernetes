@@ -2,13 +2,13 @@
  * SPDX-License-Identifier: Apache-2.0
  * Derived from Kubernetes, translated and modified for Webernetes.
  */
-import { newAggregate } from "../../../apimachinery/pkg/util/errors/errors";
-import { getClock } from "../../../clock-context";
-import type * as context from "../../../go/context";
-import type { RuntimeService } from "../../cri";
-import { buildContainerID, type GCPolicy } from "../container";
-import { getContainerInfoFromLabels } from "./labels";
-import type { KubeGenericRuntimeManager, PodStateProvider } from "./kuberuntime-manager";
+import { newAggregate } from "../../../apimachinery/pkg/util/errors/errors.js";
+import { getClock } from "../../../clock-context.js";
+import type * as context from "../../../go/context.js";
+import type { RuntimeService } from "../../cri/index.js";
+import { buildContainerID, type GCPolicy } from "../container/index.js";
+import { getContainerInfoFromLabels } from "./labels.js";
+import type { KubeGenericRuntimeManager, PodStateProvider } from "./kuberuntime-manager.js";
 
 // Models kubernetes/pkg/kubelet/kuberuntime/kuberuntime_gc.go containerGC.
 export class ContainerGC {

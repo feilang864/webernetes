@@ -2,7 +2,7 @@
  * SPDX-License-Identifier: Apache-2.0
  * Derived from Kubernetes, translated and modified for Webernetes.
  */
-import { splitMaybeSubscriptedPath } from "../../../fieldpath/fieldpath";
+import { splitMaybeSubscriptedPath } from "../../../fieldpath/fieldpath.js";
 
 // Models kubernetes/pkg/apis/core/pods/helpers.go ConvertDownwardAPIFieldLabel.
 export function convertDownwardAPIFieldLabel(

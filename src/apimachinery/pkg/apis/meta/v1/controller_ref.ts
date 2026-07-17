@@ -2,9 +2,9 @@
  * SPDX-License-Identifier: Apache-2.0
  * Derived from Kubernetes, translated and modified for Webernetes.
  */
-import type { KubernetesObject } from "../../../../../client/types";
-import type { V1OwnerReference } from "../../../../../client/gen/models";
-import type { GroupVersionKind } from "../../../runtime/schema/group_version";
+import type { KubernetesObject } from "../../../../../client/types.js";
+import type { V1OwnerReference } from "../../../../../client/gen/models/index.js";
+import type { GroupVersionKind } from "../../../runtime/schema/group_version.js";
 
 // Models staging/src/k8s.io/apimachinery/pkg/apis/meta/v1/controller_ref.go GetControllerOf.
 export function getControllerOf(controllee: KubernetesObject): V1OwnerReference | undefined {

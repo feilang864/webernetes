@@ -1,7 +1,7 @@
 import { expect, it } from "vitest";
-import { kubernetes } from "../../test/harnesses/kubernetes";
-import { apiErrorCode } from "../../test/harnesses/helpers";
-import { expectRecentCreationTimestamp, expectResourceUid } from "./assertions";
+import { kubernetes } from "../../test/harnesses/kubernetes.js";
+import { apiErrorCode } from "../../test/harnesses/helpers.js";
+import { expectRecentCreationTimestamp, expectResourceUid } from "./assertions.js";
 
 kubernetes.describe("Nodes", ({ core, k8s }) => {
 	const mergePatchOptions = k8s.setHeaderOptions("Content-Type", k8s.PatchStrategy.MergePatch);

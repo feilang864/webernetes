@@ -2,14 +2,14 @@
  * SPDX-License-Identifier: Apache-2.0
  * Derived from Kubernetes, translated and modified for Webernetes.
  */
-import type { Selector } from "../../../../apimachinery/pkg/labels/selector";
-import type { V1Deployment } from "../../../../client";
-import type { Indexer } from "../../../tools/cache/index";
+import type { Selector } from "../../../../apimachinery/pkg/labels/selector.js";
+import type { V1Deployment } from "../../../../client/index.js";
+import type { Indexer } from "../../../tools/cache/index.js";
 import {
 	newNamespacedResourceIndexer,
 	newResourceIndexer,
 	type ResourceIndexer,
-} from "../../generic-helpers";
+} from "../../generic-helpers.js";
 
 // Models staging/src/k8s.io/client-go/listers/apps/v1/deployment.go DeploymentLister.
 export interface DeploymentLister {

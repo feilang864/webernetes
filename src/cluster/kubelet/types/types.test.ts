@@ -3,16 +3,16 @@
  * Derived from Kubernetes, translated and modified for Webernetes.
  */
 import { expect, it } from "vitest";
-import type { V1Container, V1ContainerStatus, V1Pod } from "../../../client";
-import { browser } from "../../../test/describe";
+import type { V1Container, V1ContainerStatus, V1Pod } from "../../../client/index.js";
+import { both } from "../../../test/describe.js";
 import {
 	sortedContainerStatuses,
 	sortInitContainerStatuses,
 	sortStatusesOfInitContainers,
-} from "./types";
+} from "./types.js";
 
 // Models kubernetes/pkg/kubelet/types/types_test.go TestLess.
-browser.describe("sortedContainerStatuses", () => {
+both.describe("sortedContainerStatuses", () => {
 	it("sorts statuses by container name", () => {
 		const statuses: V1ContainerStatus[] = [{ name: "second" }, { name: "first" }].map((status) => ({
 			image: "",
@@ -31,7 +31,7 @@ browser.describe("sortedContainerStatuses", () => {
 });
 
 // Models kubernetes/pkg/kubelet/types/types_test.go TestSortInitContainerStatuses.
-browser.describe("sortInitContainerStatuses", () => {
+both.describe("sortInitContainerStatuses", () => {
 	const tests: Array<{
 		containers: V1Container[];
 		statuses: V1ContainerStatus[];
@@ -89,7 +89,7 @@ browser.describe("sortInitContainerStatuses", () => {
 });
 
 // Models kubernetes/pkg/kubelet/types/types_test.go TestSortStatusesOfInitContainers.
-browser.describe("sortStatusesOfInitContainers", () => {
+both.describe("sortStatusesOfInitContainers", () => {
 	const tests: Array<{
 		containers: V1Container[];
 		statusMap: Map<string, V1ContainerStatus>;

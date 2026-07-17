@@ -1,4 +1,4 @@
-import type { CoreV1Api } from "../../client/gen/apis/types";
+import type { CoreV1Api } from "../../client/gen/apis/types/index.js";
 import type {
 	CoreV1Event,
 	V1Container,
@@ -7,16 +7,21 @@ import type {
 	V1Pod,
 	V1Service,
 	V1Status,
-} from "../../client/gen/models";
-import { isConflictError } from "../../client/errors";
-import type { K8s, KubeConfig, KubernetesObject } from "../../client/types";
-import type { ClusterApplyResource, ClusterApplyResult } from "../../cluster/apply";
-import { deepMerge } from "../../deep-merge";
-import { retry } from "../../retry";
-import type * as context from "../../go/context";
-import { waitFor } from "../wait";
-import type { FetchNodePort, NodePortRequest, NodePortResponse } from "./kubernetes";
-import type { DeepPartial } from "../../utility-types";
+} from "../../client/gen/models/index.js";
+import { isConflictError } from "../../client/errors.js";
+import type { K8s, KubeConfig, KubernetesObject } from "../../client/types.js";
+import type { ClusterApplyResource, ClusterApplyResult } from "../../cluster/apply.js";
+import { deepMerge } from "../../deep-merge.js";
+import { retry } from "../../retry.js";
+import type * as context from "../../go/context.js";
+import { waitFor as waitForAssertion } from "../wait.js";
+import type {
+	FetchNodePort,
+	KubernetesTestTarget,
+	NodePortRequest,
+	NodePortResponse,
+} from "./kubernetes.js";
+import type { DeepPartial } from "../../utility-types.js";
 
 const defaultPodImage = "registry.k8s.io/pause:3.10";
 const agnhostImage = "registry.k8s.io/e2e-test-images/agnhost:2.40";
@@ -73,6 +78,7 @@ export interface KubernetesHelpersOptions {
 	k8s: K8s;
 	kubeConfig: KubeConfig;
 	core: CoreV1Api;
+	target: KubernetesTestTarget;
 	fetchNodePort: FetchNodePort;
 	apply<const T extends readonly ClusterApplyResource[]>(
 		resources: T,
@@ -84,9 +90,18 @@ export function createKubernetesHelpers({
 	k8s,
 	kubeConfig,
 	core,
+	target,
 	fetchNodePort: rawFetchNodePort,
 	apply,
 }: KubernetesHelpersOptions): KubernetesRuntimeHelpers {
+	const waitFor = async (assertion: () => unknown | Promise<unknown>): Promise<void> => {
+		await waitForAssertion(
+			assertion,
+			target === "simulator"
+				? { timeout: 5_000, interval: 50 }
+				: { timeout: 180_000, interval: 500 },
+		);
+	};
 	let suiteNamespace: string | undefined;
 	let testNamespace: string | undefined;
 	const createNamespace = async (namespace: string | Partial<V1Namespace>): Promise<string> => {

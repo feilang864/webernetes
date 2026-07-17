@@ -9,22 +9,22 @@ import type {
 	V1Pod,
 	V1PodStatus,
 	V1Service,
-} from "../../client";
-import { Channel, select, type ReadOnlyChannel } from "../../go/channel";
-import * as context from "../../go/context";
-import { formatIP } from "../../go/net";
-import { Mutex } from "../../go/sync/mutex";
-import * as time from "../../go/time";
-import * as expansion from "../../third_party/forked/golang/expansion";
-import { getClock } from "../../clock-context";
-import type { Backoff } from "../../client-go/util/flowcontrol/backoff";
-import { newBackOff } from "../../client-go/util/flowcontrol/backoff";
-import type { DnsConfig, ImageManagerService, RuntimeService } from "../cri";
+} from "../../client/index.js";
+import { Channel, select, type ReadOnlyChannel } from "../../go/channel.js";
+import * as context from "../../go/context.js";
+import { formatIP } from "../../go/net/index.js";
+import { Mutex } from "../../go/sync/mutex.js";
+import * as time from "../../go/time.js";
+import * as expansion from "../../third_party/forked/golang/expansion/index.js";
+import { getClock } from "../../clock-context.js";
+import type { Backoff } from "../../client-go/util/flowcontrol/backoff.js";
+import { newBackOff } from "../../client-go/util/flowcontrol/backoff.js";
+import type { DnsConfig, ImageManagerService, RuntimeService } from "../cri/index.js";
 import {
 	allContainersCouldRestart,
 	containerShouldRestart,
 	isPodPhaseTerminal,
-} from "../api/v1/pod/util";
+} from "../api/v1/pod/util.js";
 import {
 	convertPodStatusToRunningPod,
 	errPodNotFound,
@@ -41,7 +41,7 @@ import {
 	shouldAllContainersRestart,
 	type Runtime,
 	toAPIPod,
-} from "./container";
+} from "./container/index.js";
 import type {
 	CommandRunner,
 	Container,
@@ -52,39 +52,53 @@ import type {
 	RuntimeCache,
 	GC,
 	Status as ContainerStatus,
-} from "./container";
-import type { RunContainerOptions, RuntimeHelper } from "./container";
-import { PodManager } from "./pod";
-import { ProbeManagerImpl, ResultsManager } from "./prober";
-import type { ProbeManager, ProbeUpdate } from "./prober";
+} from "./container/index.js";
+import type { RunContainerOptions, RuntimeHelper } from "./container/index.js";
+import { PodManager } from "./pod/index.js";
+import { ProbeManagerImpl, ResultsManager } from "./prober/index.js";
+import type { ProbeManager, ProbeUpdate } from "./prober/index.js";
 import {
 	PodWorkersImpl,
 	type PodWorkers,
 	type PodWorkerSync,
 	type SyncPodResult,
-} from "./pod-workers";
-import type { EventRecorder } from "../../client-go/tools/record/event";
-import { StatusManagerImpl, type PodDeletionSafetyProvider, type StatusManager } from "./status";
-import { ContainerDied, ContainerRemoved, GenericPLEG, type PodLifecycleEvent } from "./pleg";
-import { networkNotReadyErrorMsg } from "./errors";
-import * as podutil from "../api/v1/pod/util";
-import * as utilpod from "../util/pod/pod";
-import { isServiceIPSet } from "../apis/core/v1/helper/helpers";
-import { getPodQOS } from "../apis/core/v1/helper/qos/qos";
-import { fromServices } from "./envvars";
-import { BasicWorkQueue } from "./util/queue/work-queue";
-import type { WorkQueue } from "./util/queue/work-queue";
-import { apiserverSource, isStaticPod, type PodUpdate, type SyncPodType } from "./types/pod-update";
-import * as kubetypes from "./types";
-import { hasAnyRegularContainerCreated, KubeGenericRuntimeManager } from "./kuberuntime";
-import { getPhase, truncatePodHostnameIfNeeded } from "./kubelet-pods";
-import { newActiveDeadlineHandler } from "./active-deadline";
+} from "./pod-workers.js";
+import type { EventRecorder } from "../../client-go/tools/record/event.js";
+import {
+	StatusManagerImpl,
+	type PodDeletionSafetyProvider,
+	type StatusManager,
+} from "./status/index.js";
+import {
+	ContainerDied,
+	ContainerRemoved,
+	GenericPLEG,
+	type PodLifecycleEvent,
+} from "./pleg/index.js";
+import { networkNotReadyErrorMsg } from "./errors.js";
+import * as podutil from "../api/v1/pod/util.js";
+import * as utilpod from "../util/pod/pod.js";
+import { isServiceIPSet } from "../apis/core/v1/helper/helpers.js";
+import { getPodQOS } from "../apis/core/v1/helper/qos/qos.js";
+import { fromServices } from "./envvars/index.js";
+import { BasicWorkQueue } from "./util/queue/work-queue.js";
+import type { WorkQueue } from "./util/queue/work-queue.js";
+import {
+	apiserverSource,
+	isStaticPod,
+	type PodUpdate,
+	type SyncPodType,
+} from "./types/pod-update.js";
+import * as kubetypes from "./types/index.js";
+import { hasAnyRegularContainerCreated, KubeGenericRuntimeManager } from "./kuberuntime/index.js";
+import { getPhase, truncatePodHostnameIfNeeded } from "./kubelet-pods.js";
+import { newActiveDeadlineHandler } from "./active-deadline.js";
 import {
 	PodSyncHandlers,
 	PodSyncLoopHandlers,
 	type PodSyncHandler,
 	type PodSyncLoopHandler,
-} from "./lifecycle";
+} from "./lifecycle/index.js";
 import {
 	generateAllContainersRestartingCondition,
 	generateContainersReadyCondition,
@@ -92,8 +106,8 @@ import {
 	generatePodReadyCondition,
 	generatePodReadyToStartContainersCondition,
 	needToReconcilePodReadiness,
-} from "./status";
-import { podIsEvicted } from "./eviction";
+} from "./status/index.js";
+import { podIsEvicted } from "./eviction/index.js";
 import {
 	newPodConfig,
 	newSourcesReady,
@@ -102,27 +116,27 @@ import {
 	type PodConfig,
 	type PodStartupSLIObserver,
 	type SourcesReady,
-} from "./config";
-import { Configurer } from "./network/dns";
-import * as nodestatus from "./nodestatus";
-import { newReasonCache } from "./reason-cache";
-import { newRuntimeState, type RuntimeState } from "./runtime";
-import { newPodContainerDeletor, type PodContainerDeletor } from "./pod-container-deletor";
-import type { KubeletConfiguration } from "./apis/config";
-import type { KubeClient } from "../cluster";
-import type { ClusterNetwork } from "../cni";
-import type { Clock } from "../../clock";
+} from "./config/index.js";
+import { Configurer } from "./network/dns/index.js";
+import * as nodestatus from "./nodestatus/index.js";
+import { newReasonCache } from "./reason-cache.js";
+import { newRuntimeState, type RuntimeState } from "./runtime.js";
+import { newPodContainerDeletor, type PodContainerDeletor } from "./pod-container-deletor.js";
+import type { KubeletConfiguration } from "./apis/config/index.js";
+import type { KubeClient } from "../cluster.js";
+import type { ClusterNetwork } from "../cni/index.js";
+import type { Clock } from "../../clock.js";
 import {
 	isDNS1123Label,
 	isDNS1123Subdomain,
-} from "../../apimachinery/pkg/util/validation/validation";
-import { Set as LabelSet } from "../../apimachinery/pkg/labels/labels";
-import { everything, type Selector } from "../../apimachinery/pkg/labels/selector";
-import { convertDownwardAPIFieldLabel } from "../../apis/core/pods/helpers";
-import { extractFieldPathAsString } from "../../fieldpath/fieldpath";
-import { getNodeHostIPs } from "../../util/node";
-import { ipFamilyOfString, isIPv4, isIPv6, parseIPSloppy } from "../../utils/net";
-import { untilWithContext } from "../../apimachinery/pkg/util/wait/backoff";
+} from "../../apimachinery/pkg/util/validation/validation.js";
+import { Set as LabelSet } from "../../apimachinery/pkg/labels/labels.js";
+import { everything, type Selector } from "../../apimachinery/pkg/labels/selector.js";
+import { convertDownwardAPIFieldLabel } from "../../apis/core/pods/helpers.js";
+import { extractFieldPathAsString } from "../../fieldpath/fieldpath.js";
+import { getNodeHostIPs } from "../../util/node/index.js";
+import { ipFamilyOfString, isIPv4, isIPv6, parseIPSloppy } from "../../utils/net/index.js";
+import { untilWithContext } from "../../apimachinery/pkg/util/wait/backoff.js";
 
 // Models kubernetes/pkg/kubelet/kubelet.go maxWaitForContainerRuntime.
 const maxWaitForContainerRuntimeMs = 30 * 1000;

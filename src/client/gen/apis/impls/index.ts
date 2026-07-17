@@ -1,3 +1,3 @@
-export * from "./AppsV1Api";
-export * from "./CoreV1Api";
-export * from "./DiscoveryV1Api";
+export * from "./AppsV1Api.js";
+export * from "./CoreV1Api.js";
+export * from "./DiscoveryV1Api.js";

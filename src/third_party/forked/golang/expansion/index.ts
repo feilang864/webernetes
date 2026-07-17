@@ -1,1 +1,1 @@
-export * from "./expand";
+export * from "./expand.js";

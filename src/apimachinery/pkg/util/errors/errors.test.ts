@@ -3,11 +3,11 @@
  * Derived from Kubernetes, translated and modified for Webernetes.
  */
 import { expect, it } from "vitest";
-import { browser } from "../../../../test/describe";
-import { Aggregate, flatten, newAggregate } from "./errors";
+import { both } from "../../../../test/describe.js";
+import { Aggregate, flatten, newAggregate } from "./errors.js";
 
 // Models staging/src/k8s.io/apimachinery/pkg/util/errors/errors_test.go TestEmptyAggregate.
-browser.describe("emptyAggregate", () => {
+both.describe("emptyAggregate", () => {
 	it("returns undefined for an empty list", () => {
 		const slice: Error[] = [];
 
@@ -20,7 +20,7 @@ browser.describe("emptyAggregate", () => {
 });
 
 // Models staging/src/k8s.io/apimachinery/pkg/util/errors/errors_test.go TestAggregateWithNil.
-browser.describe("aggregateWithNil", () => {
+both.describe("aggregateWithNil", () => {
 	it("drops undefined errors", () => {
 		const slice: Array<Error | undefined> = [undefined];
 
@@ -41,7 +41,7 @@ browser.describe("aggregateWithNil", () => {
 });
 
 // Models staging/src/k8s.io/apimachinery/pkg/util/errors/errors_test.go TestSingularAggregate.
-browser.describe("singularAggregate", () => {
+both.describe("singularAggregate", () => {
 	it("returns a singular aggregate message", () => {
 		const slice = [new Error("err")];
 
@@ -58,7 +58,7 @@ browser.describe("singularAggregate", () => {
 });
 
 // Models staging/src/k8s.io/apimachinery/pkg/util/errors/errors_test.go TestPluralAggregate.
-browser.describe("pluralAggregate", () => {
+both.describe("pluralAggregate", () => {
 	it("returns a bracketed plural aggregate message", () => {
 		const slice = [new Error("abc"), new Error("123")];
 
@@ -75,7 +75,7 @@ browser.describe("pluralAggregate", () => {
 });
 
 // Models staging/src/k8s.io/apimachinery/pkg/util/errors/errors_test.go TestDedupeAggregate.
-browser.describe("dedupeAggregate", () => {
+both.describe("dedupeAggregate", () => {
 	it("deduplicates identical messages", () => {
 		const slice = [new Error("abc"), new Error("abc")];
 
@@ -87,7 +87,7 @@ browser.describe("dedupeAggregate", () => {
 });
 
 // Models staging/src/k8s.io/apimachinery/pkg/util/errors/errors_test.go TestDedupePluralAggregate.
-browser.describe("dedupePluralAggregate", () => {
+both.describe("dedupePluralAggregate", () => {
 	it("deduplicates identical messages in plural aggregate output", () => {
 		const slice = [new Error("abc"), new Error("abc"), new Error("123")];
 
@@ -99,7 +99,7 @@ browser.describe("dedupePluralAggregate", () => {
 });
 
 // Models staging/src/k8s.io/apimachinery/pkg/util/errors/errors_test.go TestFlattenAndDedupeAggregate.
-browser.describe("flattenAndDedupeAggregate", () => {
+both.describe("flattenAndDedupeAggregate", () => {
 	it("deduplicates nested aggregate messages", () => {
 		const slice = [new Error("abc"), new Error("abc"), newAggregate([new Error("abc")])];
 
@@ -111,7 +111,7 @@ browser.describe("flattenAndDedupeAggregate", () => {
 });
 
 // Models staging/src/k8s.io/apimachinery/pkg/util/errors/errors_test.go TestFlattenAggregate.
-browser.describe("flattenAggregate", () => {
+both.describe("flattenAggregate", () => {
 	it("flattens nested aggregate messages for output", () => {
 		const slice = [
 			new Error("abc"),
@@ -131,7 +131,7 @@ browser.describe("flattenAggregate", () => {
 });
 
 // Models staging/src/k8s.io/apimachinery/pkg/util/errors/errors_test.go TestFlatten.
-browser.describe("flatten", () => {
+both.describe("flatten", () => {
 	const testCases: Array<{
 		agg: Aggregate | undefined;
 		expected: Aggregate | undefined;

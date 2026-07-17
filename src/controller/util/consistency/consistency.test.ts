@@ -4,24 +4,24 @@
  */
 import { expect, it } from "vitest";
 
-import { GroupResource } from "../../../apimachinery/pkg/runtime/schema/group_version";
-import type { NamespacedName } from "../../../apimachinery/pkg/types/namespacedname";
-import { namespacedNameString } from "../../../apimachinery/pkg/types/namespacedname";
-import type { KubernetesObject } from "../../../client";
-import { metaNamespaceKeyFunc, newStore } from "../../../client-go/tools/cache/store";
-import { Once } from "../../../go/sync/once";
-import { WaitGroup } from "../../../go/sync/wait-group";
-import { browser } from "../../../test/describe";
+import { GroupResource } from "../../../apimachinery/pkg/runtime/schema/group_version.js";
+import type { NamespacedName } from "../../../apimachinery/pkg/types/namespacedname.js";
+import { namespacedNameString } from "../../../apimachinery/pkg/types/namespacedname.js";
+import type { KubernetesObject } from "../../../client/index.js";
+import { metaNamespaceKeyFunc, newStore } from "../../../client-go/tools/cache/store.js";
+import { Once } from "../../../go/sync/once.js";
+import { WaitGroup } from "../../../go/sync/wait-group.js";
+import { both } from "../../../test/describe.js";
 import {
 	newConsistencyStore,
 	newOwnerRecord,
 	type LastSyncRVGetter,
 	type OwnerRecord,
-} from "./consistency";
+} from "./consistency.js";
 
 interface TestPod extends KubernetesObject {}
 
-browser.describe("controller consistency store", () => {
+both.describe("controller consistency store", () => {
 	// Models kubernetes/pkg/controller/util/consistency/consistency_test.go TestOwnerRecord_WroteAt.
 	it("OwnerRecord_WroteAt", () => {
 		const uid = "owner-uid-1";

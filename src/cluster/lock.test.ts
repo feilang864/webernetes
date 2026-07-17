@@ -1,11 +1,11 @@
 import { expect, it } from "vitest";
 
-import { browser } from "../test/describe";
-import { getClock } from "../clock-context";
-import * as context from "../go/context";
-import { Etcd } from "./etcd";
+import { both } from "../test/describe.js";
+import { getClock } from "../clock-context.js";
+import * as context from "../go/context.js";
+import { Etcd } from "./etcd.js";
 
-browser.describe("Etcd.withLock", ({ ctx }) => {
+both.describe("Etcd.withLock", ({ ctx }) => {
 	it("serializes many concurrent writers to shared state", async () => {
 		const clock = getClock(ctx);
 		const etcd = newTestEtcd(ctx);

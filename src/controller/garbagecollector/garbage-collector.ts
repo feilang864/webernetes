@@ -2,20 +2,20 @@
  * SPDX-License-Identifier: Apache-2.0
  * Derived from Kubernetes, translated and modified for Webernetes.
  */
-import * as k8s from "../../client";
+import * as k8s from "../../client/index.js";
 import {
 	isConflictError,
 	isNotFoundError,
 	isUnsupportedMediaTypeError,
 	UnsupportedMediaType,
-} from "../../client/errors";
+} from "../../client/errors.js";
 import {
 	finalizerDeleteDependents,
 	finalizerOrphanDependents,
 	type DeletePropagationPolicy,
-} from "../../client/gen/apis/impls/delete";
-import type { TypedRateLimitingInterface } from "../../client-go/util/workqueue/rate-limiting-queue";
-import { GraphBuilder, newDependencyGraphBuilder } from "./graph-builder";
+} from "../../client/gen/apis/impls/delete.js";
+import type { TypedRateLimitingInterface } from "../../client-go/util/workqueue/rate-limiting-queue.js";
+import { GraphBuilder, newDependencyGraphBuilder } from "./graph-builder.js";
 import {
 	hasDeleteDependentsFinalizer,
 	hasOrphanFinalizer,
@@ -23,16 +23,16 @@ import {
 	Node,
 	type ModeledObject,
 	type ObjectReference,
-} from "./graph";
-import type { ReferenceCache } from "./uid-cache";
-import { retryConflicts } from "../../retry";
-import type * as context from "../../go/context";
-import { generateDeleteOwnerRefStrategicMergeBytes } from "../controller-ref-manager";
-import { deepEqual } from "../../deep-equal";
-import { Channel } from "../../go/channel";
-import { WaitGroup } from "../../go/sync/wait-group";
-import { newAggregate } from "../../apimachinery/pkg/util/errors/errors";
-import { getClock } from "../../clock-context";
+} from "./graph.js";
+import type { ReferenceCache } from "./uid-cache.js";
+import { retryConflicts } from "../../retry.js";
+import type * as context from "../../go/context.js";
+import { generateDeleteOwnerRefStrategicMergeBytes } from "../controller-ref-manager.js";
+import { deepEqual } from "../../deep-equal.js";
+import { Channel } from "../../go/channel.js";
+import { WaitGroup } from "../../go/sync/wait-group.js";
+import { newAggregate } from "../../apimachinery/pkg/util/errors/errors.js";
+import { getClock } from "../../clock-context.js";
 
 type WorkQueueItemAction = "forgetItem" | "requeueItem";
 type MarshalResult = [Uint8Array | undefined, Error | undefined];

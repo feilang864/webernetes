@@ -3,12 +3,12 @@
  * Derived from Kubernetes, translated and modified for Webernetes.
  */
 import { expect, it } from "vitest";
-import { browser } from "../../test/describe";
-import { newSyncResult, PodSyncResult, type SyncResult } from "./container";
-import { newReasonCache, type ReasonCache } from "./reason-cache";
+import { both } from "../../test/describe.js";
+import { newSyncResult, PodSyncResult, type SyncResult } from "./container/index.js";
+import { newReasonCache, type ReasonCache } from "./reason-cache.js";
 
 // Models kubernetes/pkg/kubelet/reason_cache_test.go TestReasonCache.
-browser.describe("ReasonCache", () => {
+both.describe("ReasonCache", () => {
 	it("updates only failed StartContainer sync results", () => {
 		const syncResult = new PodSyncResult();
 		const results = [

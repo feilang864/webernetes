@@ -3,12 +3,12 @@
  * Derived from Kubernetes, translated and modified for Webernetes.
  */
 import { expect, it } from "vitest";
-import type { V1EnvVar, V1Service } from "../../../client";
-import { browser } from "../../../test/describe";
-import { fromServices } from "./envvars";
+import type { V1EnvVar, V1Service } from "../../../client/index.js";
+import { both } from "../../../test/describe.js";
+import { fromServices } from "./envvars.js";
 
 // Models kubernetes/pkg/kubelet/envvars/envvars_test.go TestFromServices.
-browser.describe("fromServices", () => {
+both.describe("fromServices", () => {
 	it("builds service environment variables", () => {
 		const sl: V1Service[] = [
 			{

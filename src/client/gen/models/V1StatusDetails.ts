@@ -2,7 +2,7 @@
  * SPDX-License-Identifier: Apache-2.0
  * Derived from Kubernetes, translated and modified for Webernetes.
  */
-import { V1StatusCause } from "./V1StatusCause";
+import { V1StatusCause } from "./V1StatusCause.js";
 
 export interface V1StatusDetails {
 	causes?: Array<V1StatusCause>;

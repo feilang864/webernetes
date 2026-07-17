@@ -1,17 +1,17 @@
 import { afterAll, afterEach, beforeAll } from "vitest";
 import * as realK8s from "@kubernetes/client-node";
 
-import { node } from "../describe";
-import type { SuiteOptions } from "../describe";
-import { createKubernetesRuntimeContext } from "./kubernetes-context";
-import type { KubernetesSuiteFactory, NodePortRequest, NodePortResponse } from "./kubernetes";
+import { node } from "../describe.js";
+import type { SuiteOptions } from "../describe.js";
+import { createKubernetesRuntimeContext } from "./kubernetes-context.js";
+import type { KubernetesSuiteFactory, NodePortRequest, NodePortResponse } from "./kubernetes.js";
 import {
 	getK3sContainer,
 	K3S_SETUP_TIMEOUT_MS,
 	setupK3sInfrastructure,
-} from "./kubernetes-k3s-setup";
-import type { K8s, KubeConfig } from "../../client/types";
-import type { ClusterApplyResource, ClusterApplyResult } from "../../cluster/apply";
+} from "./kubernetes-k3s-setup.js";
+import type { K8s, KubeConfig } from "../../client/types.js";
+import type { ClusterApplyResource, ClusterApplyResult } from "../../cluster/apply.js";
 
 let setupPromise: Promise<void> | undefined;
 
@@ -58,10 +58,10 @@ export function defineSuite(
 	};
 
 	if (typeof maybeOptions === "function") {
-		node.describe(name, suite);
+		node.describe(`${name} (k3s)`, suite);
 		return;
 	}
-	node.describe(name, maybeOptions, suite);
+	node.describe(`${name} (k3s)`, maybeOptions, suite);
 }
 
 async function setupK3s(): Promise<void> {

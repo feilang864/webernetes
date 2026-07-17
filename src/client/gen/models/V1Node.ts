@@ -2,9 +2,9 @@
  * SPDX-License-Identifier: Apache-2.0
  * Derived from Kubernetes, translated and modified for Webernetes.
  */
-import { V1NodeSpec } from "./V1NodeSpec";
-import { V1NodeStatus } from "./V1NodeStatus";
-import { V1ObjectMeta } from "./V1ObjectMeta";
+import { V1NodeSpec } from "./V1NodeSpec.js";
+import { V1NodeStatus } from "./V1NodeStatus.js";
+import { V1ObjectMeta } from "./V1ObjectMeta.js";
 
 export interface V1Node {
 	apiVersion?: string;

@@ -31,8 +31,8 @@ import {
 	idFor,
 	kubeletIdForNodeName,
 	type Point,
-} from "../helpers";
-import { useClusterPaused } from "./cluster-pause-button";
+} from "../helpers.js";
+import { useClusterPaused } from "./cluster-pause-button.js";
 
 type FlightKind = "default" | "failed" | "readiness" | "liveness" | "startup";
 

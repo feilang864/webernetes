@@ -6,8 +6,8 @@ import {
 	newTypedDelayingQueueWithConfig,
 	type TypedDelayingInterface,
 	type TypedDelayingQueueConfig,
-} from "./delaying-queue";
-import type { TypedRateLimiter } from "./default-rate-limiters";
+} from "./delaying-queue.js";
+import type { TypedRateLimiter } from "./default-rate-limiters.js";
 
 // Models staging/src/k8s.io/client-go/util/workqueue/rate_limiting_queue.go TypedRateLimitingInterface.
 export interface TypedRateLimitingInterface<T> extends TypedDelayingInterface<T> {

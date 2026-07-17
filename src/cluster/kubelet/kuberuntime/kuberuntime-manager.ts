@@ -2,13 +2,13 @@
  * SPDX-License-Identifier: Apache-2.0
  * Derived from Kubernetes, translated and modified for Webernetes.
  */
-import type { V1Container, V1Pod } from "../../../client";
-import { getClock } from "../../../clock-context";
-import type { Backoff } from "../../../client-go/util/flowcontrol/backoff";
-import { KeyFnMap } from "../../../collections";
-import { Channel, select } from "../../../go/channel";
-import * as context from "../../../go/context";
-import * as time from "../../../go/time";
+import type { V1Container, V1Pod } from "../../../client/index.js";
+import { getClock } from "../../../clock-context.js";
+import type { Backoff } from "../../../client-go/util/flowcontrol/backoff.js";
+import { KeyFnMap } from "../../../collections.js";
+import { Channel, select } from "../../../go/channel.js";
+import * as context from "../../../go/context.js";
+import * as time from "../../../go/time.js";
 import type {
 	ContainerConfig,
 	ContainerStatus as CRIContainerStatus,
@@ -18,7 +18,7 @@ import type {
 	PodSandboxStatus,
 	PortMapping,
 	RuntimeService,
-} from "../../cri";
+} from "../../cri/index.js";
 import type {
 	CheckpointContainerRequest,
 	Container as CRIContainer,
@@ -26,8 +26,8 @@ import type {
 	MetricDescriptor,
 	PodSandbox,
 	PodSandboxMetrics,
-} from "../../cri/runtime/v1/api";
-import { findMatchingContainerRestartRule } from "../../api/v1/pod/util";
+} from "../../cri/runtime/v1/api.js";
+import { findMatchingContainerRestartRule } from "../../api/v1/pod/util.js";
 import {
 	buildContainerID,
 	convertPodStatusToRunningPod,
@@ -41,7 +41,7 @@ import {
 	makePortMappings,
 	runtimeProtocol,
 	shouldContainerBeRestarted,
-} from "../container";
+} from "../container/index.js";
 import {
 	newBackoffError,
 	newSyncResult,
@@ -63,18 +63,18 @@ import {
 	type SwapBehavior,
 	type Version,
 	type HandlerRunner,
-} from "../container";
-import type { EventRecorder } from "../../../client-go/tools/record/event";
-import { KubeletImageManager, type ImageManager } from "../images";
-import type { ResultsManager } from "../prober/results";
-import type { InternalContainerLifecycle } from "../cm";
-import { newFakeInternalContainerLifecycle } from "../cm";
-import { failedCreatePodSandBox, failedStatusPodSandBox, sandboxChanged } from "../events";
-import { newHandlerRunner } from "../lifecycle";
-import type { ClusterNetwork } from "../../cni";
-import * as format from "../util/format";
-import { getNodenameForKernel, podSandboxChanged } from "./util/util";
-import { newContainerGC, type ContainerGC } from "./kuberuntime-gc";
+} from "../container/index.js";
+import type { EventRecorder } from "../../../client-go/tools/record/event.js";
+import { KubeletImageManager, type ImageManager } from "../images/index.js";
+import type { ResultsManager } from "../prober/results/index.js";
+import type { InternalContainerLifecycle } from "../cm/index.js";
+import { newFakeInternalContainerLifecycle } from "../cm/index.js";
+import { failedCreatePodSandBox, failedStatusPodSandBox, sandboxChanged } from "../events.js";
+import { newHandlerRunner } from "../lifecycle/index.js";
+import type { ClusterNetwork } from "../../cni/index.js";
+import * as format from "../util/format/index.js";
+import { getNodenameForKernel, podSandboxChanged } from "./util/util.js";
+import { newContainerGC, type ContainerGC } from "./kuberuntime-gc.js";
 import {
 	getTerminationMessage,
 	hasAnyRegularContainerCreated,
@@ -86,12 +86,12 @@ import {
 	type ContainerKillReason,
 	type ListOptions,
 	type StartSpec,
-} from "./kuberuntime-container";
-import { containerStatusByCreated, getBackoffKey, toKubeRuntimeStatus } from "./helpers";
-import { toKubeContainerImageSpec, toRuntimeAPIImageSpec } from "./convert";
-import type { TerminationOrdering } from "./kuberuntime-termination-order";
-import { determinePodSandboxIPs } from "./kuberuntime-sandbox";
-import { convertPodSysctlsVariableToDotsSeparator } from "../sysctl";
+} from "./kuberuntime-container.js";
+import { containerStatusByCreated, getBackoffKey, toKubeRuntimeStatus } from "./helpers.js";
+import { toKubeContainerImageSpec, toRuntimeAPIImageSpec } from "./convert.js";
+import type { TerminationOrdering } from "./kuberuntime-termination-order.js";
+import { determinePodSandboxIPs } from "./kuberuntime-sandbox.js";
+import { convertPodSysctlsVariableToDotsSeparator } from "../sysctl/index.js";
 import {
 	getContainerInfoFromAnnotations,
 	getContainerInfoFromLabels,
@@ -99,7 +99,7 @@ import {
 	newContainerLabels,
 	newPodAnnotations,
 	newPodLabels,
-} from "./labels";
+} from "./labels.js";
 
 type RuntimeError = Error | undefined;
 type CleanupAction = (() => void) | undefined;

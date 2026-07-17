@@ -8,20 +8,20 @@ import {
 	type V1Pod,
 	type V1PodStatus,
 	type V1Probe,
-} from "../../../client";
-import { FakeRecorder } from "../../../client-go/tools/record/fake";
-import { getClock } from "../../../clock-context";
-import * as context from "../../../go/context";
-import type { ExecCmd, ExecProbe, ProbeResult } from "../../probe";
-import { ClusterNetwork } from "../../cni";
-import { Etcd } from "../../etcd";
-import { KubeClient } from "../../cluster";
-import { buildContainerID } from "../container";
-import { PodManager } from "../pod";
-import { StatusManagerImpl } from "../status";
-import { ProbeManagerImpl } from "./prober-manager";
-import { ResultsManager, type ProbeType } from "./results";
-import { ProbeWorker } from "./worker";
+} from "../../../client/index.js";
+import { FakeRecorder } from "../../../client-go/tools/record/fake.js";
+import { getClock } from "../../../clock-context.js";
+import * as context from "../../../go/context.js";
+import type { ExecCmd, ExecProbe, ProbeResult } from "../../probe/index.js";
+import { ClusterNetwork } from "../../cni/index.js";
+import { Etcd } from "../../etcd.js";
+import { KubeClient } from "../../cluster.js";
+import { buildContainerID } from "../container/index.js";
+import { PodManager } from "../pod/index.js";
+import { StatusManagerImpl } from "../status/index.js";
+import { ProbeManagerImpl } from "./prober-manager.js";
+import { ResultsManager, type ProbeType } from "./results/index.js";
+import { ProbeWorker } from "./worker.js";
 
 // Models kubernetes/pkg/kubelet/prober/common_test.go testContainerName.
 export const testContainerName = "cOnTaInEr_NaMe";

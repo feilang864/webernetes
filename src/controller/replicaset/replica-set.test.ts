@@ -5,20 +5,32 @@
  */
 import { expect, it } from "vitest";
 
-import type { V1Pod, V1ReplicaSet, V1ReplicaSetCondition, V1ReplicaSetStatus } from "../../client";
-import { KubeConfig } from "../../client/config";
-import { newTestKubeClient, TestKubeClient, type TestKubeClientObject } from "../../client/test";
-import { getClock } from "../../clock-context";
-import { Etcd } from "../../cluster/etcd";
-import { DeletedFinalStateUnknown, splitMetaNamespaceKey } from "../../client-go/tools/cache/store";
-import { newTypedMaxOfRateLimiter } from "../../client-go/util/workqueue/default-rate-limiters";
-import { newTypedRateLimitingQueue } from "../../client-go/util/workqueue/rate-limiting-queue";
-import { Channel, select } from "../../go/channel";
-import * as context from "../../go/context";
-import { Mutex } from "../../go/sync/mutex";
-import * as time from "../../go/time";
-import { browser } from "../../test/describe";
-import { FakePodControl, keyFunc, podKey } from "../controller-utils";
+import type {
+	V1Pod,
+	V1ReplicaSet,
+	V1ReplicaSetCondition,
+	V1ReplicaSetStatus,
+} from "../../client/index.js";
+import { KubeConfig } from "../../client/config.js";
+import {
+	newTestKubeClient,
+	TestKubeClient,
+	type TestKubeClientObject,
+} from "../../client/test/index.js";
+import { getClock } from "../../clock-context.js";
+import { Etcd } from "../../cluster/etcd.js";
+import {
+	DeletedFinalStateUnknown,
+	splitMetaNamespaceKey,
+} from "../../client-go/tools/cache/store.js";
+import { newTypedMaxOfRateLimiter } from "../../client-go/util/workqueue/default-rate-limiters.js";
+import { newTypedRateLimitingQueue } from "../../client-go/util/workqueue/rate-limiting-queue.js";
+import { Channel, select } from "../../go/channel.js";
+import * as context from "../../go/context.js";
+import { Mutex } from "../../go/sync/mutex.js";
+import * as time from "../../go/time.js";
+import { both } from "../../test/describe.js";
+import { FakePodControl, keyFunc, podKey } from "../controller-utils.js";
 import {
 	defaultReplicaSetControllerFeatures,
 	getPodKeys,
@@ -26,14 +38,14 @@ import {
 	ReplicaSetController,
 	slowStartBatch,
 	type ReplicaSetControllerFeatures,
-} from "./replica-set";
+} from "./replica-set.js";
 import {
 	calculateStatus,
 	getCondition,
 	removeCondition,
 	setCondition,
 	updateReplicaSetStatus,
-} from "./replica-set-utils";
+} from "./replica-set-utils.js";
 
 let uidCounter = 0;
 
@@ -266,7 +278,7 @@ function newPod(
 }
 
 // Models kubernetes/pkg/controller/replicaset/replica_set_test.go ReplicaSet tests.
-browser.describe("replicaset controller", ({ ctx }) => {
+both.describe("replicaset controller", ({ ctx }) => {
 	// Models kubernetes/pkg/controller/replicaset/replica_set_test.go TestSyncReplicaSetDoesNothing.
 	it("TestSyncReplicaSetDoesNothing", async () => {
 		const [client, kubeConfig] = await newTestKubeClient(ctx);

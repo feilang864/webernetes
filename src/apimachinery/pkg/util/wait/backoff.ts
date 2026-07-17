@@ -2,12 +2,12 @@
  * SPDX-License-Identifier: Apache-2.0
  * Derived from Kubernetes, translated and modified for Webernetes.
  */
-import type { Clock } from "../../../../clock";
-import { getClock } from "../../../../clock-context";
-import { select } from "../../../../go/channel";
-import * as context from "../../../../go/context";
-import type { MaybePromise } from "../../../../promise";
-import { DelayFunc } from "./delay";
+import type { Clock } from "../../../../clock.js";
+import { getClock } from "../../../../clock-context.js";
+import { select } from "../../../../go/channel.js";
+import * as context from "../../../../go/context.js";
+import type { MaybePromise } from "../../../../promise.js";
+import { DelayFunc } from "./delay.js";
 import {
 	FixedTimer,
 	newNoopTimer,
@@ -15,8 +15,8 @@ import {
 	realTimer,
 	type Timer,
 	VariableTimer,
-} from "./timer";
-import { jitter as jitterDuration } from "./wait";
+} from "./timer.js";
+import { jitter as jitterDuration } from "./wait.js";
 
 export type FuncWithContext = (ctx: context.Context) => MaybePromise<void>;
 

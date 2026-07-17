@@ -3,8 +3,8 @@
  * Derived from Kubernetes, translated and modified for Webernetes.
  */
 import { expect, it } from "vitest";
-import { browser } from "./test/describe";
-import { newLRU, newLRUWithEvictionFunc } from "./lru";
+import { both } from "./test/describe.js";
+import { newLRU, newLRUWithEvictionFunc } from "./lru.js";
 
 interface SimpleStruct {
 	int: number;
@@ -16,7 +16,7 @@ interface ComplexStruct {
 	simpleStruct: SimpleStruct;
 }
 
-browser.describe("lru", () => {
+both.describe("lru", () => {
 	// Models k8s.io/utils/lru/lru_test.go TestGet.
 	it.each([
 		["string_hit", "myKey", "myKey", true],

@@ -1,9 +1,9 @@
-import { getClock } from "../../../../clock-context";
-import type { Store, Storable } from "../../../../cluster/storage";
-import type * as context from "../../../../go/context";
-import { BadRequest, Invalid, NotFound } from "../../../errors";
-import type { V1DeleteOptions } from "../../models";
-import { validateDeletePreconditions } from "./resource-version";
+import { getClock } from "../../../../clock-context.js";
+import type { Store, Storable } from "../../../../cluster/storage/index.js";
+import type * as context from "../../../../go/context.js";
+import { BadRequest, Invalid, NotFound } from "../../../errors.js";
+import type { V1DeleteOptions } from "../../models/index.js";
+import { validateDeletePreconditions } from "./resource-version.js";
 
 export const finalizerDeleteDependents = "foregroundDeletion";
 export const finalizerOrphanDependents = "orphan";

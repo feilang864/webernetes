@@ -2,8 +2,8 @@
  * SPDX-License-Identifier: Apache-2.0
  * Derived from Kubernetes, translated and modified for Webernetes.
  */
-import type { KubernetesObject } from "../../../client/types";
-import { ExplicitKey, type KeyFunc, type Store } from "./store";
+import type { KubernetesObject } from "../../../client/types.js";
+import { ExplicitKey, type KeyFunc, type Store } from "./store.js";
 
 // Models staging/src/k8s.io/client-go/tools/cache/index.go Indexer.
 export interface Indexer<T> extends Store<T> {

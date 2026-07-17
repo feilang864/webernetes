@@ -1,2 +1,2 @@
-export * from "./pleg";
-export * from "./generic";
+export * from "./pleg.js";
+export * from "./generic.js";

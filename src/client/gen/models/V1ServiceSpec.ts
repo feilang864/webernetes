@@ -2,7 +2,7 @@
  * SPDX-License-Identifier: Apache-2.0
  * Derived from Kubernetes, translated and modified for Webernetes.
  */
-import { V1ServicePort } from "./V1ServicePort";
+import { V1ServicePort } from "./V1ServicePort.js";
 
 export interface V1ServiceSpec {
 	allocateLoadBalancerNodePorts?: boolean;

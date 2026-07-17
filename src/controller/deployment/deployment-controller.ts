@@ -2,33 +2,37 @@
  * SPDX-License-Identifier: Apache-2.0
  * Derived from Kubernetes, translated and modified for Webernetes.
  */
-import * as k8s from "../../client";
-import { getControllerOf } from "../../apimachinery/pkg/apis/meta/v1/controller_ref";
-import { labelSelectorAsSelector } from "../../apimachinery/pkg/apis/meta/v1/helpers";
-import { everything } from "../../apimachinery/pkg/labels/selector";
-import { GroupVersionKind } from "../../apimachinery/pkg/runtime/schema/group_version";
-import { defaultDeploymentUniqueLabelKey } from "../../apis/apps/v1/types";
-import { hasStatusCause, isNotFoundError } from "../../client/errors";
+import * as k8s from "../../client/index.js";
+import { getControllerOf } from "../../apimachinery/pkg/apis/meta/v1/controller_ref.js";
+import { labelSelectorAsSelector } from "../../apimachinery/pkg/apis/meta/v1/helpers.js";
+import { everything } from "../../apimachinery/pkg/labels/selector.js";
+import { GroupVersionKind } from "../../apimachinery/pkg/runtime/schema/group_version.js";
+import { defaultDeploymentUniqueLabelKey } from "../../apis/apps/v1/types.js";
+import { hasStatusCause, isNotFoundError } from "../../client/errors.js";
 import {
 	newDeploymentLister,
 	type DeploymentLister,
-} from "../../client-go/listers/apps/v1/deployment";
+} from "../../client-go/listers/apps/v1/deployment.js";
 import {
 	newReplicaSetLister,
 	type ReplicaSetLister,
-} from "../../client-go/listers/apps/v1/replicaset";
-import { newPodLister, type PodLister } from "../../client-go/listers/core/v1/pod";
-import type { Indexer } from "../../client-go/tools/cache/index";
-import { ExplicitKey, newIndexer, splitMetaNamespaceKey } from "../../client-go/tools/cache/store";
-import { getClock } from "../../clock-context";
-import { defaultTypedControllerRateLimiter } from "../../client-go/util/workqueue/default-rate-limiters";
+} from "../../client-go/listers/apps/v1/replicaset.js";
+import { newPodLister, type PodLister } from "../../client-go/listers/core/v1/pod.js";
+import type { Indexer } from "../../client-go/tools/cache/index.js";
+import {
+	ExplicitKey,
+	newIndexer,
+	splitMetaNamespaceKey,
+} from "../../client-go/tools/cache/store.js";
+import { getClock } from "../../clock-context.js";
+import { defaultTypedControllerRateLimiter } from "../../client-go/util/workqueue/default-rate-limiters.js";
 import {
 	newTypedRateLimitingQueueWithConfig,
 	type TypedRateLimitingInterface,
-} from "../../client-go/util/workqueue/rate-limiting-queue";
-import type { EventRecorder } from "../../client-go/tools/record/event";
-import { EventRecorderImpl } from "../../cluster/events";
-import { retryConflicts } from "../../retry";
+} from "../../client-go/util/workqueue/rate-limiting-queue.js";
+import type { EventRecorder } from "../../client-go/tools/record/event.js";
+import { EventRecorderImpl } from "../../cluster/events.js";
+import { retryConflicts } from "../../retry.js";
 import {
 	addPodControllerIndexer,
 	computeHash,
@@ -39,11 +43,11 @@ import {
 	keyFunc,
 	RealRSControl,
 	type RSControlInterface,
-} from "../controller-utils";
+} from "../controller-utils.js";
 import {
 	newReplicaSetControllerRefManager,
 	recheckDeletionTimestamp,
-} from "../controller-ref-manager";
+} from "../controller-ref-manager.js";
 import {
 	compareReplicaSetsByRevision,
 	deploymentProgressing,
@@ -90,13 +94,13 @@ import {
 	setNewReplicaSetAnnotations,
 	setReplicasAnnotations,
 	timedOutReason,
-} from "./util/deployment-util";
-import { oldPodsRunning } from "./recreate";
-import { deepEqual } from "../../deep-equal";
-import type * as context from "../../go/context";
-import { cloneSelectorAndAddLabel } from "../../util/labels/labels";
+} from "./util/deployment-util.js";
+import { oldPodsRunning } from "./recreate.js";
+import { deepEqual } from "../../deep-equal.js";
+import type * as context from "../../go/context.js";
+import { cloneSelectorAndAddLabel } from "../../util/labels/labels.js";
 
-export { oldPodsRunning } from "./recreate";
+export { oldPodsRunning } from "./recreate.js";
 
 const controllerKind = new GroupVersionKind("apps", "v1", "Deployment");
 const maxRetries = 15;

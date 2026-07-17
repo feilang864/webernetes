@@ -1,8 +1,8 @@
 import * as w8s from "webernetes";
 
-import { idFor, sortByName } from "../helpers";
-import { useInformer } from "../hooks";
-import { Node } from "./node";
+import { idFor, sortByName } from "../helpers.js";
+import { useInformer } from "../hooks.js";
+import { Node } from "./node.js";
 
 export function Cluster({
 	cluster,

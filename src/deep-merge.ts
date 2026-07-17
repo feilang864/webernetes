@@ -1,4 +1,4 @@
-import type { DeepPartial } from "./utility-types";
+import type { DeepPartial } from "./utility-types.js";
 
 export function deepMerge<T>(base: T, override?: DeepPartial<T>): T {
 	return deepMergeUnknown(base, override) as T;

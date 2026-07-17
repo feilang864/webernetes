@@ -5,10 +5,10 @@
 // oxlint-disable jest/no-conditional-expect
 import { expect, it } from "vitest";
 
-import { errCommandTimedOut } from "../../cri-client/pkg";
-import { browser } from "../../../test/describe";
-import type { ProbeResult } from "../probe";
-import { ExecProber, type ByteWriter, type ExecCmd } from "./exec";
+import { errCommandTimedOut } from "../../cri-client/pkg.js";
+import { both } from "../../../test/describe.js";
+import type { ProbeResult } from "../probe.js";
+import { ExecProber, type ByteWriter, type ExecCmd } from "./exec.js";
 
 // Models kubernetes/pkg/probe/exec/exec_test.go FakeCmd.
 class FakeCmd implements ExecCmd {
@@ -88,7 +88,7 @@ class FakeExitError extends Error {
 }
 
 // Models kubernetes/pkg/probe/exec/exec_test.go TestExec.
-browser.describe("TestExec", () => {
+both.describe("TestExec", () => {
 	it("maps command results like upstream", async () => {
 		const prober = new ExecProber();
 

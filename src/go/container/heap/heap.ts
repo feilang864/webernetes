@@ -2,7 +2,7 @@
  * SPDX-License-Identifier: Apache-2.0
  * Derived from Kubernetes, translated and modified for Webernetes.
  */
-import type * as sort from "../../sort/sort";
+import type * as sort from "../../sort/sort.js";
 
 // Models Go src/container/heap/heap.go Interface.
 export interface Interface<T> extends sort.Interface {

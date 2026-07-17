@@ -4,11 +4,11 @@
  */
 import { expect, it } from "vitest";
 
-import type { V1LabelSelector } from "../../client";
-import { browser } from "../../test/describe";
-import { cloneSelectorAndAddLabel } from "./labels";
+import type { V1LabelSelector } from "../../client/index.js";
+import { both } from "../../test/describe.js";
+import { cloneSelectorAndAddLabel } from "./labels.js";
 
-browser.describe("util labels", () => {
+both.describe("util labels", () => {
 	// Models kubernetes/pkg/util/labels/labels_test.go TestCloneSelectorAndAddLabel.
 	it("clones selector and adds label", () => {
 		const labels = {

@@ -4,11 +4,11 @@
  */
 import { expect, it } from "vitest";
 
-import { browser } from "../../test/describe";
-import { Channel } from "../channel";
-import { Once } from "./once";
+import { both } from "../../test/describe.js";
+import { Channel } from "../channel.js";
+import { Once } from "./once.js";
 
-browser.describe("Once", () => {
+both.describe("Once", () => {
 	// Models Go src/sync/once_test.go TestOnce.
 	it("runs the function once", async () => {
 		let value = 0;

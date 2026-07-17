@@ -1,5 +1,5 @@
-import { BadRequest, Conflict, Invalid, NotFound, UnsupportedMediaType } from "../../../errors";
-import { V1Status } from "../../models";
+import { BadRequest, Conflict, Invalid, NotFound, UnsupportedMediaType } from "../../../errors.js";
+import { V1Status } from "../../models/index.js";
 
 export class ApiException<T> extends Error {
 	code: number;

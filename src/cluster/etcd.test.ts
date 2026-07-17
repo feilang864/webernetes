@@ -2,9 +2,9 @@ import { Buffer } from "buffer";
 import type { Etcd3 } from "etcd3";
 import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it } from "vitest";
 
-import { etcd } from "../test/harnesses/etcd";
-import { wait } from "../promise";
-import { Etcd } from "./etcd";
+import { etcd } from "../test/harnesses/etcd.js";
+import { wait } from "../promise.js";
+import { Etcd } from "./etcd.js";
 
 // Waits for the next occurrence of `event` on `emitter`, rejecting after `timeout` ms.
 // Set up the promise BEFORE the operation that triggers the event.

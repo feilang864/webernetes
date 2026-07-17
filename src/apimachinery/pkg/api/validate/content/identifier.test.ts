@@ -3,10 +3,10 @@
  * Derived from Kubernetes, translated and modified for Webernetes.
  */
 import { expect, it } from "vitest";
-import { browser } from "../../../../../test/describe";
-import { isCIdentifier } from "./identifier";
+import { both } from "../../../../../test/describe.js";
+import { isCIdentifier } from "./identifier.js";
 
-browser.describe("content identifier validation", () => {
+both.describe("content identifier validation", () => {
 	// Models staging/src/k8s.io/apimachinery/pkg/api/validate/content/identifier_test.go TestIsCIdentifier.
 	it("validates C identifiers", () => {
 		const goodValues = [

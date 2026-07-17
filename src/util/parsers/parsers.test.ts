@@ -1,6 +1,6 @@
 import { expect, it } from "vitest";
-import { browser } from "../../test/describe";
-import { parse, parseImageName, parseNormalizedNamed } from "./parsers";
+import { both } from "../../test/describe.js";
+import { parse, parseImageName, parseNormalizedNamed } from "./parsers.js";
 
 function tagOf(ref: unknown): string {
 	if (ref !== undefined && ref !== null && typeof (ref as { tag?: unknown }).tag === "function") {
@@ -46,7 +46,7 @@ interface ParseSuccessCase {
 	digest?: string;
 }
 
-browser.describe("parseImageName", () => {
+both.describe("parseImageName", () => {
 	it.each([
 		["root", "docker.io/library/root", "latest", ""],
 		["root:tag", "docker.io/library/root", "tag", ""],
@@ -104,7 +104,7 @@ browser.describe("parseImageName", () => {
 	});
 });
 
-browser.describe("parse", () => {
+both.describe("parse", () => {
 	const parseSuccessCases: ParseSuccessCase[] = [
 		{ input: "test_com", name: "test_com" },
 		{ input: "test.com:tag", name: "test.com", tag: "tag" },
@@ -269,7 +269,7 @@ browser.describe("parse", () => {
 	});
 });
 
-browser.describe("parseNormalizedNamed", () => {
+both.describe("parseNormalizedNamed", () => {
 	it.each([
 		["docker/docker", "docker.io/docker/docker"],
 		["library/debian", "docker.io/library/debian"],

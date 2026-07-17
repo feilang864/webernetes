@@ -2,8 +2,8 @@
  * SPDX-License-Identifier: Apache-2.0
  * Derived from Kubernetes, translated and modified for Webernetes.
  */
-import { isLabelKey } from "../api/validate/content/kube";
-import type { Operator } from "../selection/operator";
+import { isLabelKey } from "../api/validate/content/kube.js";
+import type { Operator } from "../selection/operator.js";
 import {
 	doesNotExist,
 	doubleEquals,
@@ -14,13 +14,24 @@ import {
 	lessThan,
 	notEquals,
 	notIn,
-} from "../selection/operator";
-import { ErrorList, type FieldError, invalid, notSupported } from "../util/validation/field/errors";
-import { childPath, Path, type PathOption, toPath, withPath } from "../util/validation/field/path";
-import { newString, type StringSet } from "../util/sets/string";
-import { isValidLabelValue } from "../util/validation/validation";
-import { Set as LabelSet, type Labels } from "./labels";
-import { parseInt } from "../../../go/strconv";
+} from "../selection/operator.js";
+import {
+	ErrorList,
+	type FieldError,
+	invalid,
+	notSupported,
+} from "../util/validation/field/errors.js";
+import {
+	childPath,
+	Path,
+	type PathOption,
+	toPath,
+	withPath,
+} from "../util/validation/field/path.js";
+import { newString, type StringSet } from "../util/sets/string.js";
+import { isValidLabelValue } from "../util/validation/validation.js";
+import { Set as LabelSet, type Labels } from "./labels.js";
+import { parseInt } from "../../../go/strconv.js";
 
 // Models staging/src/k8s.io/apimachinery/pkg/labels/selector.go unaryOperators.
 export const unaryOperators = [exists, doesNotExist];

@@ -1,1 +1,1 @@
-export { getContainerByIndex } from "./util";
+export { getContainerByIndex } from "./util.js";

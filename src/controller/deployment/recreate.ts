@@ -2,8 +2,8 @@
  * SPDX-License-Identifier: Apache-2.0
  * Derived from Kubernetes, translated and modified for Webernetes.
  */
-import type * as k8s from "../../client";
-import { getActualReplicaCountForReplicaSets } from "./util/deployment-util";
+import type * as k8s from "../../client/index.js";
+import { getActualReplicaCountForReplicaSets } from "./util/deployment-util.js";
 
 // Models kubernetes/pkg/controller/deployment/recreate.go oldPodsRunning.
 export function oldPodsRunning(

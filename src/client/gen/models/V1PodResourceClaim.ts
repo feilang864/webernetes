@@ -2,7 +2,7 @@
  * SPDX-License-Identifier: Apache-2.0
  * Derived from Kubernetes, translated and modified for Webernetes.
  */
-import { V1TypedLocalObjectReference } from "./V1TypedLocalObjectReference";
+import { V1TypedLocalObjectReference } from "./V1TypedLocalObjectReference.js";
 export interface V1PodResourceClaim {
 	name: string;
 	resourceClaimName?: string;

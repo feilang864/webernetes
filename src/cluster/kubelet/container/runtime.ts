@@ -2,20 +2,20 @@
  * SPDX-License-Identifier: Apache-2.0
  * Derived from Kubernetes, translated and modified for Webernetes.
  */
-import type { V1Pod } from "../../../client";
-import type { Backoff } from "../../../client-go/util/flowcontrol/backoff";
-import { deepMerge } from "../../../deep-merge";
-import type * as context from "../../../go/context";
-import type { DeepPartial } from "../../../utility-types";
-import type { ImageFsInfoResponse, PodSandboxConfig, PodSandboxStatus } from "../../cri";
+import type { V1Pod } from "../../../client/index.js";
+import type { Backoff } from "../../../client-go/util/flowcontrol/backoff.js";
+import { deepMerge } from "../../../deep-merge.js";
+import type * as context from "../../../go/context.js";
+import type { DeepPartial } from "../../../utility-types.js";
+import type { ImageFsInfoResponse, PodSandboxConfig, PodSandboxStatus } from "../../cri/index.js";
 import type {
 	CheckpointContainerRequest,
 	ContainerEventResponse,
 	MetricDescriptor,
 	PodSandboxMetrics,
-} from "../../cri/runtime/v1/api";
-import type { GCPolicy } from "./container-gc";
-import type { PodSyncResult } from "./sync-result";
+} from "../../cri/runtime/v1/api.js";
+import type { GCPolicy } from "./container-gc.js";
+import type { PodSyncResult } from "./sync-result.js";
 
 // Models kubernetes/pkg/kubelet/container/runtime.go Version.
 export interface Version {

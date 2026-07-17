@@ -2,8 +2,8 @@
  * SPDX-License-Identifier: Apache-2.0
  * Derived from Kubernetes, translated and modified for Webernetes.
  */
-import type { EventObject, EventRecorder } from "./event";
-import { Channel } from "../../../go/channel";
+import type { EventObject, EventRecorder } from "./event.js";
+import { Channel } from "../../../go/channel.js";
 
 // Models staging/src/k8s.io/client-go/tools/record/fake.go FakeRecorder.
 export class FakeRecorder implements EventRecorder {

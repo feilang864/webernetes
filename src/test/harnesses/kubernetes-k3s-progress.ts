@@ -1,6 +1,6 @@
 import { MultiBar, Presets, type SingleBar } from "cli-progress";
 
-import type { ImagePullStatus, K3sSetupProgress } from "./kubernetes-k3s-setup";
+import type { ImagePullStatus, K3sSetupProgress } from "./kubernetes-k3s-setup.js";
 
 export class ConsoleK3sSetupProgress implements K3sSetupProgress {
 	private readonly bars = new Map<string, SingleBar>();

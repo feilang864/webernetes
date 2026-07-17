@@ -2,10 +2,10 @@
  * SPDX-License-Identifier: Apache-2.0
  * Derived from Kubernetes, translated and modified for Webernetes.
  */
-import * as context from "../../../../go/context";
-import type { MaybePromise } from "../../../../promise";
-import { loopConditionUntilContext } from "./loop";
-import { realTimer, type Timer, VariableTimer } from "./timer";
+import * as context from "../../../../go/context.js";
+import type { MaybePromise } from "../../../../promise.js";
+import { loopConditionUntilContext } from "./loop.js";
+import { realTimer, type Timer, VariableTimer } from "./timer.js";
 
 export type ConditionWithContextFunc = (
 	ctx: context.Context,

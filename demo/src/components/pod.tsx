@@ -1,7 +1,7 @@
 import { Badge } from "@ngrok/mantle/badge";
 import { forwardRef, type ComponentPropsWithoutRef } from "react";
 import * as w8s from "webernetes";
-import { getName, hasReadiness, idFor, isPodTerminating } from "../helpers";
+import { getName, hasReadiness, idFor, isPodTerminating } from "../helpers.js";
 
 export function Pod({ highlighted = false, pod }: { highlighted?: boolean; pod: w8s.V1Pod }) {
 	return <PodContent highlighted={highlighted} pod={pod} />;

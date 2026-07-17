@@ -2,9 +2,9 @@ import { Badge } from "@ngrok/mantle/badge";
 import { Card } from "@ngrok/mantle/card";
 import * as w8s from "webernetes";
 
-import { getName, idFor, kubeletIdForNodeName, sortByName } from "../helpers";
-import { useInformer } from "../hooks";
-import { Pod } from "./pod";
+import { getName, idFor, kubeletIdForNodeName, sortByName } from "../helpers.js";
+import { useInformer } from "../hooks.js";
+import { Pod } from "./pod.js";
 
 export function Node({
 	cluster,

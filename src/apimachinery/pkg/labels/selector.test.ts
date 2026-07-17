@@ -4,7 +4,7 @@
  */
 // oxlint-disable jest/no-conditional-expect
 import { expect, it } from "vitest";
-import { browser } from "../../../test/describe";
+import { both } from "../../../test/describe.js";
 import {
 	doesNotExist,
 	doubleEquals,
@@ -15,7 +15,7 @@ import {
 	lessThan,
 	notEquals,
 	notIn,
-} from "../selection/operator";
+} from "../selection/operator.js";
 import {
 	binaryOperators,
 	closedParToken,
@@ -49,17 +49,17 @@ import {
 	type Token,
 	ValidatedSetSelector,
 	validatedSelectorFromSet,
-} from "./selector";
-import { Set } from "./labels";
+} from "./selector.js";
+import { Set } from "./labels.js";
 import {
 	ErrorList,
 	errorTypeInvalid,
 	errorTypeNotSupported,
 	FieldError,
-} from "../util/validation/field/errors";
-import type { Aggregate } from "../util/errors/errors";
+} from "../util/validation/field/errors.js";
+import type { Aggregate } from "../util/errors/errors.js";
 
-browser.describe("labels selector", () => {
+both.describe("labels selector", () => {
 	// Models staging/src/k8s.io/apimachinery/pkg/labels/selector_test.go TestSelectorParse.
 	it("TestSelectorParse", () => {
 		const testGoodStrings = [

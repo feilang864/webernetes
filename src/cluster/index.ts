@@ -1,4 +1,4 @@
-export { Cluster } from "./cluster";
+export { Cluster } from "./cluster.js";
 export type {
 	ClusterOptions,
 	ClusterInformerCallback,
@@ -6,6 +6,6 @@ export type {
 	ClusterInformerOptions,
 	ClusterInformerResource,
 	ClusterInformerResources,
-} from "./cluster";
-export type { ClusterApplyResource, ClusterApplyResult } from "./apply";
-export type { WithLockOptions } from "./etcd";
+} from "./cluster.js";
+export type { ClusterApplyResource, ClusterApplyResult } from "./apply.js";
+export type { WithLockOptions } from "./etcd.js";

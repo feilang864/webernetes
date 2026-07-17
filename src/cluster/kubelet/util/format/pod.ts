@@ -2,7 +2,7 @@
  * SPDX-License-Identifier: Apache-2.0
  * Derived from Kubernetes, translated and modified for Webernetes.
  */
-import type { V1Pod } from "../../../../client";
+import type { V1Pod } from "../../../../client/index.js";
 
 // Models kubernetes/pkg/kubelet/util/format/pod.go Pod.
 export function pod(pod: V1Pod | undefined): string {

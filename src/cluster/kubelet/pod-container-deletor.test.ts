@@ -3,12 +3,12 @@
  * Derived from Kubernetes, translated and modified for Webernetes.
  */
 import { expect, it } from "vitest";
-import { browser } from "../../test/describe";
-import { newPodStatus, newStatus, type Status } from "./container";
-import { getContainersToDeleteInPod } from "./pod-container-deletor";
+import { both } from "../../test/describe.js";
+import { newPodStatus, newStatus, type Status } from "./container/index.js";
+import { getContainersToDeleteInPod } from "./pod-container-deletor.js";
 
 // Models kubernetes/pkg/kubelet/pod_container_deletor_test.go TestGetContainersToDeleteInPodWithFilter.
-browser.describe("TestGetContainersToDeleteInPodWithFilter", () => {
+both.describe("TestGetContainersToDeleteInPodWithFilter", () => {
 	it("returns containers matching the filtered container name", () => {
 		const now = Date.now();
 		const pod = newPodStatus({
@@ -76,7 +76,7 @@ browser.describe("TestGetContainersToDeleteInPodWithFilter", () => {
 });
 
 // Models kubernetes/pkg/kubelet/pod_container_deletor_test.go TestGetContainersToDeleteInPod.
-browser.describe("TestGetContainersToDeleteInPod", () => {
+both.describe("TestGetContainersToDeleteInPod", () => {
 	it("returns containers across the pod", () => {
 		const now = Date.now();
 		const pod = newPodStatus({
@@ -149,7 +149,7 @@ browser.describe("TestGetContainersToDeleteInPod", () => {
 });
 
 // Models kubernetes/pkg/kubelet/pod_container_deletor_test.go TestGetContainersToDeleteInPodWithNoMatch.
-browser.describe("TestGetContainersToDeleteInPodWithNoMatch", () => {
+both.describe("TestGetContainersToDeleteInPodWithNoMatch", () => {
 	it("returns no candidates when the filter does not match", () => {
 		const now = Date.now();
 		const pod = newPodStatus({

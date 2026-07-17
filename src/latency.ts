@@ -1,6 +1,6 @@
-import * as context from "./go/context";
-import type { PreNetworkRequestEvent, PreNetworkResponseEvent } from "./cluster/cni/network";
-import type { V1Container } from "./client";
+import * as context from "./go/context.js";
+import type { PreNetworkRequestEvent, PreNetworkResponseEvent } from "./cluster/cni/network.js";
+import type { V1Container } from "./client/index.js";
 
 const key = Symbol("latencyProvider");
 const noopValue = () => 0;

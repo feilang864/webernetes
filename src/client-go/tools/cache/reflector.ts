@@ -2,25 +2,25 @@
  * SPDX-License-Identifier: Apache-2.0
  * Derived from Kubernetes, translated and modified for Webernetes.
  */
-import type { ListOptions } from "../../../apimachinery/pkg/apis/meta/v1/types";
+import type { ListOptions } from "../../../apimachinery/pkg/apis/meta/v1/types.js";
 import {
 	fromAPIVersionAndKind,
 	GroupVersionKind,
-} from "../../../apimachinery/pkg/runtime/schema/group_version";
-import { Backoff } from "../../../apimachinery/pkg/util/wait/backoff";
-import type { DelayFunc } from "../../../apimachinery/pkg/util/wait/delay";
-import type { Interface } from "../../../apimachinery/pkg/watch/watch";
-import { getClock } from "../../../clock-context";
-import type { KubernetesObject } from "../../../client/types";
-import { Channel, type ReadOnlyChannel, select } from "../../../go/channel";
-import * as context from "../../../go/context";
-import * as time from "../../../go/time";
-import type { MaybePromise } from "../../../promise";
+} from "../../../apimachinery/pkg/runtime/schema/group_version.js";
+import { Backoff } from "../../../apimachinery/pkg/util/wait/backoff.js";
+import type { DelayFunc } from "../../../apimachinery/pkg/util/wait/delay.js";
+import type { Interface } from "../../../apimachinery/pkg/watch/watch.js";
+import { getClock } from "../../../clock-context.js";
+import type { KubernetesObject } from "../../../client/types.js";
+import { Channel, type ReadOnlyChannel, select } from "../../../go/channel.js";
+import * as context from "../../../go/context.js";
+import * as time from "../../../go/time.js";
+import type { MaybePromise } from "../../../promise.js";
 import {
 	type ListerWatcher,
 	type ListerWatcherWithContext,
 	toListerWatcherWithContext,
-} from "./listwatch";
+} from "./listwatch.js";
 
 const defaultExpectedTypeName = "<unspecified>";
 const defaultBackoffInitMs = 800;

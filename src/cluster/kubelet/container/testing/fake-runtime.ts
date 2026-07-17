@@ -2,20 +2,20 @@
  * SPDX-License-Identifier: Apache-2.0
  * Derived from Kubernetes, translated and modified for Webernetes.
  */
-import type { V1Container, V1Pod, V1PodStatus } from "../../../../client";
-import type { Backoff } from "../../../../client-go/util/flowcontrol/backoff";
-import { deepEqual } from "../../../../deep-equal";
-import { deepMerge } from "../../../../deep-merge";
-import { Channel, select } from "../../../../go/channel";
-import type * as context from "../../../../go/context";
-import type { DeepPartial } from "../../../../utility-types";
-import type { ImageFsInfoResponse, PodSandboxConfig } from "../../../cri";
+import type { V1Container, V1Pod, V1PodStatus } from "../../../../client/index.js";
+import type { Backoff } from "../../../../client-go/util/flowcontrol/backoff.js";
+import { deepEqual } from "../../../../deep-equal.js";
+import { deepMerge } from "../../../../deep-merge.js";
+import { Channel, select } from "../../../../go/channel.js";
+import type * as context from "../../../../go/context.js";
+import type { DeepPartial } from "../../../../utility-types.js";
+import type { ImageFsInfoResponse, PodSandboxConfig } from "../../../cri/index.js";
 import type {
 	CheckpointContainerRequest,
 	ContainerEventResponse,
 	MetricDescriptor,
 	PodSandboxMetrics,
-} from "../../../cri/runtime/v1/api";
+} from "../../../cri/runtime/v1/api.js";
 import {
 	ContainerID,
 	errPodNotFound,
@@ -33,7 +33,7 @@ import {
 	type Status,
 	type SwapBehavior,
 	type Version,
-} from "../index";
+} from "../index.js";
 
 // Models kubernetes/pkg/kubelet/container/testing/fake_runtime.go FakePod.
 export interface FakePod {

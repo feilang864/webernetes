@@ -2,16 +2,16 @@ import {
 	ReplicaSetController as Controller,
 	type ReplicaSetControllerFeatures,
 	defaultReplicaSetControllerFeatures,
-} from "../../controller/replicaset/replica-set";
-import type { ProcessContext } from "../cri";
-import { BaseImage } from "./base";
+} from "../../controller/replicaset/replica-set.js";
+import type { ProcessContext } from "../cri/index.js";
+import { BaseImage } from "./base.js";
 
 export {
 	defaultReplicaSetControllerFeatures,
 	getPodKeys,
 	getPodsToDelete,
 	slowStartBatch,
-} from "../../controller/replicaset/replica-set";
+} from "../../controller/replicaset/replica-set.js";
 export {
 	calculateStatus,
 	filterOutCondition,
@@ -19,8 +19,8 @@ export {
 	newReplicaSetCondition,
 	removeCondition,
 	setCondition,
-} from "../../controller/replicaset/replica-set-utils";
-export type { ReplicaSetControllerFeatures } from "../../controller/replicaset/replica-set";
+} from "../../controller/replicaset/replica-set-utils.js";
+export type { ReplicaSetControllerFeatures } from "../../controller/replicaset/replica-set.js";
 
 export class ReplicaSetController extends BaseImage {
 	static readonly imageName = "webernetes/replicaset-controller";

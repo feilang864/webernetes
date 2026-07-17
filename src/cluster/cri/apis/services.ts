@@ -23,8 +23,8 @@ import type {
 	Image,
 	ImageSpec,
 	PodSandboxConfig,
-} from "../runtime/v1/api";
-import type * as context from "../../../go/context";
+} from "../runtime/v1/api.js";
+import type * as context from "../../../go/context.js";
 
 export type ServiceError = Error | undefined;
 

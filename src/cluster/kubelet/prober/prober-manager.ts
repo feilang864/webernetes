@@ -2,17 +2,17 @@
  * SPDX-License-Identifier: Apache-2.0
  * Derived from Kubernetes, translated and modified for Webernetes.
  */
-import type { V1Container, V1ContainerStatus, V1Pod, V1PodStatus } from "../../../client";
-import type { EventRecorder } from "../../../client-go/tools/record/event";
-import { getClock } from "../../../clock-context";
-import { KeyFnMap } from "../../../collections";
-import type { Context } from "../../../go/context";
-import type { ClusterNetwork } from "../../cni";
-import { parseContainerID, type CommandRunner } from "../container";
-import type { StatusManager } from "../status";
-import { Prober } from "./prober";
-import { ProbeWorker } from "./worker";
-import { ResultsManager, type ProbeType } from "./results";
+import type { V1Container, V1ContainerStatus, V1Pod, V1PodStatus } from "../../../client/index.js";
+import type { EventRecorder } from "../../../client-go/tools/record/event.js";
+import { getClock } from "../../../clock-context.js";
+import { KeyFnMap } from "../../../collections.js";
+import type { Context } from "../../../go/context.js";
+import type { ClusterNetwork } from "../../cni/index.js";
+import { parseContainerID, type CommandRunner } from "../container/index.js";
+import type { StatusManager } from "../status/index.js";
+import { Prober } from "./prober.js";
+import { ProbeWorker } from "./worker.js";
+import { ResultsManager, type ProbeType } from "./results/index.js";
 
 // Models kubernetes/pkg/kubelet/prober/prober_manager.go Manager.
 export interface ProbeManager {

@@ -2,13 +2,13 @@
  * SPDX-License-Identifier: Apache-2.0
  * Derived from Kubernetes, translated and modified for Webernetes.
  */
-import type { Clock } from "../../../clock";
-import { getClock } from "../../../clock-context";
-import { Channel, select, type ReadOnlyChannel } from "../../../go/channel";
-import type * as context from "../../../go/context";
-import * as time from "../../../go/time";
-import { Mutex } from "../../../go/sync/mutex";
-import { findContainerByID, findSandboxByID } from "../container";
+import type { Clock } from "../../../clock.js";
+import { getClock } from "../../../clock-context.js";
+import { Channel, select, type ReadOnlyChannel } from "../../../go/channel.js";
+import type * as context from "../../../go/context.js";
+import * as time from "../../../go/time.js";
+import { Mutex } from "../../../go/sync/mutex.js";
+import { findContainerByID, findSandboxByID } from "../container/index.js";
 import type {
 	Cache,
 	Container as RuntimeContainer,
@@ -17,7 +17,7 @@ import type {
 	PodStatus as PodRuntimeStatus,
 	Runtime,
 	State as ContainerState,
-} from "../container";
+} from "../container/index.js";
 import {
 	ContainerChanged,
 	ContainerDied,
@@ -27,7 +27,7 @@ import {
 	type PodLifecycleEventGeneratorHandler,
 	type PodLifecycleEvent,
 	type RelistDuration,
-} from "./pleg";
+} from "./pleg.js";
 
 // Models kubernetes/pkg/kubelet/pleg/generic.go plegContainerState.
 type PlegContainerState = "running" | "exited" | "unknown" | "non-existent";

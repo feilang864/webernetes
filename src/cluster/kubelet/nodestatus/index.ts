@@ -1,1 +1,1 @@
-export * from "./setters";
+export * from "./setters.js";

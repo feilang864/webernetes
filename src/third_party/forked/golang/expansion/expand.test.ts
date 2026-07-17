@@ -5,11 +5,11 @@
 // oxlint-disable jest/expect-expect
 import { expect, it } from "vitest";
 
-import { browser } from "../../../../test/describe";
-import { expand, mappingFuncFor } from "./expand";
+import { both } from "../../../../test/describe.js";
+import { expand, mappingFuncFor } from "./expand.js";
 
 // Models kubernetes/third_party/forked/golang/expansion/expand_test.go TestMapReference.
-browser.describe("TestMapReference", () => {
+both.describe("TestMapReference", () => {
 	it("maps references recursively as envs are expanded", () => {
 		const envs = [
 			{
@@ -53,7 +53,7 @@ browser.describe("TestMapReference", () => {
 });
 
 // Models kubernetes/third_party/forked/golang/expansion/expand_test.go TestMapping.
-browser.describe("TestMapping", () => {
+both.describe("TestMapping", () => {
 	it("expands variables from one context", () => {
 		const context = new Map<string, string>([
 			["VAR_A", "A"],
@@ -69,7 +69,7 @@ browser.describe("TestMapping", () => {
 });
 
 // Models kubernetes/third_party/forked/golang/expansion/expand_test.go TestMappingDual.
-browser.describe("TestMappingDual", () => {
+both.describe("TestMappingDual", () => {
 	it("expands variables from multiple contexts", () => {
 		const context = new Map<string, string>([
 			["VAR_A", "A"],

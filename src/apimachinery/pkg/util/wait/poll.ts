@@ -2,17 +2,17 @@
  * SPDX-License-Identifier: Apache-2.0
  * Derived from Kubernetes, translated and modified for Webernetes.
  */
-import { Channel, select } from "../../../../go/channel";
-import * as context from "../../../../go/context";
-import * as time from "../../../../go/time";
-import type { ConditionWithContextFunc } from "./delay";
-import { errWaitTimeout } from "./error";
+import { Channel, select } from "../../../../go/channel.js";
+import * as context from "../../../../go/context.js";
+import * as time from "../../../../go/time.js";
+import type { ConditionWithContextFunc } from "./delay.js";
+import { errWaitTimeout } from "./error.js";
 import {
 	type ConditionFunc,
 	type WaitWithContextFunc,
 	runConditionWithCrashProtectionWithContext,
 	waitForWithContext,
-} from "./wait";
+} from "./wait.js";
 
 // Models staging/src/k8s.io/apimachinery/pkg/util/wait/poll.go Poll.
 export async function poll(

@@ -1,2 +1,2 @@
-export * from "./apiserver";
-export * from "./config";
+export * from "./apiserver.js";
+export * from "./config.js";

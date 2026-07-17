@@ -2,8 +2,8 @@
  * SPDX-License-Identifier: Apache-2.0
  * Derived from Kubernetes, translated and modified for Webernetes.
  */
-import type { V1Container, V1ObjectReference, V1Pod } from "../../../client";
-import { getPartialReference } from "../../../client-go/tools/reference/ref";
+import type { V1Container, V1ObjectReference, V1Pod } from "../../../client/index.js";
+import { getPartialReference } from "../../../client-go/tools/reference/ref.js";
 
 // Models kubernetes/pkg/kubelet/container/ref.go ImplicitContainerPrefix.
 export const implicitContainerPrefix = "implicitly required container ";

@@ -2,8 +2,8 @@
  * SPDX-License-Identifier: Apache-2.0
  * Derived from Kubernetes, translated and modified for Webernetes.
  */
-import type * as context from "../../../go/context";
-import type { Runtime } from "./runtime";
+import type * as context from "../../../go/context.js";
+import type { Runtime } from "./runtime.js";
 
 // Models kubernetes/pkg/kubelet/container/container_gc.go GCPolicy.
 export interface GCPolicy {

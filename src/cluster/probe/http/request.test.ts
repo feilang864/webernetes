@@ -4,11 +4,11 @@
  */
 import { expect, it } from "vitest";
 
-import { browser } from "../../../test/describe";
-import { formatURL, v1HeaderToHTTPHeader } from "./request";
+import { both } from "../../../test/describe.js";
+import { formatURL, v1HeaderToHTTPHeader } from "./request.js";
 
 // Models kubernetes/pkg/probe/http/request_test.go TestFormatURL.
-browser.describe("TestFormatURL", () => {
+both.describe("TestFormatURL", () => {
 	it("formats probe URLs", () => {
 		const tests = [
 			{ scheme: "http", host: "localhost", port: 93, path: "", result: "http://localhost:93" },
@@ -50,7 +50,7 @@ browser.describe("TestFormatURL", () => {
 });
 
 // Models kubernetes/pkg/probe/http/request_test.go Test_v1HeaderToHTTPHeader.
-browser.describe("Test_v1HeaderToHTTPHeader", () => {
+both.describe("Test_v1HeaderToHTTPHeader", () => {
 	it("converts v1 headers to HTTP headers", () => {
 		const tests = [
 			{
@@ -91,7 +91,7 @@ browser.describe("Test_v1HeaderToHTTPHeader", () => {
 });
 
 // Models kubernetes/pkg/probe/http/request_test.go TestHeaderConversion.
-browser.describe("TestHeaderConversion", () => {
+both.describe("TestHeaderConversion", () => {
 	it("canonicalizes and combines HTTP headers", () => {
 		const testCases = [
 			{

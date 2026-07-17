@@ -1,13 +1,13 @@
 import { useRef, useState } from "react";
 import * as w8s from "webernetes";
 
-import { Cluster } from "./components/cluster";
-import { Header } from "./components/header";
-import { RequestOverlay } from "./components/request-overlay";
-import { ResourcesTabs } from "./components/resources-tabs";
-import { distance, getHeader, healthCheckHeader, idFor, kubeletIdForNodeName } from "./helpers";
-import { useCluster, usePauseClusterWhenPageInactive } from "./hooks";
-import { setup } from "./setup";
+import { Cluster } from "./components/cluster.js";
+import { Header } from "./components/header.js";
+import { RequestOverlay } from "./components/request-overlay.js";
+import { ResourcesTabs } from "./components/resources-tabs.js";
+import { distance, getHeader, healthCheckHeader, idFor, kubeletIdForNodeName } from "./helpers.js";
+import { useCluster, usePauseClusterWhenPageInactive } from "./hooks.js";
+import { setup } from "./setup.js";
 
 type PreNetworkEvent = w8s.PreNetworkRequestEvent | w8s.PreNetworkResponseEvent;
 const containerTerminationLatencyMs = 2000;

@@ -1,10 +1,10 @@
-import { EndpointSliceStore } from "../../../../cluster/storage";
-import type { Etcd } from "../../../../cluster/etcd";
-import type * as context from "../../../../go/context";
-import { NotFound } from "../../../errors";
-import { filterByFields, parseFieldSelector } from "../../../fields";
-import { filterByLabels, parseLabelSelector } from "../../../labels";
-import { V1EndpointSlice, V1EndpointSliceList, V1Status } from "../../models";
+import { EndpointSliceStore } from "../../../../cluster/storage/index.js";
+import type { Etcd } from "../../../../cluster/etcd.js";
+import type * as context from "../../../../go/context.js";
+import { NotFound } from "../../../errors.js";
+import { filterByFields, parseFieldSelector } from "../../../fields.js";
+import { filterByLabels, parseLabelSelector } from "../../../labels.js";
+import { V1EndpointSlice, V1EndpointSliceList, V1Status } from "../../models/index.js";
 import type {
 	DiscoveryV1ApiCreateNamespacedEndpointSliceRequest,
 	DiscoveryV1ApiDeleteNamespacedEndpointSliceRequest,
@@ -13,10 +13,10 @@ import type {
 	DiscoveryV1ApiListNamespacedEndpointSliceRequest,
 	DiscoveryV1ApiReadNamespacedEndpointSliceRequest,
 	DiscoveryV1ApiReplaceNamespacedEndpointSliceRequest,
-} from "../types/DiscoveryV1Api";
-import { rethrowApiErrors } from "./errors";
-import { listResourceVersionOptions } from "./resource-version";
-import { deleteResource } from "./delete";
+} from "../types/DiscoveryV1Api.js";
+import { rethrowApiErrors } from "./errors.js";
+import { listResourceVersionOptions } from "./resource-version.js";
+import { deleteResource } from "./delete.js";
 
 export interface DiscoveryV1ApiOptions {
 	ctx: context.Context;

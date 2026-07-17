@@ -4,21 +4,21 @@
  */
 import { expect, it } from "vitest";
 
-import * as context from "../../../go/context";
-import { browser } from "../../../test/describe";
-import type { ListOptions } from "../../../apimachinery/pkg/apis/meta/v1/types";
-import type { Selector, TransformFunc } from "../../../apimachinery/pkg/fields/selector";
-import type { Requirements } from "../../../apimachinery/pkg/fields/requirements";
-import type { Interface } from "../../../apimachinery/pkg/watch/watch";
-import type { KubeList, KubernetesObject } from "../../../client/types";
-import { doesClientNotSupportWatchListSemantics } from "../../util/watchlist/watch_list";
+import * as context from "../../../go/context.js";
+import { both } from "../../../test/describe.js";
+import type { ListOptions } from "../../../apimachinery/pkg/apis/meta/v1/types.js";
+import type { Selector, TransformFunc } from "../../../apimachinery/pkg/fields/selector.js";
+import type { Requirements } from "../../../apimachinery/pkg/fields/requirements.js";
+import type { Interface } from "../../../apimachinery/pkg/watch/watch.js";
+import type { KubeList, KubernetesObject } from "../../../client/types.js";
+import { doesClientNotSupportWatchListSemantics } from "../../util/watchlist/watch_list.js";
 import {
 	ListWatch,
 	type ListWatchClient,
 	newFilteredListWatchFromClient,
 	newListWatchFromClient,
 	toListWatcherWithWatchListSemantics,
-} from "./listwatch";
+} from "./listwatch.js";
 
 interface TestObject extends KubernetesObject {
 	metadata: {
@@ -35,7 +35,7 @@ class FakeWatchListClient {
 	}
 }
 
-browser.describe("ListWatch", () => {
+both.describe("ListWatch", () => {
 	// Models staging/src/k8s.io/client-go/tools/cache/listwatch_test.go TestToListWatcherWithWatchListSemantics.
 	it("wraps watch-list semantics support from the client", () => {
 		const scenarios: Array<{

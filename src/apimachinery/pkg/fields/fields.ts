@@ -2,7 +2,7 @@
  * SPDX-License-Identifier: Apache-2.0
  * Derived from Kubernetes, translated and modified for Webernetes.
  */
-import { selectorFromSet, type Selector } from "./selector";
+import { selectorFromSet, type Selector } from "./selector.js";
 
 // Models staging/src/k8s.io/apimachinery/pkg/fields/fields.go Fields.
 export interface Fields {

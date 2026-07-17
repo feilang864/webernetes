@@ -1,10 +1,10 @@
-import * as k8s from "../../client";
-import { isNotFoundError } from "../../client/errors";
-import { deepEqual } from "../../deep-equal";
-import { retryConflicts } from "../../retry";
-import { isPodReadyConditionTrue } from "../api/v1/pod/util";
-import type { ProcessContext } from "../cri";
-import { BaseImage } from "./base";
+import * as k8s from "../../client/index.js";
+import { isNotFoundError } from "../../client/errors.js";
+import { deepEqual } from "../../deep-equal.js";
+import { retryConflicts } from "../../retry.js";
+import { isPodReadyConditionTrue } from "../api/v1/pod/util.js";
+import type { ProcessContext } from "../cri/index.js";
+import { BaseImage } from "./base.js";
 
 const controllerName = "endpointslice-controller.k8s.io";
 const labelServiceName = "kubernetes.io/service-name";

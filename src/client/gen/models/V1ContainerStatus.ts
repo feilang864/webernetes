@@ -2,13 +2,13 @@
  * SPDX-License-Identifier: Apache-2.0
  * Derived from Kubernetes, translated and modified for Webernetes.
  */
-import { deepMerge } from "../../../deep-merge";
-import type { DeepPartial } from "../../../utility-types";
-import { V1ContainerState } from "./V1ContainerState";
-import { V1ContainerUser } from "./V1ContainerUser";
-import { V1ResourceRequirements } from "./V1ResourceRequirements";
-import { V1ResourceStatus } from "./V1ResourceStatus";
-import { V1VolumeMountStatus } from "./V1VolumeMountStatus";
+import { deepMerge } from "../../../deep-merge.js";
+import type { DeepPartial } from "../../../utility-types.js";
+import { V1ContainerState } from "./V1ContainerState.js";
+import { V1ContainerUser } from "./V1ContainerUser.js";
+import { V1ResourceRequirements } from "./V1ResourceRequirements.js";
+import { V1ResourceStatus } from "./V1ResourceStatus.js";
+import { V1VolumeMountStatus } from "./V1VolumeMountStatus.js";
 export interface V1ContainerStatus {
 	allocatedResources?: {
 		[key: string]: string;

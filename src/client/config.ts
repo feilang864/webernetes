@@ -1,6 +1,6 @@
-import type { Etcd } from "../cluster/etcd";
-import type { NodePortRange } from "../cluster/storage";
-import type * as context from "../go/context";
+import type { Etcd } from "../cluster/etcd.js";
+import type { NodePortRange } from "../cluster/storage/index.js";
+import type * as context from "../go/context.js";
 
 // oxlint-disable typescript/no-explicit-any
 export interface ApiType {}

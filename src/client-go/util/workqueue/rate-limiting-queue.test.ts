@@ -4,14 +4,14 @@
  */
 import { expect, it } from "vitest";
 
-import { Clock } from "../../../clock";
-import { browser } from "../../../test/describe";
-import { newTypedItemExponentialFailureRateLimiter } from "./default-rate-limiters";
-import { newTypedRateLimitingQueueWithConfig } from "./rate-limiting-queue";
-import { new as newQueue } from "./queue";
-import { Delaying, type WaitFor } from "./delaying-queue";
+import { Clock } from "../../../clock.js";
+import { both } from "../../../test/describe.js";
+import { newTypedItemExponentialFailureRateLimiter } from "./default-rate-limiters.js";
+import { newTypedRateLimitingQueueWithConfig } from "./rate-limiting-queue.js";
+import { new as newQueue } from "./queue.js";
+import { Delaying, type WaitFor } from "./delaying-queue.js";
 
-browser.describe("rate limiting workqueue", () => {
+both.describe("rate limiting workqueue", () => {
 	// Models staging/src/k8s.io/client-go/util/workqueue/rate_limiting_queue_test.go TestRateLimitingQueue.
 	it("RateLimitingQueue", async () => {
 		const limiter = newTypedItemExponentialFailureRateLimiter<string>(1, 1000);

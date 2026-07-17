@@ -2,8 +2,8 @@
  * SPDX-License-Identifier: Apache-2.0
  * Derived from Kubernetes, translated and modified for Webernetes.
  */
-import { isDNS1123Subdomain } from "./dns";
-import { emptyError, maxLenError, regexError } from "./errors";
+import { isDNS1123Subdomain } from "./dns.js";
+import { emptyError, maxLenError, regexError } from "./errors.js";
 
 // Models staging/src/k8s.io/apimachinery/pkg/api/validate/content/kube.go labelKeyCharFmt.
 const labelKeyCharFmt = "[A-Za-z0-9]";

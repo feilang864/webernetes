@@ -2,11 +2,11 @@
  * SPDX-License-Identifier: Apache-2.0
  * Derived from Kubernetes, translated and modified for Webernetes.
  */
-import * as k8s from "../../client";
+import * as k8s from "../../client/index.js";
 import {
 	finalizerDeleteDependents,
 	finalizerOrphanDependents,
-} from "../../client/gen/apis/impls/delete";
+} from "../../client/gen/apis/impls/delete.js";
 
 export type ModeledObject =
 	| k8s.V1Deployment

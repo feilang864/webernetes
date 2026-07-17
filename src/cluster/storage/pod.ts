@@ -1,8 +1,8 @@
-import { V1Binding, V1Pod } from "../../client";
-import { Invalid, NotFound } from "../../client/errors";
-import type * as context from "../../go/context";
-import { Etcd } from "../etcd";
-import { Store } from "./store";
+import { V1Binding, V1Pod } from "../../client/index.js";
+import { Invalid, NotFound } from "../../client/errors.js";
+import type * as context from "../../go/context.js";
+import { Etcd } from "../etcd.js";
+import { Store } from "./store.js";
 
 export class PodStore extends Store<V1Pod> {
 	constructor(ctx: context.Context, etcd: Etcd) {

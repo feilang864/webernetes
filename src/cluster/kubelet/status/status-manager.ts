@@ -9,32 +9,32 @@ import type {
 	V1PodCondition,
 	V1PodSpec,
 	V1PodStatus,
-} from "../../../client";
-import { isNotFoundError } from "../../../client/errors";
-import { getClock } from "../../../clock-context";
-import type { KubeClient } from "../../cluster";
-import { deepEqual, dropUndefinedFields } from "../../../deep-equal";
-import { Channel, select } from "../../../go/channel";
-import type { Context } from "../../../go/context";
-import { RWMutex } from "../../../go/sync/mutex";
-import * as time from "../../../go/time";
-import * as podutil from "../../api/v1/pod/util";
-import * as statusutil from "../../util/pod/pod";
+} from "../../../client/index.js";
+import { isNotFoundError } from "../../../client/errors.js";
+import { getClock } from "../../../clock-context.js";
+import type { KubeClient } from "../../cluster.js";
+import { deepEqual, dropUndefinedFields } from "../../../deep-equal.js";
+import { Channel, select } from "../../../go/channel.js";
+import type { Context } from "../../../go/context.js";
+import { RWMutex } from "../../../go/sync/mutex.js";
+import * as time from "../../../go/time.js";
+import * as podutil from "../../api/v1/pod/util.js";
+import * as statusutil from "../../util/pod/pod.js";
 import {
 	containerReasonStatusUnknown,
 	maxPodTerminationMessageLogLength,
 	type ContainerID,
 	parseContainerID,
-} from "../container";
-import type { PodManager } from "../pod";
-import * as kubetypes from "../types";
-import { getContainerByIndex } from "../util";
+} from "../container/index.js";
+import type { PodManager } from "../pod/index.js";
+import * as kubetypes from "../types/index.js";
+import { getContainerByIndex } from "../util/index.js";
 import {
 	generateContainersReadyCondition,
 	generateContainersReadyConditionForTerminalPhase,
 	generatePodReadyCondition,
 	generatePodReadyConditionForTerminalPhase,
-} from "./generate";
+} from "./generate.js";
 
 export interface StatusManagerOptions {
 	ctx: Context;

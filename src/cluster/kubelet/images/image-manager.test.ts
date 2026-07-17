@@ -5,19 +5,19 @@
 // oxlint-disable jest/expect-expect
 // oxlint-disable jest/no-standalone-expect
 import { expect, it } from "vitest";
-import type { V1Container, V1ObjectReference, V1Pod } from "../../../client";
-import { newFakeRecorder } from "../../../client-go/tools/record/fake";
-import { newBackOff } from "../../../client-go/util/flowcontrol/backoff";
-import { Clock } from "../../../clock";
-import { withClock } from "../../../clock-context";
-import { background } from "../../../go/context";
-import { browser } from "../../../test/describe";
-import { FakeRuntime } from "../container/testing";
-import { KubeletImageManager, applyDefaultImageTag, evalCRIPullErr } from "./image-manager";
-import type { ImagePullManager } from "./pullmanager";
-import { ImagePullError } from "./types";
-import type * as context from "../../../go/context";
-import type { ImagePodPullingTimeRecorder } from "./image-manager";
+import type { V1Container, V1ObjectReference, V1Pod } from "../../../client/index.js";
+import { newFakeRecorder } from "../../../client-go/tools/record/fake.js";
+import { newBackOff } from "../../../client-go/util/flowcontrol/backoff.js";
+import { Clock } from "../../../clock.js";
+import { withClock } from "../../../clock-context.js";
+import { background } from "../../../go/context.js";
+import { both } from "../../../test/describe.js";
+import { FakeRuntime } from "../container/testing/index.js";
+import { KubeletImageManager, applyDefaultImageTag, evalCRIPullErr } from "./image-manager.js";
+import type { ImagePullManager } from "./pullmanager/index.js";
+import { ImagePullError } from "./types.js";
+import type * as context from "../../../go/context.js";
+import type { ImagePodPullingTimeRecorder } from "./image-manager.js";
 
 // Models kubernetes/pkg/kubelet/images/image_manager_test.go mockPodPullingTimeRecorder.
 class mockPodPullingTimeRecorder implements ImagePodPullingTimeRecorder {
@@ -606,7 +606,7 @@ function noFGPullerTestCases(): PullerTestCase[] {
 }
 
 // Models kubernetes/pkg/kubelet/images/image_manager_test.go TestParallelPuller.
-browser.describe("TestParallelPuller", () => {
+both.describe("TestParallelPuller", () => {
 	const cases = pullerTestCases();
 
 	const useSerializedEnv = false;
@@ -665,7 +665,7 @@ browser.describe("TestParallelPuller", () => {
 });
 
 // Models kubernetes/pkg/kubelet/images/image_manager_test.go TestApplyDefaultImageTag.
-browser.describe("TestApplyDefaultImageTag", () => {
+both.describe("TestApplyDefaultImageTag", () => {
 	const testCases = [
 		{ testName: "root", input: "root", output: "root:latest" },
 		{ testName: "root:tag", input: "root:tag", output: "root:tag" },
@@ -692,7 +692,7 @@ browser.describe("TestApplyDefaultImageTag", () => {
 });
 
 // Models kubernetes/pkg/kubelet/images/image_manager_test.go TestPullAndListImageWithPodAnnotations.
-browser.describe("TestPullAndListImageWithPodAnnotations", () => {
+both.describe("TestPullAndListImageWithPodAnnotations", () => {
 	it("test pull and list image with pod annotations", async () => {
 		const pod = {
 			metadata: {
@@ -779,7 +779,7 @@ browser.describe("TestPullAndListImageWithPodAnnotations", () => {
 });
 
 // Models kubernetes/pkg/kubelet/images/image_manager_test.go TestMaxParallelImagePullsLimit.
-browser.describe("TestMaxParallelImagePullsLimit", () => {
+both.describe("TestMaxParallelImagePullsLimit", () => {
 	it("limits concurrent pulls", async () => {
 		const pod = {
 			metadata: {
@@ -873,7 +873,7 @@ browser.describe("TestMaxParallelImagePullsLimit", () => {
 });
 
 // Models kubernetes/pkg/kubelet/images/image_manager_test.go TestParallelPodPullingTimeRecorderWithErr.
-browser.describe("TestParallelPodPullingTimeRecorderWithErr", () => {
+both.describe("TestParallelPodPullingTimeRecorderWithErr", () => {
 	it("finishes recorder state when a parallel pod pull errors after another pod succeeds", async () => {
 		const pod1 = {
 			metadata: {
@@ -995,7 +995,7 @@ browser.describe("TestParallelPodPullingTimeRecorderWithErr", () => {
 });
 
 // Models kubernetes/pkg/kubelet/images/image_manager_test.go TestEvalCRIPullErr.
-browser.describe("TestEvalCRIPullErr", () => {
+both.describe("TestEvalCRIPullErr", () => {
 	const testCases = [
 		{
 			name: "fallback error",
@@ -1051,7 +1051,7 @@ browser.describe("TestEvalCRIPullErr", () => {
 });
 
 // Models kubernetes/pkg/kubelet/images/image_manager_test.go TestImagePullPrecheck.
-browser.describe("TestImagePullPrecheck", () => {
+both.describe("TestImagePullPrecheck", () => {
 	const pod = {
 		metadata: {
 			name: "test_pod",

@@ -4,9 +4,9 @@
  */
 // oxlint-disable jest/expect-expect
 import { expect, it } from "vitest";
-import { Clock } from "../../../../clock";
-import { browser } from "../../../../test/describe";
-import { BasicWorkQueue } from "./work-queue";
+import { Clock } from "../../../../clock.js";
+import { both } from "../../../../test/describe.js";
+import { BasicWorkQueue } from "./work-queue.js";
 
 const minute = 60_000;
 const hour = 60 * minute;
@@ -31,7 +31,7 @@ function compareResults(expected: string[], actual: string[]): void {
 }
 
 // Models kubernetes/pkg/kubelet/util/queue/work_queue_test.go TestGetWork.
-browser.describe("TestGetWork", () => {
+both.describe("TestGetWork", () => {
 	it("returns due work and removes it from the queue", () => {
 		const [q, clock] = newTestBasicWorkQueue();
 		q.enqueue("foo1", -1 * minute);

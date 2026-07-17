@@ -2,9 +2,9 @@ import { afterAll, beforeAll } from "vitest";
 import { Etcd3 } from "etcd3";
 import { GenericContainer, type StartedTestContainer, Wait } from "testcontainers";
 
-import { node } from "../describe";
-import type { SuiteOptions } from "../describe";
-import type { EtcdSuiteFactory, EtcdTestContext } from "./etcd";
+import { node } from "../describe.js";
+import type { SuiteOptions } from "../describe.js";
+import type { EtcdSuiteFactory, EtcdTestContext } from "./etcd.js";
 
 let containerPromise: Promise<StartedTestContainer> | undefined;
 
@@ -39,10 +39,10 @@ export function defineSuite(
 	};
 
 	if (typeof maybeOptions === "function") {
-		node.describe(name, suite);
+		node.describe(`${name} (real etcd)`, suite);
 		return;
 	}
-	node.describe(name, maybeOptions, suite);
+	node.describe(`${name} (real etcd)`, maybeOptions, suite);
 }
 
 async function getEtcdContainer(): Promise<StartedTestContainer> {

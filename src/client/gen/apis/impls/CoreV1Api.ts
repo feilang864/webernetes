@@ -1,21 +1,21 @@
-import { getClock } from "../../../../clock-context";
-import { retryConflicts } from "../../../../retry";
-import { strategicMergePatch } from "../../../../apimachinery/pkg/util/strategicpatch/patch";
+import { getClock } from "../../../../clock-context.js";
+import { retryConflicts } from "../../../../retry.js";
+import { strategicMergePatch } from "../../../../apimachinery/pkg/util/strategicpatch/patch.js";
 import {
 	EventStore,
 	NamespaceStore,
 	NodeStore,
 	PodStore,
 	ServiceStore,
-} from "../../../../cluster/storage";
-import type { NodePortRange } from "../../../../cluster/storage";
-import type { Etcd } from "../../../../cluster/etcd";
-import type * as context from "../../../../go/context";
-import { Store } from "../../../../cluster/storage/store";
-import { BadRequest, Invalid, NotFound, UnsupportedMediaType } from "../../../errors";
-import { filterByFields, parseFieldSelector } from "../../../fields";
-import { filterByLabels, parseLabelSelector } from "../../../labels";
-import { PatchStrategy } from "../../../patch";
+} from "../../../../cluster/storage/index.js";
+import type { NodePortRange } from "../../../../cluster/storage/index.js";
+import type { Etcd } from "../../../../cluster/etcd.js";
+import type * as context from "../../../../go/context.js";
+import { Store } from "../../../../cluster/storage/store.js";
+import { BadRequest, Invalid, NotFound, UnsupportedMediaType } from "../../../errors.js";
+import { filterByFields, parseFieldSelector } from "../../../fields.js";
+import { filterByLabels, parseLabelSelector } from "../../../labels.js";
+import { PatchStrategy } from "../../../patch.js";
 import {
 	CoreV1EventList,
 	V1Binding,
@@ -25,11 +25,11 @@ import {
 	V1PodList,
 	V1ServiceList,
 	V1Status,
-} from "../../models";
-import type { CoreV1Event } from "../../models/CoreV1Event";
-import type { V1Node } from "../../models/V1Node";
-import type { V1Pod } from "../../models/V1Pod";
-import type { V1Service } from "../../models/V1Service";
+} from "../../models/index.js";
+import type { CoreV1Event } from "../../models/CoreV1Event.js";
+import type { V1Node } from "../../models/V1Node.js";
+import type { V1Pod } from "../../models/V1Pod.js";
+import type { V1Service } from "../../models/V1Service.js";
 import type {
 	CoreV1ApiCreateNamespacedEventRequest,
 	CoreV1ApiCreateNamespacedPodBindingRequest,
@@ -67,10 +67,10 @@ import type {
 	CoreV1ApiReplaceNamespacedServiceRequest,
 	CoreV1ApiReplaceNamespaceRequest,
 	CoreV1ApiReplaceNodeRequest,
-} from "../types/CoreV1Api";
-import { rethrowApiErrors } from "./errors";
-import { listResourceVersionOptions, validateDeletePreconditions } from "./resource-version";
-import { deleteResource } from "./delete";
+} from "../types/CoreV1Api.js";
+import { rethrowApiErrors } from "./errors.js";
+import { listResourceVersionOptions, validateDeletePreconditions } from "./resource-version.js";
+import { deleteResource } from "./delete.js";
 
 export interface CoreV1ApiOptions {
 	ctx: context.Context;

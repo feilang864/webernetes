@@ -1,18 +1,18 @@
-import { Cluster } from "./cluster";
-import type { ClusterNetwork } from "./cni";
+import { Cluster } from "./cluster.js";
+import type { ClusterNetwork } from "./cni/index.js";
 import {
 	InProcessRuntimeService,
 	type DnsConfig,
 	type ImageManagerService,
 	type RuntimeDiagnostics,
 	type RuntimeService,
-} from "./cri";
-import { EventRecorderImpl } from "./events";
-import { Kubelet, newMainKubelet, NoopPodStartupSLIObserver } from "./kubelet";
-import type { Runtime as KubeletRuntime } from "./kubelet/container";
-import type { KubeletConfiguration } from "./kubelet/apis/config";
-import * as context from "../go/context";
-import type { V1Node } from "../client";
+} from "./cri/index.js";
+import { EventRecorderImpl } from "./events.js";
+import { Kubelet, newMainKubelet, NoopPodStartupSLIObserver } from "./kubelet/index.js";
+import type { Runtime as KubeletRuntime } from "./kubelet/container/index.js";
+import type { KubeletConfiguration } from "./kubelet/apis/config/index.js";
+import * as context from "../go/context.js";
+import type { V1Node } from "../client/index.js";
 
 export interface ServerOptions {
 	name: string;

@@ -2,7 +2,7 @@
  * SPDX-License-Identifier: Apache-2.0
  * Derived from Kubernetes, translated and modified for Webernetes.
  */
-import type { V1Container, V1Pod } from "../../../../client";
+import type { V1Container, V1Pod } from "../../../../client/index.js";
 
 // Models staging/src/k8s.io/cri-api/pkg/apis/runtime/v1/api.proto PodSandboxMetadata.
 export interface PodSandboxMetadata {

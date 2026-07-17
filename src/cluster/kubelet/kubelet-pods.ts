@@ -2,13 +2,13 @@
  * SPDX-License-Identifier: Apache-2.0
  * Derived from Kubernetes, translated and modified for Webernetes.
  */
-import type { V1ContainerStatus, V1Pod, V1PodStatus } from "../../client";
+import type { V1ContainerStatus, V1Pod, V1PodStatus } from "../../client/index.js";
 import {
 	containerShouldRestart,
 	getContainerStatus,
 	isRestartableInitContainer,
-} from "../api/v1/pod/util";
-import { isStaticPod } from "./types/pod-update";
+} from "../api/v1/pod/util.js";
+import { isStaticPod } from "./types/pod-update.js";
 
 // Models kubernetes/pkg/kubelet/kubelet_pods.go truncatePodHostnameIfNeeded hostnameMaxLen.
 const hostnameMaxLen = 63;

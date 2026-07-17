@@ -2,7 +2,7 @@
  * SPDX-License-Identifier: Apache-2.0
  * Derived from Kubernetes, translated and modified for Webernetes.
  */
-import { maxLenError, regexError } from "./errors";
+import { maxLenError, regexError } from "./errors.js";
 
 // Models staging/src/k8s.io/apimachinery/pkg/api/validate/content/dns.go dns1123LabelFmt.
 const dns1123LabelFmt = "[a-z0-9]([-a-z0-9]*[a-z0-9])?";

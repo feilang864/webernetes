@@ -5,19 +5,19 @@
  */
 import { expect, it } from "vitest";
 
-import type { KubernetesObject, V1Pod, V1PodTemplateSpec } from "../client";
-import { newControllerRef } from "../apimachinery/pkg/apis/meta/v1/controller_ref";
-import { GroupVersion } from "../apimachinery/pkg/runtime/schema/group_version";
-import { newTestKubeClient } from "../client/test";
-import { TTLPolicy } from "../client-go/tools/cache/expiration-cache";
-import { newFakeExpirationStore } from "../client-go/tools/cache/expiration-cache-fakes";
-import { newFakeRecorder } from "../client-go/tools/record/fake";
-import { Clock } from "../clock";
-import { withClock } from "../clock-context";
-import * as context from "../go/context";
-import { WaitGroup } from "../go/sync/wait-group";
-import { browser } from "../test/describe";
-import { newFakePassiveClock } from "../utils/clock/testing/fake-clock";
+import type { KubernetesObject, V1Pod, V1PodTemplateSpec } from "../client/index.js";
+import { newControllerRef } from "../apimachinery/pkg/apis/meta/v1/controller_ref.js";
+import { GroupVersion } from "../apimachinery/pkg/runtime/schema/group_version.js";
+import { newTestKubeClient } from "../client/test/index.js";
+import { TTLPolicy } from "../client-go/tools/cache/expiration-cache.js";
+import { newFakeExpirationStore } from "../client-go/tools/cache/expiration-cache-fakes.js";
+import { newFakeRecorder } from "../client-go/tools/record/fake.js";
+import { Clock } from "../clock.js";
+import { withClock } from "../clock-context.js";
+import * as context from "../go/context.js";
+import { WaitGroup } from "../go/sync/wait-group.js";
+import { both } from "../test/describe.js";
+import { newFakePassiveClock } from "../utils/clock/testing/fake-clock.js";
 import {
 	ActivePodsWithRanks,
 	type ControllerExpectations,
@@ -31,7 +31,7 @@ import {
 	newUIDTrackingControllerExpectations,
 	podKey,
 	RealPodControl,
-} from "./controller-utils";
+} from "./controller-utils.js";
 
 // Models kubernetes/pkg/controller/controller_utils_test.go NewFakeControllerExpectationsLookup.
 function newFakeControllerExpectationsLookup(ttl: number): [ControllerExpectations, Clock] {
@@ -109,7 +109,7 @@ function newPodList(
 	return pods;
 }
 
-browser.describe("controller utils", ({ ctx }) => {
+both.describe("controller utils", ({ ctx }) => {
 	// Models kubernetes/pkg/controller/controller_utils_test.go TestControllerExpectations.
 	it("ControllerExpectations", async () => {
 		const ttl = 30 * 1000;

@@ -4,28 +4,28 @@
  */
 import { expect, it, vi } from "vitest";
 
-import type { ListOptions } from "../../../apimachinery/pkg/apis/meta/v1/types";
-import type { Interface } from "../../../apimachinery/pkg/watch/watch";
-import { newFake } from "../../../apimachinery/pkg/watch/watch";
-import type { V1Pod } from "../../../client";
-import type { KubeList } from "../../../client/types";
-import { Channel } from "../../../go/channel";
-import * as context from "../../../go/context";
-import { deepEqual } from "../../../deep-equal";
-import { browser } from "../../../test/describe";
+import type { ListOptions } from "../../../apimachinery/pkg/apis/meta/v1/types.js";
+import type { Interface } from "../../../apimachinery/pkg/watch/watch.js";
+import { newFake } from "../../../apimachinery/pkg/watch/watch.js";
+import type { V1Pod } from "../../../client/index.js";
+import type { KubeList } from "../../../client/types.js";
+import { Channel } from "../../../go/channel.js";
+import * as context from "../../../go/context.js";
+import { deepEqual } from "../../../deep-equal.js";
+import { both } from "../../../test/describe.js";
 import type {
 	ListResult,
 	ListWatchClient,
 	WatchResult,
-} from "../../../client-go/tools/cache/listwatch";
-import type { SourceUpdate } from "./config";
+} from "../../../client-go/tools/cache/listwatch.js";
+import type { SourceUpdate } from "./config.js";
 import {
 	newSourceApiserver,
 	newSourceApiserverFromLW,
 	waitForAPIServerSyncPeriodMs,
-} from "./apiserver";
+} from "./apiserver.js";
 
-browser.describe("apiserver source", ({ ctx }) => {
+both.describe("apiserver source", ({ ctx }) => {
 	// Models kubernetes/pkg/kubelet/config/apiserver_test.go TestNewSourceApiserver_UpdatesAndMultiplePods.
 	it("updates and multiple pods", async () => {
 		const pod1v1 = pod("p", "", "image/one");

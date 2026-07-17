@@ -1,4 +1,4 @@
-import { Watch } from "./watch";
+import { Watch } from "./watch.js";
 import {
 	ADD,
 	CHANGE,
@@ -10,8 +10,8 @@ import {
 	type ListPromise,
 	type ObjectCallback,
 	UPDATE,
-} from "./informer";
-import type { KubernetesObject } from "./types";
+} from "./informer.js";
+import type { KubernetesObject } from "./types.js";
 
 export interface ObjectCache<T> {
 	get(name: string, namespace?: string): T | undefined;

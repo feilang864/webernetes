@@ -2,22 +2,22 @@
  * SPDX-License-Identifier: Apache-2.0
  * Derived from Kubernetes, translated and modified for Webernetes.
  */
-import * as k8s from "../../../client";
-import { defaultDeploymentUniqueLabelKey } from "../../../apis/apps/v1/types";
-import { getControllerOf } from "../../../apimachinery/pkg/apis/meta/v1/controller_ref";
-import { labelSelectorAsSelector } from "../../../apimachinery/pkg/apis/meta/v1/helpers";
-import { Set as LabelSet } from "../../../apimachinery/pkg/labels/labels";
-import { everything } from "../../../apimachinery/pkg/labels/selector";
-import { getClock } from "../../../clock-context";
-import { deepEqual } from "../../../deep-equal";
-import { getScaledValueFromIntOrPercent } from "../../../apimachinery/pkg/util/intstr/intstr";
-import { parseInt, parseUint } from "../../../go/strconv";
-import type * as context from "../../../go/context";
-import type { DeploymentLister } from "../../../client-go/listers/apps/v1/deployment";
+import * as k8s from "../../../client/index.js";
+import { defaultDeploymentUniqueLabelKey } from "../../../apis/apps/v1/types.js";
+import { getControllerOf } from "../../../apimachinery/pkg/apis/meta/v1/controller_ref.js";
+import { labelSelectorAsSelector } from "../../../apimachinery/pkg/apis/meta/v1/helpers.js";
+import { Set as LabelSet } from "../../../apimachinery/pkg/labels/labels.js";
+import { everything } from "../../../apimachinery/pkg/labels/selector.js";
+import { getClock } from "../../../clock-context.js";
+import { deepEqual } from "../../../deep-equal.js";
+import { getScaledValueFromIntOrPercent } from "../../../apimachinery/pkg/util/intstr/intstr.js";
+import { parseInt, parseUint } from "../../../go/strconv.js";
+import type * as context from "../../../go/context.js";
+import type { DeploymentLister } from "../../../client-go/listers/apps/v1/deployment.js";
 import {
 	compareReplicaSetsByCreationTimestamp,
 	filterActiveReplicaSets,
-} from "../../controller-utils";
+} from "../../controller-utils.js";
 
 // Models kubernetes/pkg/controller/deployment/util/deployment_util.go RevisionAnnotation.
 export const revisionAnnotation = "deployment.kubernetes.io/revision";

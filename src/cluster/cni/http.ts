@@ -1,4 +1,4 @@
-import type * as context from "../../go/context";
+import type * as context from "../../go/context.js";
 
 export type Header = Record<string, string[]>;
 export type FetchInput = string | globalThis.URL;

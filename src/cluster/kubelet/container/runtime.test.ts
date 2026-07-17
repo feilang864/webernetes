@@ -3,8 +3,8 @@
  * Derived from Kubernetes, translated and modified for Webernetes.
  */
 import { expect, it } from "vitest";
-import type { V1Pod } from "../../../client";
-import { browser } from "../../../test/describe";
+import type { V1Pod } from "../../../client/index.js";
+import { both } from "../../../test/describe.js";
 import {
 	buildPodFullName,
 	ContainerID,
@@ -30,10 +30,10 @@ import {
 	toAPIPod,
 	type Pod,
 	type Status,
-} from "./runtime";
+} from "./runtime.js";
 
 // Models kubernetes/pkg/kubelet/container/runtime_test.go TestParseContainerID.
-browser.describe("parseContainerID", () => {
+both.describe("parseContainerID", () => {
 	const tests: {
 		name: string;
 		input: string;
@@ -75,7 +75,7 @@ browser.describe("parseContainerID", () => {
 });
 
 // Models kubernetes/pkg/kubelet/container/runtime_test.go TestContainerIDString.
-browser.describe("ContainerID", () => {
+both.describe("ContainerID", () => {
 	const tests: {
 		name: string;
 		cid: ContainerID;
@@ -107,7 +107,7 @@ browser.describe("ContainerID", () => {
 });
 
 // Models kubernetes/pkg/kubelet/container/runtime_test.go TestPodStatusFindContainerStatusByName.
-browser.describe("findContainerStatusByName", () => {
+both.describe("findContainerStatusByName", () => {
 	const podStatus = newPodStatus({
 		containerStatuses: [
 			{ name: "container1", state: "Running" },
@@ -152,7 +152,7 @@ browser.describe("findContainerStatusByName", () => {
 });
 
 // Models kubernetes/pkg/kubelet/container/runtime_test.go TestPodStatusGetRunningContainerStatuses.
-browser.describe("getRunningContainerStatuses", () => {
+both.describe("getRunningContainerStatuses", () => {
 	it("returns running container statuses", () => {
 		const podStatus = newPodStatus({
 			containerStatuses: [
@@ -170,7 +170,7 @@ browser.describe("getRunningContainerStatuses", () => {
 });
 
 // Models kubernetes/pkg/kubelet/container/runtime_test.go TestGetPodFullName.
-browser.describe("getPodFullName", () => {
+both.describe("getPodFullName", () => {
 	const tests: {
 		name: string;
 		pod: V1Pod;
@@ -207,7 +207,7 @@ browser.describe("getPodFullName", () => {
 });
 
 // Models kubernetes/pkg/kubelet/container/runtime_test.go TestBuildPodFullName.
-browser.describe("buildPodFullName", () => {
+both.describe("buildPodFullName", () => {
 	const tests: {
 		name: string;
 		podName: string;
@@ -249,7 +249,7 @@ browser.describe("buildPodFullName", () => {
 });
 
 // Models kubernetes/pkg/kubelet/container/runtime_test.go TestParsePodFullName.
-browser.describe("parsePodFullName", () => {
+both.describe("parsePodFullName", () => {
 	const tests: {
 		name: string;
 		podFullName: string;
@@ -312,7 +312,7 @@ browser.describe("parsePodFullName", () => {
 });
 
 // Models kubernetes/pkg/kubelet/container/runtime_test.go TestPodFindContainerByName.
-browser.describe("findContainerByName", () => {
+both.describe("findContainerByName", () => {
 	const pod = newPod({
 		containers: [
 			{ name: "container1", id: { type: "docker", id: "abc123" } },
@@ -353,7 +353,7 @@ browser.describe("findContainerByName", () => {
 });
 
 // Models kubernetes/pkg/kubelet/container/runtime_test.go TestPodFindContainerByID.
-browser.describe("findContainerByID", () => {
+both.describe("findContainerByID", () => {
 	const pod = newPod({
 		containers: [
 			{ name: "container1", id: { type: "docker", id: "abc123" } },
@@ -393,7 +393,7 @@ browser.describe("findContainerByID", () => {
 });
 
 // Models kubernetes/pkg/kubelet/container/runtime_test.go TestPodFindSandboxByID.
-browser.describe("findSandboxByID", () => {
+both.describe("findSandboxByID", () => {
 	const pod = newPod({
 		sandboxes: [
 			{ name: "sandbox1", id: { type: "docker", id: "abc123" } },
@@ -433,7 +433,7 @@ browser.describe("findSandboxByID", () => {
 });
 
 // Models kubernetes/pkg/kubelet/container/runtime_test.go TestPodToAPIPod.
-browser.describe("toAPIPod", () => {
+both.describe("toAPIPod", () => {
 	it("converts a runtime pod to an API pod", () => {
 		const pod = newPod({
 			id: "test-uid",
@@ -465,7 +465,7 @@ browser.describe("toAPIPod", () => {
 });
 
 // Models kubernetes/pkg/kubelet/container/runtime_test.go TestPodIsEmpty.
-browser.describe("podIsEmpty", () => {
+both.describe("podIsEmpty", () => {
 	const tests: {
 		name: string;
 		pod: Pod;
@@ -510,7 +510,7 @@ browser.describe("podIsEmpty", () => {
 });
 
 // Models kubernetes/pkg/kubelet/container/runtime_test.go TestPodsFindPod.
-browser.describe("findPod", () => {
+both.describe("findPod", () => {
 	const pods = [
 		newPod({ id: "uid1", name: "pod1", namespace: "ns1" }),
 		newPod({ id: "uid2", name: "pod2", namespace: "ns2" }),
@@ -557,7 +557,7 @@ browser.describe("findPod", () => {
 });
 
 // Models kubernetes/pkg/kubelet/container/runtime_test.go TestRuntimeStatusGetRuntimeCondition.
-browser.describe("RuntimeStatus", () => {
+both.describe("RuntimeStatus", () => {
 	it("finds runtime conditions by type", () => {
 		const status = new RuntimeStatus({
 			conditions: [
@@ -623,7 +623,7 @@ browser.describe("RuntimeStatus", () => {
 });
 
 // Models kubernetes/pkg/kubelet/container/runtime_test.go TestRuntimeHandlerString.
-browser.describe("RuntimeHandler", () => {
+both.describe("RuntimeHandler", () => {
 	const tests = [
 		{
 			name: "handler with all features",
@@ -656,7 +656,7 @@ browser.describe("RuntimeHandler", () => {
 });
 
 // Models kubernetes/pkg/kubelet/container/runtime_test.go TestRuntimeConditionString.
-browser.describe("RuntimeCondition", () => {
+both.describe("RuntimeCondition", () => {
 	const tests = [
 		{
 			name: "true condition",
@@ -689,7 +689,7 @@ browser.describe("RuntimeCondition", () => {
 });
 
 // Models kubernetes/pkg/kubelet/container/runtime_test.go TestRuntimeFeaturesString.
-browser.describe("RuntimeFeatures", () => {
+both.describe("RuntimeFeatures", () => {
 	const tests = [
 		{
 			name: "features with both flags true",

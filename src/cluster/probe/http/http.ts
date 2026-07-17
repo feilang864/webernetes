@@ -2,12 +2,12 @@
  * SPDX-License-Identifier: Apache-2.0
  * Derived from Kubernetes, translated and modified for Webernetes.
  */
-import { Channel, select } from "../../../go/channel";
-import * as context from "../../../go/context";
-import * as time from "../../../go/time";
-import * as http from "../../cni/http";
-import { type ClusterNetwork, type FetchOrigin } from "../../cni";
-import type { ProbeResult } from "../probe";
+import { Channel, select } from "../../../go/channel.js";
+import * as context from "../../../go/context.js";
+import * as time from "../../../go/time.js";
+import * as http from "../../cni/http.js";
+import { type ClusterNetwork, type FetchOrigin } from "../../cni/index.js";
+import type { ProbeResult } from "../probe.js";
 
 // Models kubernetes/pkg/probe/http/http.go maxRespBodyLength.
 const maxRespBodyLength = (10 * 1) << 10;

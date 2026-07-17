@@ -1,5 +1,5 @@
 import type * as Real from "@kubernetes/client-node";
-import type * as Fake from "../index";
+import type * as Fake from "../index.js";
 
 type IsAssignable<From, To> = [From] extends [To] ? true : false;
 type IsMutuallyAssignable<Left, Right> =

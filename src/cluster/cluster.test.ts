@@ -1,14 +1,14 @@
 import { expect, it } from "vitest";
 
-import { select } from "../go/channel";
-import { browser } from "../test/describe";
-import { waitFor } from "../test/wait";
-import { Cluster, type ClusterInformerEventType, type ClusterInformerResource } from "./cluster";
-import type { NetworkRequestEvent, NetworkResponseEvent } from "./cni/network";
-import { BaseImage } from "./images/base";
-import type { Kubelet } from "./kubelet";
-import { ProbeManagerImpl } from "./kubelet/prober";
-import { getLatencyProvider, newLatencyProvider } from "../latency";
+import { select } from "../go/channel.js";
+import { both } from "../test/describe.js";
+import { waitFor } from "../test/wait.js";
+import { Cluster, type ClusterInformerEventType, type ClusterInformerResource } from "./cluster.js";
+import type { NetworkRequestEvent, NetworkResponseEvent } from "./cni/network.js";
+import { BaseImage } from "./images/base.js";
+import type { Kubelet } from "./kubelet/index.js";
+import { ProbeManagerImpl } from "./kubelet/prober/index.js";
+import { getLatencyProvider, newLatencyProvider } from "../latency.js";
 
 type InformerObject = { metadata?: { name?: string } };
 
@@ -120,7 +120,7 @@ async function createInformerFieldSelectorFixture(
 	}
 }
 
-browser.describe("Cluster nodes", () => {
+both.describe("Cluster nodes", () => {
 	it("assigns each cluster a unique incrementing ID", async () => {
 		const firstCluster = new Cluster();
 		const secondCluster = new Cluster();
@@ -301,7 +301,7 @@ browser.describe("Cluster nodes", () => {
 	});
 });
 
-browser.describe("Cluster images", () => {
+both.describe("Cluster images", () => {
 	it("registers image constructors", async () => {
 		const cluster = new Cluster();
 		try {
@@ -319,7 +319,7 @@ browser.describe("Cluster images", () => {
 	});
 });
 
-browser.describe("Cluster network events", () => {
+both.describe("Cluster network events", () => {
 	it("rejects connection refusals like Node fetch", async () => {
 		const cluster = new Cluster();
 		try {
@@ -438,7 +438,7 @@ browser.describe("Cluster network events", () => {
 	});
 });
 
-browser.describe("Cluster shutdown", () => {
+both.describe("Cluster shutdown", () => {
 	it("canceling cluster context exits kubelet loops without closing probe result channels", async () => {
 		const cluster = new Cluster();
 		await cluster.init();

@@ -2,22 +2,22 @@
  * SPDX-License-Identifier: Apache-2.0
  * Derived from Kubernetes, translated and modified for Webernetes.
  */
-import * as k8s from "../../client";
-import { defaultTypedControllerRateLimiter } from "../../client-go/util/workqueue/default-rate-limiters";
+import * as k8s from "../../client/index.js";
+import { defaultTypedControllerRateLimiter } from "../../client-go/util/workqueue/default-rate-limiters.js";
 import {
 	newTypedRateLimitingQueueWithConfig,
 	type TypedRateLimitingInterface,
-} from "../../client-go/util/workqueue/rate-limiting-queue";
-import type { EventRecorder } from "../../client-go/tools/record/event";
+} from "../../client-go/util/workqueue/rate-limiting-queue.js";
+import type { EventRecorder } from "../../client-go/tools/record/event.js";
 import {
 	finalizerDeleteDependents,
 	finalizerOrphanDependents,
-} from "../../client/gen/apis/impls/delete";
-import { EventRecorderImpl } from "../../cluster/events";
-import { getClock } from "../../clock-context";
-import type * as context from "../../go/context";
-import { Channel, select } from "../../go/channel";
-import { deepEqual } from "../../deep-equal";
+} from "../../client/gen/apis/impls/delete.js";
+import { EventRecorderImpl } from "../../cluster/events.js";
+import { getClock } from "../../clock-context.js";
+import type * as context from "../../go/context.js";
+import { Channel, select } from "../../go/channel.js";
+import { deepEqual } from "../../deep-equal.js";
 import {
 	hasDeleteDependentsFinalizer,
 	identityFor,
@@ -26,8 +26,8 @@ import {
 	ownerReferenceCoordinates,
 	ownerReferenceMatchesCoordinates,
 	type ObjectReference,
-} from "./graph";
-import { newReferenceCache, type ReferenceCache } from "./uid-cache";
+} from "./graph.js";
+import { newReferenceCache, type ReferenceCache } from "./uid-cache.js";
 
 // Models kubernetes/pkg/controller/garbagecollector/graph_builder.go eventType.
 export type EventType = "add" | "update" | "delete";

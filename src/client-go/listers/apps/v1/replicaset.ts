@@ -2,16 +2,16 @@
  * SPDX-License-Identifier: Apache-2.0
  * Derived from Kubernetes, translated and modified for Webernetes.
  */
-import { labelSelectorAsSelector } from "../../../../apimachinery/pkg/apis/meta/v1/helpers";
-import { Set as LabelSet } from "../../../../apimachinery/pkg/labels/labels";
-import { everything, type Selector } from "../../../../apimachinery/pkg/labels/selector";
-import type { V1Pod, V1ReplicaSet } from "../../../../client";
-import type { Indexer } from "../../../tools/cache/index";
+import { labelSelectorAsSelector } from "../../../../apimachinery/pkg/apis/meta/v1/helpers.js";
+import { Set as LabelSet } from "../../../../apimachinery/pkg/labels/labels.js";
+import { everything, type Selector } from "../../../../apimachinery/pkg/labels/selector.js";
+import type { V1Pod, V1ReplicaSet } from "../../../../client/index.js";
+import type { Indexer } from "../../../tools/cache/index.js";
 import {
 	newNamespacedResourceIndexer,
 	newResourceIndexer,
 	type ResourceIndexer,
-} from "../../generic-helpers";
+} from "../../generic-helpers.js";
 
 // Models staging/src/k8s.io/client-go/listers/apps/v1/replicaset.go ReplicaSetLister.
 export interface ReplicaSetLister {

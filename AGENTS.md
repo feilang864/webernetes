@@ -40,6 +40,10 @@ General rules for this repository:
   `setTimeout`, `setInterval`, or `Date.now` directly. Route timeout, interval,
   and current-time behavior through the cluster `Clock` instance so the
   simulator can be paused and controlled deterministically.
+- In TypeScript source, include the emitted `.js` extension in every relative
+  import and re-export specifier. For directory barrels, import the explicit
+  `/index.js` path. The repository uses TypeScript's `NodeNext` module
+  resolution so editors and typechecking enforce native Node ESM semantics.
 - When a function or constructor accepts a `context.Context`, make that argument
   the first parameter and name it `ctx`, matching Kubernetes Go conventions.
 - For intentionally unused parameters, prefix the parameter name with an
@@ -56,10 +60,11 @@ General rules for this repository:
   the parity tests in `src/client/tests/` so the simulated cluster is checked
   against real Kubernetes behavior.
 - Top-level test suites must use the repository harness describes:
-  `browser.describe` for browser-safe unit tests, `kubernetes.describe` for
-  Kubernetes parity tests, and `etcd.describe` or `fakeEtcd.describe` for etcd
-  coverage. Nested raw `describe` blocks inside a harness suite are acceptable
-  for grouping.
+  `both.describe` for unit tests that run in Node and the browser,
+  `browser.describe` or `node.describe` only for environment-specific tests,
+  `kubernetes.describe` for Kubernetes parity tests, and `etcd.describe` or
+  `fakeEtcd.describe` for etcd coverage. Nested raw `describe` blocks inside a
+  harness suite are acceptable for grouping.
 - When adding functionality or fixing a behavior mismatch, write the test first
   and run it before the fix. For Kubernetes-facing behavior, observe the test
   fail against the simulator and pass against k3s before changing the

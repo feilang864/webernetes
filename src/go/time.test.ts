@@ -1,10 +1,10 @@
 import { afterEach, expect, it } from "vitest";
 
-import { Channel, type ReceiveChannel, select } from "./channel";
-import type { Clock } from "../clock";
-import { getClock } from "../clock-context";
-import * as time from "./time";
-import { browser } from "../test/describe";
+import { Channel, type ReceiveChannel, select } from "./channel.js";
+import type { Clock } from "../clock.js";
+import { getClock } from "../clock-context.js";
+import * as time from "./time.js";
+import { both } from "../test/describe.js";
 
 // These tests mirror the Go ticker tests from src/time/tick_test.go at:
 // https://github.com/golang/go/blob/58efaf3859e6a6f9988e69afc59c0792888ca41a/src/time/tick_test.go
@@ -27,7 +27,7 @@ import { browser } from "../test/describe";
 //   behavior using the simulator Clock instead.
 // - TestChan's tickerTimer bool return values, len/cap checks, async-timer
 //   drain paths, and GODEBUG matrix.
-browser.describe("after", ({ ctx }) => {
+both.describe("after", ({ ctx }) => {
 	const clock = getClock(ctx);
 
 	afterEach(() => {
@@ -103,7 +103,7 @@ browser.describe("after", ({ ctx }) => {
 	});
 });
 
-browser.describe("tick", ({ ctx }) => {
+both.describe("tick", ({ ctx }) => {
 	const clock = getClock(ctx);
 
 	afterEach(() => {
@@ -172,7 +172,7 @@ browser.describe("tick", ({ ctx }) => {
 	});
 });
 
-browser.describe("Timer", ({ ctx }) => {
+both.describe("Timer", ({ ctx }) => {
 	const clock = getClock(ctx);
 
 	afterEach(() => {
@@ -354,7 +354,7 @@ browser.describe("Timer", ({ ctx }) => {
 	});
 });
 
-browser.describe("Ticker", ({ ctx }) => {
+both.describe("Ticker", ({ ctx }) => {
 	const clock = getClock(ctx);
 
 	afterEach(() => {

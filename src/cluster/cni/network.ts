@@ -1,21 +1,21 @@
 import { EventEmitter } from "events";
 
-import { CIDR, isIPLiteral } from "../../net";
+import { CIDR, isIPLiteral } from "../../net.js";
 import {
 	type DnsHandler,
 	DnsListener,
 	type DnsRecordType,
 	type DnsRequest,
 	type DnsResponse,
-} from "./dns";
-import * as http from "./http";
-import { Channel, select } from "../../go/channel";
-import * as context from "../../go/context";
-import * as time from "../../go/time";
-import type { V1Node, V1Pod, V1Service, V1ServicePort } from "../../client";
-import { getLatencyProvider } from "../../latency";
-import type { DnsConfig } from "../cri/runtime/v1/api";
-import type { PodSandboxInstance } from "../cri/runtime";
+} from "./dns.js";
+import * as http from "./http.js";
+import { Channel, select } from "../../go/channel.js";
+import * as context from "../../go/context.js";
+import * as time from "../../go/time.js";
+import type { V1Node, V1Pod, V1Service, V1ServicePort } from "../../client/index.js";
+import { getLatencyProvider } from "../../latency.js";
+import type { DnsConfig } from "../cri/runtime/v1/api.js";
+import type { PodSandboxInstance } from "../cri/runtime.js";
 
 interface NetworkEndpoint {
 	ip: string;

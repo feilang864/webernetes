@@ -4,12 +4,12 @@
  */
 // oxlint-disable jest/no-conditional-expect
 import { expect, it } from "vitest";
-import type { V1Node, V1NodeAddress } from "../../client";
-import { browser } from "../../test/describe";
-import { getNodeHostIPs, getPreferredNodeAddress, isNodeReady } from "./node";
+import type { V1Node, V1NodeAddress } from "../../client/index.js";
+import { both } from "../../test/describe.js";
+import { getNodeHostIPs, getPreferredNodeAddress, isNodeReady } from "./node.js";
 
 // Models kubernetes/pkg/util/node/node_test.go TestGetPreferredAddress.
-browser.describe("getPreferredAddress", () => {
+both.describe("getPreferredAddress", () => {
 	const testcases = new Map<
 		string,
 		{
@@ -90,7 +90,7 @@ browser.describe("getPreferredAddress", () => {
 });
 
 // Models kubernetes/pkg/util/node/node_test.go TestGetNodeHostIPs.
-browser.describe("getNodeHostIPs", () => {
+both.describe("getNodeHostIPs", () => {
 	const testcases: Array<{
 		name: string;
 		addresses?: V1NodeAddress[];
@@ -184,7 +184,7 @@ browser.describe("getNodeHostIPs", () => {
 });
 
 // Models kubernetes/pkg/util/node/node_test.go TestIsNodeReady.
-browser.describe("isNodeReady", () => {
+both.describe("isNodeReady", () => {
 	const testCases: Array<{
 		name: string;
 		node: V1Node;

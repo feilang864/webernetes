@@ -2,11 +2,11 @@
  * SPDX-License-Identifier: Apache-2.0
  * Derived from Kubernetes, translated and modified for Webernetes.
  */
-import { getClock } from "../../../clock-context";
-import { Channel, type SendChannel } from "../../../go/channel";
-import type * as context from "../../../go/context";
-import type { PodSandboxConfig } from "../../cri";
-import type { ImageService, ImageSpec } from "../container";
+import { getClock } from "../../../clock-context.js";
+import { Channel, type SendChannel } from "../../../go/channel.js";
+import type * as context from "../../../go/context.js";
+import type { PodSandboxConfig } from "../../cri/index.js";
+import type { ImageService, ImageSpec } from "../container/index.js";
 
 // Models kubernetes/pkg/kubelet/images/puller.go pullResult.
 export interface PullResult {

@@ -1,13 +1,13 @@
 import { afterAll, afterEach, beforeAll } from "vitest";
 
-import { browser } from "../describe";
-import type { SuiteOptions } from "../describe";
-import { Cluster } from "../../cluster";
-import * as http from "../../cluster/cni/http";
-import * as fakeK8s from "../../client";
-import { createKubernetesRuntimeContext } from "./kubernetes-context";
-import type { KubernetesSuiteFactory, NodePortRequest, NodePortResponse } from "./kubernetes";
-import type { K8s } from "../../client/types";
+import { both } from "../describe.js";
+import type { SuiteOptions } from "../describe.js";
+import { Cluster } from "../../cluster/index.js";
+import * as http from "../../cluster/cni/http.js";
+import * as fakeK8s from "../../client/index.js";
+import { createKubernetesRuntimeContext } from "./kubernetes-context.js";
+import type { KubernetesSuiteFactory, NodePortRequest, NodePortResponse } from "./kubernetes.js";
+import type { K8s } from "../../client/types.js";
 
 const cluster = new Cluster();
 let setupPromise: Promise<void> | undefined;
@@ -57,10 +57,10 @@ export function defineSuite(
 	};
 
 	if (typeof maybeOptions === "function") {
-		browser.describe(name, suite);
+		both.describe(`${name} (simulator)`, suite);
 		return;
 	}
-	browser.describe(name, maybeOptions, suite);
+	both.describe(`${name} (simulator)`, maybeOptions, suite);
 }
 
 async function setupSimulator(): Promise<void> {

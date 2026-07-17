@@ -6,7 +6,7 @@ import {
 	V1ReplicaSetList,
 	V1Scale,
 	V1Status,
-} from "../../models";
+} from "../../models/index.js";
 
 interface ListRequest {
 	pretty?: string;

@@ -2,7 +2,7 @@
  * SPDX-License-Identifier: Apache-2.0
  * Derived from Kubernetes, translated and modified for Webernetes.
  */
-import { KeyFnMap } from "./collections";
+import { KeyFnMap } from "./collections.js";
 
 export type Key = string | number | boolean | symbol | object;
 export type EvictionFunc<K extends Key, V> = (key: K, value: V) => void;

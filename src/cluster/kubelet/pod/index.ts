@@ -1,2 +1,2 @@
-export * from "./pod-manager";
-export * from "./mirror-client";
+export * from "./pod-manager.js";
+export * from "./mirror-client.js";

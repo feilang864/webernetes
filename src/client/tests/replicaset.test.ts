@@ -1,10 +1,10 @@
 import { expect, it } from "vitest";
-import { deepMerge } from "../../deep-merge";
-import { kubernetes } from "../../test/harnesses/kubernetes";
-import { apiErrorCode, apiStatusMessage } from "../../test/harnesses/helpers";
-import type { DeepPartial } from "../../test/harnesses/helpers";
-import type { V1Pod, V1ReplicaSet } from "../gen/models";
-import { expectRecentCreationTimestamp, expectResourceUid } from "./assertions";
+import { deepMerge } from "../../deep-merge.js";
+import { kubernetes } from "../../test/harnesses/kubernetes.js";
+import { apiErrorCode, apiStatusMessage } from "../../test/harnesses/helpers.js";
+import type { DeepPartial } from "../../test/harnesses/helpers.js";
+import type { V1Pod, V1ReplicaSet } from "../gen/models/index.js";
+import { expectRecentCreationTimestamp, expectResourceUid } from "./assertions.js";
 
 const podImage = "registry.k8s.io/pause:3.10";
 const agnhostImage = "registry.k8s.io/e2e-test-images/agnhost:2.40";

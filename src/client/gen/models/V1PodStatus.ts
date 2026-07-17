@@ -2,13 +2,13 @@
  * SPDX-License-Identifier: Apache-2.0
  * Derived from Kubernetes, translated and modified for Webernetes.
  */
-import { V1ContainerStatus } from "./V1ContainerStatus";
-import { V1HostIP } from "./V1HostIP";
-import { V1NodeAllocatableResourceClaimStatus } from "./V1NodeAllocatableResourceClaimStatus";
-import { V1PodCondition } from "./V1PodCondition";
-import { V1PodExtendedResourceClaimStatus } from "./V1PodExtendedResourceClaimStatus";
-import { V1PodIP } from "./V1PodIP";
-import { V1PodResourceClaimStatus } from "./V1PodResourceClaimStatus";
+import { V1ContainerStatus } from "./V1ContainerStatus.js";
+import { V1HostIP } from "./V1HostIP.js";
+import { V1NodeAllocatableResourceClaimStatus } from "./V1NodeAllocatableResourceClaimStatus.js";
+import { V1PodCondition } from "./V1PodCondition.js";
+import { V1PodExtendedResourceClaimStatus } from "./V1PodExtendedResourceClaimStatus.js";
+import { V1PodIP } from "./V1PodIP.js";
+import { V1PodResourceClaimStatus } from "./V1PodResourceClaimStatus.js";
 export interface V1PodStatus {
 	conditions?: Array<V1PodCondition>;
 	containerStatuses?: Array<V1ContainerStatus>;

@@ -2,16 +2,20 @@
  * SPDX-License-Identifier: Apache-2.0
  * Derived from Kubernetes, translated and modified for Webernetes.
  */
-import type { PassiveClock } from "../../../utils/clock/clock";
-import type { SendChannel } from "../../../go/channel";
-import { ExpirationCache, type ExpirationPolicy, type TimestampedEntry } from "./expiration-cache";
-import type { KeyFunc, Store } from "./store";
+import type { PassiveClock } from "../../../utils/clock/clock.js";
+import type { SendChannel } from "../../../go/channel.js";
+import {
+	ExpirationCache,
+	type ExpirationPolicy,
+	type TimestampedEntry,
+} from "./expiration-cache.js";
+import type { KeyFunc, Store } from "./store.js";
 import {
 	newThreadSafeStore,
 	type ThreadSafeIndexers,
 	type ThreadSafeStore,
 	type ThreadSafeStoreTransaction,
-} from "./thread-safe-store";
+} from "./thread-safe-store.js";
 
 // Models staging/src/k8s.io/client-go/tools/cache/expiration_cache_fakes.go fakeThreadSafeMap.
 class FakeThreadSafeMap<T> implements ThreadSafeStore<T> {

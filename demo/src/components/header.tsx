@@ -3,10 +3,10 @@ import { Select } from "@ngrok/mantle/select";
 import { GithubLogo } from "@phosphor-icons/react";
 import * as w8s from "webernetes";
 
-import { getName, idFor, sortByName } from "../helpers";
-import { useInformer } from "../hooks";
-import { ClusterPauseButton } from "./cluster-pause-button";
-import { ThemeToggle } from "./theme-toggle";
+import { getName, idFor, sortByName } from "../helpers.js";
+import { useInformer } from "../hooks.js";
+import { ClusterPauseButton } from "./cluster-pause-button.js";
+import { ThemeToggle } from "./theme-toggle.js";
 
 export function Header({
 	cluster,

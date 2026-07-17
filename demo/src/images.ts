@@ -7,7 +7,7 @@ import {
 	demoRequestTypeHeader,
 	demoRequestTypeTrafficGenerator,
 	getHeader,
-} from "./helpers";
+} from "./helpers.js";
 
 const readyFile = "/health/ready";
 const liveFile = "/health/live";

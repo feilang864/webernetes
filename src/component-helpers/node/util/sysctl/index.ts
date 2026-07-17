@@ -1,1 +1,1 @@
-export * from "./sysctl";
+export * from "./sysctl.js";

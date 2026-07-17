@@ -4,14 +4,14 @@
  */
 import { expect, it } from "vitest";
 
-import { newString } from "../../../apimachinery/pkg/util/sets/string";
-import { Clock } from "../../../clock";
-import { Channel } from "../../../go/channel";
-import { browser } from "../../../test/describe";
-import { newFakePassiveClock } from "../../../utils/clock/testing/fake-clock";
-import { TimestampedEntry, TTLPolicy } from "./expiration-cache";
-import { FakeExpirationPolicy, newFakeExpirationStore } from "./expiration-cache-fakes";
-import { testStoreKeyFunc, type TestStoreObject } from "./store-test-helpers";
+import { newString } from "../../../apimachinery/pkg/util/sets/string.js";
+import { Clock } from "../../../clock.js";
+import { Channel } from "../../../go/channel.js";
+import { both } from "../../../test/describe.js";
+import { newFakePassiveClock } from "../../../utils/clock/testing/fake-clock.js";
+import { TimestampedEntry, TTLPolicy } from "./expiration-cache.js";
+import { FakeExpirationPolicy, newFakeExpirationStore } from "./expiration-cache-fakes.js";
+import { testStoreKeyFunc, type TestStoreObject } from "./store-test-helpers.js";
 
 function retrieveTestStoreObjectKey(
 	obj: TimestampedEntry<TestStoreObject>,
@@ -26,7 +26,7 @@ async function expectDeletedKey(deleteChan: Channel<string>, key: string): Promi
 	expect(delKey).toEqual(key);
 }
 
-browser.describe("expiration cache", () => {
+both.describe("expiration cache", () => {
 	// Models staging/src/k8s.io/client-go/tools/cache/expiration_cache_test.go TestTTLExpirationBasic.
 	it("TTLExpirationBasic", async () => {
 		const testObj: TestStoreObject = { id: "foo", val: "bar" };

@@ -2,7 +2,7 @@
  * SPDX-License-Identifier: Apache-2.0
  * Derived from Kubernetes, translated and modified for Webernetes.
  */
-import type { IntOrString } from "../../../../client";
+import type { IntOrString } from "../../../../client/index.js";
 
 // Models staging/src/k8s.io/apimachinery/pkg/util/intstr/intstr.go GetScaledValueFromIntOrPercent.
 export function getScaledValueFromIntOrPercent(

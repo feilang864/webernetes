@@ -3,12 +3,12 @@
  * Derived from Kubernetes, translated and modified for Webernetes.
  */
 import { expect, it } from "vitest";
-import type { V1ServiceSpec } from "../../../../../client";
-import { browser } from "../../../../../test/describe";
-import { isServiceIPSet } from "./helpers";
+import type { V1ServiceSpec } from "../../../../../client/index.js";
+import { both } from "../../../../../test/describe.js";
+import { isServiceIPSet } from "./helpers.js";
 
 // Models kubernetes/pkg/apis/core/helper/helpers_test.go TestIsServiceIPSet.
-browser.describe("isServiceIPSet", () => {
+both.describe("isServiceIPSet", () => {
 	const testCases: Array<{
 		input: V1ServiceSpec;
 		output: boolean;

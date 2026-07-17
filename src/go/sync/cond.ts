@@ -2,7 +2,7 @@
  * SPDX-License-Identifier: Apache-2.0
  * Derived from Kubernetes, translated and modified for Webernetes.
  */
-import type { Locker } from "./mutex";
+import type { Locker } from "./mutex.js";
 
 // Models Go src/sync/cond.go Cond.
 export class Cond {

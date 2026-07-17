@@ -1,5 +1,5 @@
 import { BaseImage, Cluster, type ProcessContext } from "@ngrok/webernetes";
-import { waitForDeploymentReady } from "./helpers";
+import { waitForDeploymentReady } from "./helpers.js";
 
 class HelloImage extends BaseImage {
 	static readonly imageName = "examples/hello";

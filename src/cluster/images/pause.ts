@@ -1,4 +1,4 @@
-import { BaseImage } from "./base";
+import { BaseImage } from "./base.js";
 
 export class PauseImage extends BaseImage {
 	static readonly imageName = "registry.k8s.io/pause";

@@ -2,17 +2,17 @@
  * SPDX-License-Identifier: Apache-2.0
  * Derived from Kubernetes, translated and modified for Webernetes.
  */
-import { V1ContainerPort } from "./V1ContainerPort";
-import { V1ContainerResizePolicy } from "./V1ContainerResizePolicy";
-import { V1ContainerRestartRule } from "./V1ContainerRestartRule";
-import { V1EnvFromSource } from "./V1EnvFromSource";
-import { V1EnvVar } from "./V1EnvVar";
-import { V1Lifecycle } from "./V1Lifecycle";
-import { V1Probe } from "./V1Probe";
-import { V1ResourceRequirements } from "./V1ResourceRequirements";
-import { V1SecurityContext } from "./V1SecurityContext";
-import { V1VolumeDevice } from "./V1VolumeDevice";
-import { V1VolumeMount } from "./V1VolumeMount";
+import { V1ContainerPort } from "./V1ContainerPort.js";
+import { V1ContainerResizePolicy } from "./V1ContainerResizePolicy.js";
+import { V1ContainerRestartRule } from "./V1ContainerRestartRule.js";
+import { V1EnvFromSource } from "./V1EnvFromSource.js";
+import { V1EnvVar } from "./V1EnvVar.js";
+import { V1Lifecycle } from "./V1Lifecycle.js";
+import { V1Probe } from "./V1Probe.js";
+import { V1ResourceRequirements } from "./V1ResourceRequirements.js";
+import { V1SecurityContext } from "./V1SecurityContext.js";
+import { V1VolumeDevice } from "./V1VolumeDevice.js";
+import { V1VolumeMount } from "./V1VolumeMount.js";
 export interface V1EphemeralContainer {
 	args?: Array<string>;
 	command?: Array<string>;

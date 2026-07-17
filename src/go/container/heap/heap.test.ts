@@ -4,8 +4,8 @@
  */
 import { expect, it } from "vitest";
 
-import { browser } from "../../../test/describe";
-import * as heap from "./heap";
+import { both } from "../../../test/describe.js";
+import * as heap from "./heap.js";
 
 class NumberHeap implements heap.Interface<number> {
 	readonly items: number[] = [];
@@ -56,7 +56,7 @@ function verifyHeap(h: NumberHeap, i = 0): void {
 	}
 }
 
-browser.describe("heap", () => {
+both.describe("heap", () => {
 	// Models Go src/container/heap/heap_test.go TestInit0.
 	it("initializes and pops duplicate items", () => {
 		const h = new NumberHeap();

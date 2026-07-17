@@ -1,3 +1,3 @@
-export * from "./dns";
-export * from "./http";
-export * from "./network";
+export * from "./dns.js";
+export * from "./http.js";
+export * from "./network.js";

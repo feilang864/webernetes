@@ -1,10 +1,10 @@
-import * as k8s from "../../client";
-import { retryConflicts } from "../../retry";
-import type { EventRecorder } from "../../client-go/tools/record/event";
-import { EventRecorderImpl } from "../events";
-import type { ProcessContext } from "../cri";
-import { BaseImage } from "./base";
-import { Mutex } from "../../go/sync/mutex";
+import * as k8s from "../../client/index.js";
+import { retryConflicts } from "../../retry.js";
+import type { EventRecorder } from "../../client-go/tools/record/event.js";
+import { EventRecorderImpl } from "../events.js";
+import type { ProcessContext } from "../cri/index.js";
+import { BaseImage } from "./base.js";
+import { Mutex } from "../../go/sync/mutex.js";
 
 function podKey(pod: V1Pod): string {
 	return `${pod.metadata?.namespace ?? "default"}/${pod.metadata?.name ?? ""}`;

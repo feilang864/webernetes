@@ -1,5 +1,5 @@
-import type { AppsV1Api, CoreV1Api, DiscoveryV1Api } from "./gen/apis/types";
-import type { V1ListMeta, V1ObjectMeta, V1Status } from "./gen/models";
+import type { AppsV1Api, CoreV1Api, DiscoveryV1Api } from "./gen/apis/types/index.js";
+import type { V1ListMeta, V1ObjectMeta, V1Status } from "./gen/models/index.js";
 
 export type IntOrString = number | string;
 

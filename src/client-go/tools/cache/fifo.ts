@@ -2,13 +2,13 @@
  * SPDX-License-Identifier: Apache-2.0
  * Derived from Kubernetes, translated and modified for Webernetes.
  */
-import type { KubernetesObject } from "../../../client/types";
-import { Channel, type ReadOnlyChannel } from "../../../go/channel";
-import { newCond } from "../../../go/sync/cond";
-import { Mutex } from "../../../go/sync/mutex";
-import type { MaybePromise } from "../../../promise";
-import type { ReflectorStore } from "./reflector";
-import { ExplicitKey, KeyError, type KeyFunc, type Store } from "./store";
+import type { KubernetesObject } from "../../../client/types.js";
+import { Channel, type ReadOnlyChannel } from "../../../go/channel.js";
+import { newCond } from "../../../go/sync/cond.js";
+import { Mutex } from "../../../go/sync/mutex.js";
+import type { MaybePromise } from "../../../promise.js";
+import type { ReflectorStore } from "./reflector.js";
+import { ExplicitKey, KeyError, type KeyFunc, type Store } from "./store.js";
 
 // Models staging/src/k8s.io/client-go/tools/cache/fifo.go PopProcessFunc.
 export type PopProcessFunc<T extends KubernetesObject> = (

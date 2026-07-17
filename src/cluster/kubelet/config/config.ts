@@ -2,24 +2,24 @@
  * SPDX-License-Identifier: Apache-2.0
  * Derived from Kubernetes, translated and modified for Webernetes.
  */
-import type { V1Pod } from "../../../client";
-import type { EventRecorder } from "../../../client-go/tools/record/event";
-import { failedValidation } from "../events";
-import * as kubecontainer from "../container";
-import * as format from "../util/format";
-import { getClock } from "../../../clock-context";
-import { Channel, type ReadOnlyChannel } from "../../../go/channel";
-import type * as context from "../../../go/context";
-import { Mutex, RWMutex } from "../../../go/sync/mutex";
-import { deepEqual } from "../../../deep-equal";
+import type { V1Pod } from "../../../client/index.js";
+import type { EventRecorder } from "../../../client-go/tools/record/event.js";
+import { failedValidation } from "../events.js";
+import * as kubecontainer from "../container/index.js";
+import * as format from "../util/format/index.js";
+import { getClock } from "../../../clock-context.js";
+import { Channel, type ReadOnlyChannel } from "../../../go/channel.js";
+import type * as context from "../../../go/context.js";
+import { Mutex, RWMutex } from "../../../go/sync/mutex.js";
+import { deepEqual } from "../../../deep-equal.js";
 import {
 	configFirstSeenAnnotationKey,
 	configMirrorAnnotationKey,
 	configSourceAnnotationKey,
 	isStaticPod,
 	type PodUpdate,
-} from "../types/pod-update";
-import { Mux, newMux } from "./mux";
+} from "../types/pod-update.js";
+import { Mux, newMux } from "./mux.js";
 
 // Models kubernetes/pkg/kubelet/config/config.go podStartupSLIObserver.
 export interface PodStartupSLIObserver {

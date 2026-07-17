@@ -1,7 +1,7 @@
-import { Channel, type ReadOnlyChannel } from "./channel";
-import type { Clock } from "../clock";
-import { getClock } from "../clock-context";
-import type { Context } from "./context";
+import { Channel, type ReadOnlyChannel } from "./channel.js";
+import type { Clock } from "../clock.js";
+import { getClock } from "../clock-context.js";
+import type { Context } from "./context.js";
 
 // after waits for the duration to elapse and then sends the current time on the
 // returned channel, matching Go's time.After:

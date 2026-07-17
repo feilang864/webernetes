@@ -9,9 +9,9 @@ import type {
 	V1PodCondition,
 	V1PodSpec,
 	V1PodStatus,
-} from "../../../../client";
-import { getClock } from "../../../../clock-context";
-import type * as context from "../../../../go/context";
+} from "../../../../client/index.js";
+import { getClock } from "../../../../clock-context.js";
+import type * as context from "../../../../go/context.js";
 
 // Models kubernetes/pkg/api/v1/pod/util.go GetContainerStatus.
 export function getContainerStatus(

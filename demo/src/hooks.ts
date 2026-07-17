@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import * as w8s from "webernetes";
 
-import { idFor } from "./helpers";
+import { idFor } from "./helpers.js";
 
 export function useCluster(
 	setup: (cluster: w8s.Cluster) => Promise<void> | void,

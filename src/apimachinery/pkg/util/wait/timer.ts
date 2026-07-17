@@ -2,10 +2,10 @@
  * SPDX-License-Identifier: Apache-2.0
  * Derived from Kubernetes, translated and modified for Webernetes.
  */
-import { Channel, type ReadOnlyChannel } from "../../../../go/channel";
-import type * as context from "../../../../go/context";
-import * as time from "../../../../go/time";
-import type { DelayFunc } from "./delay";
+import { Channel, type ReadOnlyChannel } from "../../../../go/channel.js";
+import type * as context from "../../../../go/context.js";
+import * as time from "../../../../go/time.js";
+import type { DelayFunc } from "./delay.js";
 
 export interface ClockTimer {
 	C: ReadOnlyChannel<Date>;

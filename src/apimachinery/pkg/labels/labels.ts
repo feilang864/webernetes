@@ -9,8 +9,8 @@ import {
 	validatedSelectorFromSet,
 	validateLabelKey,
 	validateLabelValue,
-} from "./selector";
-import { type PathOption, toPath } from "../util/validation/field/path";
+} from "./selector.js";
+import { type PathOption, toPath } from "../util/validation/field/path.js";
 
 // Models staging/src/k8s.io/apimachinery/pkg/labels/labels.go Labels.
 export interface Labels {

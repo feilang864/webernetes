@@ -5,12 +5,12 @@
 import {
 	GroupResource,
 	parseGroupResource,
-} from "../../../apimachinery/pkg/runtime/schema/group_version";
+} from "../../../apimachinery/pkg/runtime/schema/group_version.js";
 import {
 	type NamespacedName,
 	namespacedNameString,
-} from "../../../apimachinery/pkg/types/namespacedname";
-import { compareResourceVersion } from "../../../apimachinery/pkg/util/resourceversion/resourceversion";
+} from "../../../apimachinery/pkg/types/namespacedname.js";
+import { compareResourceVersion } from "../../../apimachinery/pkg/util/resourceversion/resourceversion.js";
 
 // Models kubernetes/pkg/controller/util/consistency/consistency.go ConsistencyStore.
 export interface ConsistencyStore {

@@ -4,29 +4,29 @@
  */
 import { expect, it } from "vitest";
 
-import { Channel, select } from "../../../../go/channel";
-import * as context from "../../../../go/context";
-import { WaitGroup } from "../../../../go/sync/wait-group";
-import * as time from "../../../../go/time";
-import { browser } from "../../../../test/describe";
-import type { ConditionWithContextFunc } from "./delay";
-import { errWaitTimeout } from "./error";
+import { Channel, select } from "../../../../go/channel.js";
+import * as context from "../../../../go/context.js";
+import { WaitGroup } from "../../../../go/sync/wait-group.js";
+import * as time from "../../../../go/time.js";
+import { both } from "../../../../test/describe.js";
+import type { ConditionWithContextFunc } from "./delay.js";
+import { errWaitTimeout } from "./error.js";
 import {
 	pollInfinite,
 	pollImmediateUntilWithContext,
 	pollInternal,
 	pollUntil,
 	poller,
-} from "./poll";
+} from "./poll.js";
 import {
 	contextForChannel,
 	foreverTestTimeout,
 	type WaitWithContextFunc,
 	waitForWithContext,
-} from "./wait";
+} from "./wait.js";
 
 // The browser harness supplies the parent context; mirrored tests declare their own `ctx` values.
-browser.describe("wait", ({ ctx: rootCtx }) => {
+both.describe("wait", ({ ctx: rootCtx }) => {
 	// Models staging/src/k8s.io/apimachinery/pkg/util/wait/wait_test.go TestPoller.
 	it("TestPoller", async () => {
 		const [ctx, cancel] = context.withCancel(rootCtx);

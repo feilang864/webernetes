@@ -1,7 +1,7 @@
 import { expect, it } from "vitest";
-import { kubernetes } from "../../test/harnesses/kubernetes";
-import { apiErrorCode, apiStatusMessage } from "../../test/harnesses/helpers";
-import { expectRecentCreationTimestamp, expectResourceUid } from "./assertions";
+import { kubernetes } from "../../test/harnesses/kubernetes.js";
+import { apiErrorCode, apiStatusMessage } from "../../test/harnesses/helpers.js";
+import { expectRecentCreationTimestamp, expectResourceUid } from "./assertions.js";
 
 kubernetes.describe("Namespaces", ({ core, discovery, k8s, helpers }) => {
 	const { waitFor } = helpers;

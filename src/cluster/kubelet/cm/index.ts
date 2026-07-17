@@ -1,4 +1,4 @@
 export {
 	type InternalContainerLifecycle,
 	newFakeInternalContainerLifecycle,
-} from "./internal-container-lifecycle";
+} from "./internal-container-lifecycle.js";
