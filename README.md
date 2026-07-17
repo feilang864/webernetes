@@ -170,8 +170,8 @@ controller that handles deleting everything else).
 
 Basics are supported: `Pod`s can have `Container`s and those containers can
 listen for HTTP traffic on ports. They get a pod name, an IP address, they can
-speak to other pods by their DNS name or IP address. They can accept environment
-variables. They get probed.
+speak to other pods through `Service` DNS names or directly by `Pod` IP address.
+They can accept environment variables. They get probed.
 
 What's not supported yet:
 
