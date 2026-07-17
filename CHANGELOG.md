@@ -1,5 +1,11 @@
 # @ngrok/webernetes
 
+## 0.3.5
+
+### Patch Changes
+
+- [`82f052f`](https://github.com/ngrok/webernetes/commit/82f052f6d512caf82a5148b9e2d420972ded46ca) Thanks [@samwho](https://github.com/samwho)! - Preserve Kubernetes resource UIDs across full-object updates and reject attempts to change an existing UID. EndpointSlice reconciliation now retains generated slice UIDs in replace responses, lists, and watch events.
+
 ## 0.3.4
 
 ### Patch Changes
