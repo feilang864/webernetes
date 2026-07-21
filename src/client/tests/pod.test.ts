@@ -1,7 +1,7 @@
 // oxlint-disable typescript/no-non-null-assertion
 import { expect, it } from "vitest";
 import { CIDR } from "../../net.js";
-import { kubernetes } from "../../test/harnesses/kubernetes.js";
+import { kubernetes, simulator } from "../../test/harnesses/kubernetes.js";
 import { apiErrorCode, apiStatusMessage } from "../../test/harnesses/helpers.js";
 import { expectRecentCreationTimestamp, expectResourceUid } from "./assertions.js";
 
@@ -1635,6 +1635,65 @@ kubernetes.describe("Pods", (context) => {
 		expect(current.status?.phase).toBe("Failed");
 		expect(status.restartCount).toBe(0);
 		expect(status.state?.terminated?.exitCode).toBe(1);
+	});
+});
+
+simulator.describe("Webernetes crash-loop backoff annotation", (context) => {
+	const {
+		advanceTime,
+		createAgnhostPod,
+		createNodePortFor,
+		fetchNodePort,
+		readPod,
+		waitFor,
+		containerStatus,
+	} = context.helpers;
+
+	it("publishes the exact retry deadline while a restarted container is in CrashLoopBackOff", async () => {
+		if (!advanceTime) {
+			throw new Error("Simulator tests require deterministic clock control");
+		}
+		const pod = await createAgnhostPod({
+			metadata: {
+				name: "crash-loop-backoff-annotation",
+				labels: { app: "crash-loop-backoff-annotation" },
+			},
+			spec: { restartPolicy: "Always" },
+		});
+		const nodePort = await createNodePortFor([pod]);
+
+		await fetchNodePort(nodePort, { path: "/exit?code=1&timeout=0s" });
+		await waitFor(async () => {
+			const current = await readPod(pod);
+			expect(containerStatus(current, "server").restartCount).toBeGreaterThan(0);
+			expect(containerStatus(current, "server").state?.running).toBeDefined();
+		});
+
+		await fetchNodePort(nodePort, { path: "/exit?code=1&timeout=0s" });
+		await waitFor(async () => {
+			const current = await readPod(pod);
+			const status = containerStatus(current, "server");
+			expect(status.state?.waiting?.reason).toBe("CrashLoopBackOff");
+			const finishedAt = status.lastState?.terminated?.finishedAt;
+			if (!finishedAt) {
+				throw new Error("Expected CrashLoopBackOff container to have a termination time");
+			}
+			const annotation = current.metadata?.annotations?.["webernetes.ngrok.com/crash-loop-backoff"];
+			expect(annotation).toBeDefined();
+			expect(JSON.parse(annotation ?? "{}")).toEqual({
+				server: new Date(new Date(finishedAt).getTime() + 10_000).toISOString(),
+			});
+		});
+
+		await advanceTime(10_000);
+		await waitFor(async () => {
+			const current = await readPod(pod);
+			const status = containerStatus(current, "server");
+			expect(status.state?.running).toBeDefined();
+			expect(
+				current.metadata?.annotations?.["webernetes.ngrok.com/crash-loop-backoff"],
+			).toBeUndefined();
+		});
 	});
 });
 

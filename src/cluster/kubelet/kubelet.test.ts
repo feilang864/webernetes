@@ -17,11 +17,11 @@ import {
 	PodSyncResult,
 	type PodStatus as PodRuntimeStatus,
 	type Status as ContainerRuntimeStatus,
+	newBackoffError,
 	newPodStatus,
 	newStatus,
 	newSyncResult,
 } from "./container/index.js";
-import { getBackoffKey } from "./kuberuntime/helpers.js";
 import { newFakePod, type FakePod } from "./container/testing/index.js";
 import {
 	FakePodWorkers,
@@ -135,12 +135,17 @@ both.describe("syncPodsStartPod", ({ ctx }) => {
 });
 
 both.describe("Webernetes crash-loop backoff annotation", ({ ctx }) => {
-	it("reports and clears each container's restart deadline", async () => {
+	it("reports and clears only active containers' restart deadlines", async () => {
 		const testKubelet = newTestKubelet(ctx, false);
-		const { kubelet, fakeClock, fakeKubeClient } = testKubelet;
+		const { kubelet, fakeClock, fakeKubeClient, fakeRuntime } = testKubelet;
 		const pod = podWithUIDNameNsSpec("crash-loop-uid", "crash-loop", "test", {
-			containers: [{ name: "app", image: "busybox" }],
+			containers: [
+				{ name: "app", image: "busybox" },
+				{ name: "sidecar", image: "busybox" },
+			],
 		});
+		pod.metadata ??= {};
+		pod.metadata.annotations = { "example.com/keep": "this" };
 		try {
 			await fakeKubeClient.corev1.createNamespace({ body: { metadata: { name: "test" } } });
 			const created = await fakeKubeClient.corev1.createNamespacedPod({
@@ -148,15 +153,14 @@ both.describe("Webernetes crash-loop backoff annotation", ({ ctx }) => {
 				body: pod,
 			});
 			pod.metadata = created.metadata;
-			const container = pod.spec?.containers[0];
-			if (!container) {
-				throw new Error("test pod has no container");
-			}
 			const finishedAt = fakeClock.now();
-			kubelet.crashLoopBackOff.next(getBackoffKey(pod, container), finishedAt);
-			expect(
-				kubelet.crashLoopBackOff.isInBackOffSince(getBackoffKey(pod, container), finishedAt),
-			).toBe(true);
+			const retryAt = new Date(finishedAt.getTime() + 10_000);
+			const crashLoopResult = newSyncResult("StartContainer", "app");
+			crashLoopResult.fail(newBackoffError(new Error("CrashLoopBackOff"), retryAt), "back-off");
+			fakeRuntime.syncResults = new PodSyncResult();
+			fakeRuntime.syncResults.addSyncResult(crashLoopResult);
+			kubelet.reasonCache.update(pod.metadata?.uid ?? "", fakeRuntime.syncResults);
+			fakeClock.step(1000);
 			const runtimeStatus = newPodStatus({
 				id: "crash-loop-uid",
 				name: "crash-loop",
@@ -167,6 +171,7 @@ both.describe("Webernetes crash-loop backoff annotation", ({ ctx }) => {
 						state: "Exited",
 						finishedAt: finishedAt.getTime(),
 					}),
+					newStatus({ name: "sidecar", state: "Running" }),
 				],
 			});
 
@@ -177,14 +182,23 @@ both.describe("Webernetes crash-loop backoff annotation", ({ ctx }) => {
 				namespace: "test",
 			});
 			expect(stored.metadata?.annotations?.["webernetes.ngrok.com/crash-loop-backoff"]).toBe(
-				JSON.stringify({ app: new Date(finishedAt.getTime() + 10_000).toISOString() }),
+				JSON.stringify({ app: retryAt.toISOString() }),
 			);
+			expect(stored.metadata?.annotations?.["example.com/keep"]).toBe("this");
+			const status = kubelet.statusManager.getPodStatus(pod.metadata?.uid ?? "");
+			expect(
+				status?.containerStatuses?.find((container) => container.name === "app")?.state?.waiting,
+			).toMatchObject({ reason: "CrashLoopBackOff" });
 
+			fakeRuntime.syncResults = new PodSyncResult();
 			const runningRuntimeStatus = newPodStatus({
 				id: "crash-loop-uid",
 				name: "crash-loop",
 				namespace: "test",
-				containerStatuses: [newStatus({ name: "app", state: "Running" })],
+				containerStatuses: [
+					newStatus({ name: "app", state: "Running" }),
+					newStatus({ name: "sidecar", state: "Running" }),
+				],
 			});
 			await kubelet.syncPod(ctx, "sync", pod, undefined, runningRuntimeStatus);
 			stored = await fakeKubeClient.corev1.readNamespacedPod({
@@ -194,6 +208,7 @@ both.describe("Webernetes crash-loop backoff annotation", ({ ctx }) => {
 			expect(
 				stored.metadata?.annotations?.["webernetes.ngrok.com/crash-loop-backoff"],
 			).toBeUndefined();
+			expect(stored.metadata?.annotations?.["example.com/keep"]).toBe("this");
 		} finally {
 			await testKubelet.cleanup();
 		}

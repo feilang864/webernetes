@@ -37,6 +37,7 @@ export interface ExecCommandResult {
 }
 
 export interface KubernetesHelpers {
+	advanceTime?: (ms: number) => Promise<void>;
 	fetchNodePort(nodePort: number, request?: NodePortRequest): Promise<NodePortResponse>;
 	exec(pod: V1Pod, containerName: string, command: string[]): Promise<ExecCommandResult>;
 	waitFor(assertion: () => unknown | Promise<unknown>): Promise<void>;

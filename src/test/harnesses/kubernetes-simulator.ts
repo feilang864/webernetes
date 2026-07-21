@@ -42,6 +42,9 @@ export function defineSuite(
 			fetchNodePort,
 			apply: async (resources) => await cluster.apply(resources),
 		});
+		context.helpers.advanceTime = async (ms: number): Promise<void> => {
+			cluster.clock.step(ms);
+		};
 
 		beforeAll(async () => {
 			await setupSimulator();

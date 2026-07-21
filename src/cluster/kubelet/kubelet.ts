@@ -40,6 +40,7 @@ import {
 	PodStatusCache,
 	runtimeReady,
 	shouldAllContainersRestart,
+	minBackoffExpiration,
 	type Runtime,
 	toAPIPod,
 } from "./container/index.js";
@@ -49,6 +50,7 @@ import type {
 	EnvVar,
 	Pod as RuntimePod,
 	PodStatus as PodRuntimeStatus,
+	PodSyncResult,
 	Runtime as KubeletRuntime,
 	RuntimeCache,
 	GC,
@@ -92,7 +94,6 @@ import {
 } from "./types/pod-update.js";
 import * as kubetypes from "./types/index.js";
 import { hasAnyRegularContainerCreated, KubeGenericRuntimeManager } from "./kuberuntime/index.js";
-import { getBackoffKey } from "./kuberuntime/helpers.js";
 import { getPhase, truncatePodHostnameIfNeeded } from "./kubelet-pods.js";
 import { newActiveDeadlineHandler } from "./active-deadline.js";
 import {
@@ -569,8 +570,7 @@ export class Kubelet implements RuntimeHelper, PodDeletionSafetyProvider {
 	recorder: EventRecorder;
 	// Package-visible for upstream-parity tests that mirror kubelet_test.go.
 	readonly workQueue: WorkQueue;
-	// Package-visible for Webernetes crash-loop backoff status tests.
-	readonly crashLoopBackOff: Backoff;
+	private readonly crashLoopBackOff: Backoff;
 	// Models kubernetes/pkg/kubelet/kubelet.go Kubelet.PodSyncLoopHandlers.
 	readonly podSyncLoopHandlers = new PodSyncLoopHandlers();
 	// Models kubernetes/pkg/kubelet/kubelet.go Kubelet.PodSyncHandlers.
@@ -810,9 +810,6 @@ export class Kubelet implements RuntimeHelper, PodDeletionSafetyProvider {
 		// simulator does not model pod resource allocation or in-place resizing.
 
 		const apiPodStatus = await this.generateAPIPodStatus(ctx, pod, podStatus, false);
-		// Webernetes-only deviation: Kubernetes does not publish crash-loop retry deadlines.
-		// Expose one in a Pod annotation so library clients can show when a crash loop ends.
-		await this.updateCrashLoopBackOffAnnotation(ctx, pod, podStatus);
 		podStatus.ips = (apiPodStatus.podIPs ?? [])
 			.map((podIP) => podIP.ip)
 			.filter((ip): ip is string => ip !== undefined);
@@ -882,6 +879,10 @@ export class Kubelet implements RuntimeHelper, PodDeletionSafetyProvider {
 			this.crashLoopBackOff,
 			restartingAllContainers,
 		);
+		// Webernetes-only deviation: Kubernetes does not publish crash-loop retry deadlines.
+		// Expose the runtime's precise deadline in a Pod annotation so library clients can show
+		// when a crash loop ends.
+		await this.updateCrashLoopBackOffAnnotation(ctx, pod, result);
 		this.reasonCache.update(pod.metadata?.uid ?? "", result);
 		if (restartingAllContainers && !result.error()) {
 			const shouldRequeue = result.syncResults.some(
@@ -906,33 +907,34 @@ export class Kubelet implements RuntimeHelper, PodDeletionSafetyProvider {
 		return [false, postSync, err];
 	}
 
-	// Publishes the Webernetes-only, machine-readable crash-loop retry deadlines.
-	// This deliberately does not model an upstream Kubernetes Pod field or behavior.
+	// Publishes the Webernetes-only, machine-readable crash-loop retry deadlines from the
+	// runtime's StartContainer BackoffErrors. This deliberately does not model an upstream
+	// Kubernetes Pod field or behavior.
 	private async updateCrashLoopBackOffAnnotation(
 		ctx: context.Context,
 		pod: V1Pod,
-		podStatus: PodRuntimeStatus,
+		result: PodSyncResult,
 	): Promise<void> {
 		if (ctx.err()) {
 			return;
 		}
 		const retryAtByContainer: Record<string, string> = {};
-		for (const container of pod.spec?.containers ?? []) {
-			const status = podStatus.containerStatuses.find(
-				(containerStatus) =>
-					containerStatus.name === container.name && containerStatus.state === "Exited",
-			);
-			if (!status) {
+		const regularContainerNames = new Set(
+			(pod.spec?.containers ?? []).map((container) => container.name),
+		);
+		for (const syncResult of result.syncResults) {
+			if (
+				syncResult.action !== "StartContainer" ||
+				typeof syncResult.target !== "string" ||
+				!regularContainerNames.has(syncResult.target)
+			) {
 				continue;
 			}
-			const finishedAt = new Date(status.finishedAt ?? 0);
-			const key = getBackoffKey(pod, container);
-			if (!this.crashLoopBackOff.isInBackOffSince(key, finishedAt)) {
+			const [retryAt, inBackOff] = minBackoffExpiration(syncResult.error);
+			if (!inBackOff || !retryAt) {
 				continue;
 			}
-			retryAtByContainer[container.name] = new Date(
-				finishedAt.getTime() + this.crashLoopBackOff.get(key),
-			).toISOString();
+			retryAtByContainer[syncResult.target] = retryAt.toISOString();
 		}
 
 		const value = Object.keys(retryAtByContainer).length
