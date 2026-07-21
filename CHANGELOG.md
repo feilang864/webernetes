@@ -1,5 +1,11 @@
 # @ngrok/webernetes
 
+## 0.4.0
+
+### Minor Changes
+
+- [#34](https://github.com/ngrok/webernetes/pull/34) [`8852c3f`](https://github.com/ngrok/webernetes/commit/8852c3f4d28aae99beb6ef10877d60a1c9888b2a) Thanks [@samwho](https://github.com/samwho)! - The Webernetes library now works in Node.js as well as in the browser.
+
 ## 0.3.5
 
 ### Patch Changes
