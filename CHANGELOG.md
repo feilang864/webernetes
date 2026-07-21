@@ -1,5 +1,13 @@
 # @ngrok/webernetes
 
+## 0.4.2
+
+### Patch Changes
+
+- [`2ae6a97`](https://github.com/ngrok/webernetes/commit/2ae6a97bc1f2fb8a54ef922790f91e9a93f39b64) Thanks [@samwho](https://github.com/samwho)! - Fix crash-loop retry-deadline annotation publishing so `webernetes.ngrok.com/crash-loop-backoff` is present while a regular container is in `CrashLoopBackOff`. The annotation now uses the runtime's precise retry deadline and is removed when the container restarts.
+
+- [`226821f`](https://github.com/ngrok/webernetes/commit/226821f682f7e9025a2571dbbc02ba7dca80ea16) Thanks [@samwho](https://github.com/samwho)! - Refresh project, test, and demo dependencies, including pnpm. Update the demo to remain compatible with the latest Mantle button API while preserving its existing outlined controls.
+
 ## 0.4.1
 
 ### Patch Changes
