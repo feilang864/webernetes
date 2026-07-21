@@ -10,6 +10,7 @@ import type {
 	V1PodStatus,
 	V1Service,
 } from "../../client/index.js";
+import { PatchStrategy, setHeaderOptions } from "../../client/index.js";
 import { Channel, select, type ReadOnlyChannel } from "../../go/channel.js";
 import * as context from "../../go/context.js";
 import { formatIP } from "../../go/net/index.js";
@@ -91,6 +92,7 @@ import {
 } from "./types/pod-update.js";
 import * as kubetypes from "./types/index.js";
 import { hasAnyRegularContainerCreated, KubeGenericRuntimeManager } from "./kuberuntime/index.js";
+import { getBackoffKey } from "./kuberuntime/helpers.js";
 import { getPhase, truncatePodHostnameIfNeeded } from "./kubelet-pods.js";
 import { newActiveDeadlineHandler } from "./active-deadline.js";
 import {
@@ -144,6 +146,9 @@ const maxWaitForContainerRuntimeMs = 30 * 1000;
 const maxCrashLoopBackOffMs = 300 * 1000;
 // Models kubernetes/pkg/kubelet/kubelet.go initialCrashLoopBackOff.
 const initialCrashLoopBackOffMs = 10 * 1000;
+// Webernetes exposes the scheduled restart time because Kubernetes does not
+// publish the kubelet's crash-loop backoff deadline in PodStatus.
+const crashLoopBackOffAnnotation = "webernetes.ngrok.com/crash-loop-backoff";
 // Models kubernetes/pkg/kubelet/kubelet.go MaxImageBackOff.
 const maxImageBackOffMs = 300 * 1000;
 // Models kubernetes/pkg/kubelet/kubelet.go housekeepingPeriod.
@@ -564,7 +569,8 @@ export class Kubelet implements RuntimeHelper, PodDeletionSafetyProvider {
 	recorder: EventRecorder;
 	// Package-visible for upstream-parity tests that mirror kubelet_test.go.
 	readonly workQueue: WorkQueue;
-	private readonly crashLoopBackOff: Backoff;
+	// Package-visible for Webernetes crash-loop backoff status tests.
+	readonly crashLoopBackOff: Backoff;
 	// Models kubernetes/pkg/kubelet/kubelet.go Kubelet.PodSyncLoopHandlers.
 	readonly podSyncLoopHandlers = new PodSyncLoopHandlers();
 	// Models kubernetes/pkg/kubelet/kubelet.go Kubelet.PodSyncHandlers.
@@ -804,6 +810,9 @@ export class Kubelet implements RuntimeHelper, PodDeletionSafetyProvider {
 		// simulator does not model pod resource allocation or in-place resizing.
 
 		const apiPodStatus = await this.generateAPIPodStatus(ctx, pod, podStatus, false);
+		// Webernetes-only deviation: Kubernetes does not publish crash-loop retry deadlines.
+		// Expose one in a Pod annotation so library clients can show when a crash loop ends.
+		await this.updateCrashLoopBackOffAnnotation(ctx, pod, podStatus);
 		podStatus.ips = (apiPodStatus.podIPs ?? [])
 			.map((podIP) => podIP.ip)
 			.filter((ip): ip is string => ip !== undefined);
@@ -895,6 +904,69 @@ export class Kubelet implements RuntimeHelper, PodDeletionSafetyProvider {
 			postSync = () => this.requestPodRelist(pod.metadata?.uid ?? "");
 		}
 		return [false, postSync, err];
+	}
+
+	// Publishes the Webernetes-only, machine-readable crash-loop retry deadlines.
+	// This deliberately does not model an upstream Kubernetes Pod field or behavior.
+	private async updateCrashLoopBackOffAnnotation(
+		ctx: context.Context,
+		pod: V1Pod,
+		podStatus: PodRuntimeStatus,
+	): Promise<void> {
+		if (ctx.err()) {
+			return;
+		}
+		const retryAtByContainer: Record<string, string> = {};
+		for (const container of pod.spec?.containers ?? []) {
+			const status = podStatus.containerStatuses.find(
+				(containerStatus) =>
+					containerStatus.name === container.name && containerStatus.state === "Exited",
+			);
+			if (!status) {
+				continue;
+			}
+			const finishedAt = new Date(status.finishedAt ?? 0);
+			const key = getBackoffKey(pod, container);
+			if (!this.crashLoopBackOff.isInBackOffSince(key, finishedAt)) {
+				continue;
+			}
+			retryAtByContainer[container.name] = new Date(
+				finishedAt.getTime() + this.crashLoopBackOff.get(key),
+			).toISOString();
+		}
+
+		const value = Object.keys(retryAtByContainer).length
+			? JSON.stringify(retryAtByContainer)
+			: undefined;
+		if (pod.metadata?.annotations?.[crashLoopBackOffAnnotation] === value) {
+			return;
+		}
+		try {
+			await this.kubeClient.corev1.patchNamespacedPod(
+				{
+					name: pod.metadata?.name ?? "",
+					namespace: pod.metadata?.namespace ?? "default",
+					body: {
+						metadata: {
+							uid: pod.metadata?.uid,
+							annotations: {
+								[crashLoopBackOffAnnotation]: value ?? null,
+							},
+						},
+					},
+				},
+				setHeaderOptions("Content-Type", PatchStrategy.MergePatch),
+			);
+		} catch {
+			return;
+		}
+		pod.metadata ??= {};
+		pod.metadata.annotations ??= {};
+		if (value === undefined) {
+			delete pod.metadata.annotations[crashLoopBackOffAnnotation];
+		} else {
+			pod.metadata.annotations[crashLoopBackOffAnnotation] = value;
+		}
 	}
 
 	// Models kubernetes/pkg/kubelet/kubelet.go SyncTerminatingPod.

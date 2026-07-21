@@ -18,8 +18,10 @@ import {
 	type PodStatus as PodRuntimeStatus,
 	type Status as ContainerRuntimeStatus,
 	newPodStatus,
+	newStatus,
 	newSyncResult,
 } from "./container/index.js";
+import { getBackoffKey } from "./kuberuntime/helpers.js";
 import { newFakePod, type FakePod } from "./container/testing/index.js";
 import {
 	FakePodWorkers,
@@ -126,6 +128,72 @@ both.describe("syncPodsStartPod", ({ ctx }) => {
 			kubelet.podManager.setPods(pods);
 			await kubelet.handlePodSyncs(ctx, pods);
 			expect(fakeRuntime.assertStartedPods([pods[0].metadata?.uid ?? ""])).toBe(true);
+		} finally {
+			await testKubelet.cleanup();
+		}
+	});
+});
+
+both.describe("Webernetes crash-loop backoff annotation", ({ ctx }) => {
+	it("reports and clears each container's restart deadline", async () => {
+		const testKubelet = newTestKubelet(ctx, false);
+		const { kubelet, fakeClock, fakeKubeClient } = testKubelet;
+		const pod = podWithUIDNameNsSpec("crash-loop-uid", "crash-loop", "test", {
+			containers: [{ name: "app", image: "busybox" }],
+		});
+		try {
+			await fakeKubeClient.corev1.createNamespace({ body: { metadata: { name: "test" } } });
+			const created = await fakeKubeClient.corev1.createNamespacedPod({
+				namespace: "test",
+				body: pod,
+			});
+			pod.metadata = created.metadata;
+			const container = pod.spec?.containers[0];
+			if (!container) {
+				throw new Error("test pod has no container");
+			}
+			const finishedAt = fakeClock.now();
+			kubelet.crashLoopBackOff.next(getBackoffKey(pod, container), finishedAt);
+			expect(
+				kubelet.crashLoopBackOff.isInBackOffSince(getBackoffKey(pod, container), finishedAt),
+			).toBe(true);
+			const runtimeStatus = newPodStatus({
+				id: "crash-loop-uid",
+				name: "crash-loop",
+				namespace: "test",
+				containerStatuses: [
+					newStatus({
+						name: "app",
+						state: "Exited",
+						finishedAt: finishedAt.getTime(),
+					}),
+				],
+			});
+
+			await kubelet.syncPod(ctx, "sync", pod, undefined, runtimeStatus);
+
+			let stored = await fakeKubeClient.corev1.readNamespacedPod({
+				name: "crash-loop",
+				namespace: "test",
+			});
+			expect(stored.metadata?.annotations?.["webernetes.ngrok.com/crash-loop-backoff"]).toBe(
+				JSON.stringify({ app: new Date(finishedAt.getTime() + 10_000).toISOString() }),
+			);
+
+			const runningRuntimeStatus = newPodStatus({
+				id: "crash-loop-uid",
+				name: "crash-loop",
+				namespace: "test",
+				containerStatuses: [newStatus({ name: "app", state: "Running" })],
+			});
+			await kubelet.syncPod(ctx, "sync", pod, undefined, runningRuntimeStatus);
+			stored = await fakeKubeClient.corev1.readNamespacedPod({
+				name: "crash-loop",
+				namespace: "test",
+			});
+			expect(
+				stored.metadata?.annotations?.["webernetes.ngrok.com/crash-loop-backoff"],
+			).toBeUndefined();
 		} finally {
 			await testKubelet.cleanup();
 		}
