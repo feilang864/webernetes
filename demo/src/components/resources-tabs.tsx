@@ -260,6 +260,7 @@ function Deployments({
 									<RowActionIconButton
 										type="button"
 										appearance="outlined"
+										intent="neutral"
 										size="md"
 										disabled={replicas === 0}
 										label="Remove replica"
@@ -269,6 +270,7 @@ function Deployments({
 									<RowActionIconButton
 										type="button"
 										appearance="outlined"
+										intent="neutral"
 										size="md"
 										label="Add replica"
 										icon={<PlusIcon aria-hidden />}
@@ -461,6 +463,7 @@ function Pods({
 									<RowActionIconButton
 										type="button"
 										appearance="outlined"
+										intent="danger"
 										size="md"
 										className="border-danger-600 text-danger-600 focus-visible:ring-focus-danger not-disabled:hover:border-danger-700 not-disabled:hover:bg-danger-500/10 not-disabled:hover:text-danger-700"
 										label="Delete pod"
@@ -761,6 +764,7 @@ function ResourceYamlPopover({ resource }: { resource: w8s.KubernetesObject }) {
 						<IconButton
 							type="button"
 							appearance="outlined"
+							intent="neutral"
 							size="md"
 							label={label}
 							icon={<EyeIcon aria-hidden />}

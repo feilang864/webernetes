@@ -36,7 +36,7 @@ export function Header({
 						<span className="demo-brand-product">webernetes</span>
 					</a>
 					<nav className="flex items-center gap-2" aria-label="Project links">
-						<Button asChild appearance="outlined" priority="neutral">
+						<Button asChild appearance="outlined" intent="neutral">
 							<a
 								className="demo-repo-link"
 								href="https://github.com/ngrok/webernetes"
@@ -78,7 +78,7 @@ export function Header({
 					</div>
 					<ThemeToggle />
 					<ClusterPauseButton cluster={cluster} />
-					<Button type="button" priority="danger" onClick={onReset}>
+					<Button type="button" appearance="outlined" intent="danger" onClick={onReset}>
 						Reset
 					</Button>
 				</div>

@@ -15,7 +15,7 @@ export function ClusterPauseButton({ cluster }: { cluster: w8s.Cluster }) {
 	}
 
 	return (
-		<Button type="button" priority="neutral" onClick={togglePaused}>
+		<Button type="button" appearance="outlined" intent="neutral" onClick={togglePaused}>
 			{paused ? <PlayIcon aria-hidden weight="bold" /> : <PauseIcon aria-hidden weight="bold" />}
 			{paused ? "Play" : "Pause"}
 		</Button>

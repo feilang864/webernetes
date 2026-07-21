@@ -82,7 +82,7 @@ export class ProbeWorker {
 
 		const probeTicker = new time.Ticker(ctx, probeTickerPeriod);
 		try {
-			for (; await this.doProbe(ctx); ) {
+			for (; await this.doProbe(ctx);) {
 				const selected = await select()
 					.case(ctx.done(), () => "stop")
 					.case(this.stopCh, () => "stop")
