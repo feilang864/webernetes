@@ -34,7 +34,7 @@ jobs:
             echo "demo=true" >> "$GITHUB_OUTPUT"
           fi
 
-          if git diff --quiet "$BASE_SHA" "$HEAD_SHA" -- changelog.md; then
+          if git diff --quiet "$BASE_SHA" "$HEAD_SHA" -- CHANGELOG.md .changeset; then
             echo "changelog=false" >> "$GITHUB_OUTPUT"
           else
             echo "changelog=true" >> "$GITHUB_OUTPUT"
