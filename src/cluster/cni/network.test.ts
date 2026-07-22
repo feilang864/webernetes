@@ -623,7 +623,7 @@ both.describe("ClusterNetwork", ({ ctx }) => {
 		expect(response.response?.header?.["X-App"]).toEqual(["ok"]);
 	});
 
-	it("emits request errors without response events when no endpoint is reached", async () => {
+	it("emits connection refusals from a selected endpoint as response events", async () => {
 		const network = new ClusterNetwork();
 		const requests: NetworkRequestEvent[] = [];
 		const responses: NetworkResponseEvent[] = [];
@@ -637,9 +637,11 @@ both.describe("ClusterNetwork", ({ ctx }) => {
 		);
 
 		expect(requests).toHaveLength(1);
-		expect(responses).toHaveLength(0);
 		expect(requests[0]?.latencyMs).toBe(0);
-		expectConnectionRefusedEvent(requests[0]?.error, "10.1.2.3", 8080);
+		expect(requests[0]?.error).toBeUndefined();
+		expect(responses).toHaveLength(1);
+		expect(responses[0]?.request).toBe(requests[0]?.request);
+		expectConnectionRefusedEvent(responses[0]?.error, "10.1.2.3", 8080);
 		expect(requests[0]?.chain.map((hop) => hop.type)).toEqual(["node"]);
 	});
 
@@ -674,7 +676,7 @@ both.describe("ClusterNetwork", ({ ctx }) => {
 		});
 	});
 
-	it("emits a pod connection refusal without a response when a ready target has no listener", async () => {
+	it("emits a pod connection refusal response when a ready target has no listener", async () => {
 		const network = new ClusterNetwork();
 		const pod = new PodSandboxInstance(
 			"sandbox-1",
@@ -704,7 +706,11 @@ both.describe("ClusterNetwork", ({ ctx }) => {
 			80,
 		);
 
-		expect(responses).toEqual([]);
+		expect(requests).toHaveLength(1);
+		expect(requests[0]?.error).toBeUndefined();
+		expect(responses).toHaveLength(1);
+		expect(responses[0]?.request).toBe(requests[0]?.request);
+		expectConnectionRefusedEvent(responses[0]?.error, registration.ip, 8080);
 		expect(requests).toEqual([
 			expect.objectContaining({
 				request: expect.objectContaining({
@@ -713,12 +719,141 @@ both.describe("ClusterNetwork", ({ ctx }) => {
 				}),
 			}),
 		]);
-		expectConnectionRefusedEvent(requests[0]?.error, registration.ip, 8080);
 		expect(requests[0]?.chain.map((hop) => hop.type)).toEqual(["pod", "service", "pod"]);
 		expect(requests[0]?.chain[2]).toMatchObject({
 			type: "pod",
 			resource: { metadata: { uid: "pod-uid" } },
 		});
+	});
+
+	it("dispatches to a listener that attaches during request latency", async () => {
+		const clock = getClock(ctx);
+		clock.pause();
+		const network = new ClusterNetwork();
+		const pod = new PodSandboxInstance(
+			"sandbox-1",
+			{
+				metadata: { name: "web", uid: "pod-uid", namespace: "default", attempt: 0 },
+				pod: podOrigin("pod-uid"),
+			},
+			0,
+		);
+		const registration = network.setupPodSandbox(pod, "10.244.0.0/24");
+		pod.setNetworkRegistration(registration);
+		const requests: NetworkRequestEvent[] = [];
+		const responses: NetworkResponseEvent[] = [];
+		let calls = 0;
+		network.on("request", (event) => requests.push(event));
+		network.on("response", (event) => responses.push(event));
+		const latencyCtx = withLatencyProvider(
+			ctx,
+			newLatencyProvider({
+				clusterNetworkRequestLatency: () => 100,
+				clusterNetworkResponseLatency: () => 25,
+			}),
+		);
+
+		const fetchPromise = network.fetch(
+			latencyCtx,
+			podOrigin("client-uid"),
+			`http://${registration.ip}:8080/health`,
+		);
+		await waitFor(() => expect(requests).toHaveLength(1));
+		expect(requests[0]?.error).toBeUndefined();
+		expect(requests[0]?.latencyMs).toBe(100);
+		clock.step(50);
+		registration.bindHttp(8080, async () => {
+			calls++;
+			return { status: 200, body: "ok" };
+		});
+		clock.step(50);
+		await waitFor(() => expect(responses).toHaveLength(1));
+		expect(calls).toBe(1);
+		expect(responses[0]?.error).toBeUndefined();
+		expect(responses[0]?.latencyMs).toBe(25);
+		clock.step(25);
+		await expect(fetchPromise).resolves.toEqual({ status: 200, body: "ok" });
+	});
+
+	it("evaluates a missing listener after request latency", async () => {
+		const clock = getClock(ctx);
+		clock.pause();
+		const network = new ClusterNetwork();
+		const pod = new PodSandboxInstance(
+			"sandbox-1",
+			{
+				metadata: { name: "web", uid: "pod-uid", namespace: "default", attempt: 0 },
+				pod: podOrigin("pod-uid"),
+			},
+			0,
+		);
+		const registration = network.setupPodSandbox(pod, "10.244.0.0/24");
+		pod.setNetworkRegistration(registration);
+		const requests: NetworkRequestEvent[] = [];
+		const responses: NetworkResponseEvent[] = [];
+		network.on("request", (event) => requests.push(event));
+		network.on("response", (event) => responses.push(event));
+		const latencyCtx = withLatencyProvider(
+			ctx,
+			newLatencyProvider({ clusterNetworkRequestLatency: () => 100 }),
+		);
+
+		const fetchPromise = network.fetch(
+			latencyCtx,
+			podOrigin("client-uid"),
+			`http://${registration.ip}:8080/health`,
+		);
+		await waitFor(() => expect(requests).toHaveLength(1));
+		expect(requests[0]?.error).toBeUndefined();
+		expect(responses).toHaveLength(0);
+		clock.step(100);
+		await expectConnectionRefused(fetchPromise, registration.ip, 8080);
+		expect(responses).toHaveLength(1);
+		expect(responses[0]?.request).toBe(requests[0]?.request);
+		expectConnectionRefusedEvent(responses[0]?.error, registration.ip, 8080);
+	});
+
+	it("refuses a request when its listener disappears during request latency", async () => {
+		const clock = getClock(ctx);
+		clock.pause();
+		const network = new ClusterNetwork();
+		const pod = new PodSandboxInstance(
+			"sandbox-1",
+			{
+				metadata: { name: "web", uid: "pod-uid", namespace: "default", attempt: 0 },
+				pod: podOrigin("pod-uid"),
+			},
+			0,
+		);
+		const registration = network.setupPodSandbox(pod, "10.244.0.0/24");
+		pod.setNetworkRegistration(registration);
+		let calls = 0;
+		const listener = registration.bindHttp(8080, async () => {
+			calls++;
+			return { status: 200, body: "unexpected" };
+		});
+		const requests: NetworkRequestEvent[] = [];
+		const responses: NetworkResponseEvent[] = [];
+		network.on("request", (event) => requests.push(event));
+		network.on("response", (event) => responses.push(event));
+		const latencyCtx = withLatencyProvider(
+			ctx,
+			newLatencyProvider({ clusterNetworkRequestLatency: () => 100 }),
+		);
+
+		const fetchPromise = network.fetch(
+			latencyCtx,
+			podOrigin("client-uid"),
+			`http://${registration.ip}:8080/health`,
+		);
+		await waitFor(() => expect(requests).toHaveLength(1));
+		listener.close();
+		clock.step(100);
+		await expectConnectionRefused(fetchPromise, registration.ip, 8080);
+		expect(requests[0]?.error).toBeUndefined();
+		expect(responses).toHaveLength(1);
+		expectConnectionRefusedEvent(responses[0]?.error, registration.ip, 8080);
+		expect(calls).toBe(0);
 	});
 
 	it("terminates an in-flight request when its target pod is removed during processing", async () => {
@@ -968,7 +1103,11 @@ both.describe("ClusterNetwork", ({ ctx }) => {
 		);
 		const registration = network.setupPodSandbox(pod, "10.244.0.0/24");
 		pod.setNetworkRegistration(registration);
-		registration.bindHttp(8080, async () => ({ status: 200, body: "ok" }));
+		let handlerCalls = 0;
+		registration.bindHttp(8080, async () => {
+			handlerCalls++;
+			return { status: 200, body: "ok" };
+		});
 
 		const events: Array<{
 			type: string;
@@ -1028,10 +1167,12 @@ both.describe("ClusterNetwork", ({ ctx }) => {
 		]);
 		expect(latencyContexts).toEqual([latencyCtx]);
 		expect(resolved).toBe(false);
+		expect(handlerCalls).toBe(0);
 		await waitFor(() => expect(clock.pendingTaskCount()).toBe(1));
 
 		clock.step(20);
 		await waitFor(() => expect(events).toHaveLength(2));
+		expect(handlerCalls).toBe(1);
 		expect(events[1]).toMatchObject({
 			type: "response",
 			latencyMs: 40,

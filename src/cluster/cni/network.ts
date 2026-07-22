@@ -70,13 +70,12 @@ export interface PreNetworkRequestEvent {
 	request: http.Request;
 	chain: NetworkHop[];
 	/**
-	 * Set when routing or connection establishment fails before the target
-	 * accepts the request.
+	 * Set when routing fails before a target endpoint is selected.
 	 *
-	 * Service requests with no ready target and requests to an unbound target
-	 * port use an Error with Node's `ECONNREFUSED` code and a `connect
-	 * ECONNREFUSED <ip>:<port>` message. Failures after the request event has
-	 * been emitted are reported by the corresponding response event instead.
+	 * Service requests with no ready target use an Error with Node's
+	 * `ECONNREFUSED` code and a `connect ECONNREFUSED <ip>:<port>` message.
+	 * Failures after the request event has been emitted are reported by the
+	 * corresponding response event instead.
 	 * If request latency is cancelled before dispatch, the corresponding response
 	 * event has a socket-closed error.
 	 */
@@ -896,11 +895,6 @@ export class ClusterNetwork extends EventEmitter {
 		requestID: string,
 	): Promise<http.Response> {
 		const request = this.httpRequest(requestURL, method, headers, body);
-		if (!this.httpListeners.has(listenerKey(route.endpoint.ip, route.endpoint.port))) {
-			const error = nodeConnectionRefusedCause(route.endpoint.ip, route.endpoint.port);
-			await this.emitRequestEvent(ctx, { request, chain: route.chain, error });
-			throw nodeConnectionRefusedError(requestURL);
-		}
 		await this.emitRequestEvent(ctx, { request, chain: route.chain });
 		let response: http.Response;
 		try {
