@@ -93,6 +93,8 @@ async function fetchNodePort(
 function nodePortFetchScript(target: string, request: NodePortRequest | undefined): string {
 	const curlArgs = [
 		"-sS",
+		"--connect-timeout",
+		"1",
 		"-o",
 		'"$body_file"',
 		"-w",

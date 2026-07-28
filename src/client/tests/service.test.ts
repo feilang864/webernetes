@@ -729,6 +729,15 @@ kubernetes.describe("Services", ({ core, discovery, k8s, helpers, target }) => {
 		});
 
 		await waitFor(async () => {
+			const slices = await discovery.listNamespacedEndpointSlice({ namespace });
+			expect(
+				slices.items
+					.flatMap((slice) => slice.endpoints ?? [])
+					.find((endpoint) => endpoint?.targetRef?.name === "terminating-service-pod")?.conditions,
+			).toMatchObject({ ready: false, terminating: true });
+		});
+
+		await waitFor(async () => {
 			for (let attempt = 0; attempt < 4; attempt++) {
 				const response = await fetchNodePort(nodePort, { path: "/", retries: 0 });
 				expect(response.body?.trim()).toBe("remaining");
