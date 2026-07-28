@@ -5,7 +5,15 @@ import { apiErrorCode, apiStatusMessage } from "../../test/harnesses/helpers.js"
 import { expectRecentCreationTimestamp, expectResourceUid } from "./assertions.js";
 
 kubernetes.describe("Services", ({ core, discovery, k8s, helpers, target }) => {
-	const { exec, getSuiteNamespace, fetchNodePort, waitFor, waitForPodReady } = helpers;
+	const {
+		createNodePortFor,
+		exec,
+		getSuiteNamespace,
+		fetchNodePort,
+		readPod,
+		waitFor,
+		waitForPodReady,
+	} = helpers;
 	const mergePatchOptions = k8s.setHeaderOptions("Content-Type", k8s.PatchStrategy.MergePatch);
 
 	async function createService(service: Partial<V1Service>): Promise<V1Service> {
@@ -593,6 +601,148 @@ kubernetes.describe("Services", ({ core, discovery, k8s, helpers, target }) => {
 		expect(apiStatusMessage(stillAllocatedError)).toBe(
 			nodePortAlreadyAllocatedMessage(target, "failed-create-node-port-reuse", nodePort),
 		);
+	});
+
+	it("should drain in-flight requests while refusing new requests to a terminating endpoint", async () => {
+		const namespace = await getSuiteNamespace();
+		const podName = "draining-service-endpoint";
+		const pod = await core.createNamespacedPod({
+			namespace,
+			body: {
+				metadata: {
+					name: podName,
+					labels: { app: podName },
+				},
+				spec: {
+					terminationGracePeriodSeconds: 3,
+					containers: [
+						{
+							name: "server",
+							image: "registry.k8s.io/e2e-test-images/agnhost:2.40",
+							command: ["/agnhost", "netexec", "--http-port=8080", "--delay-shutdown=2"],
+							ports: [{ name: "http", containerPort: 8080 }],
+							readinessProbe: {
+								httpGet: { path: "/readyz", port: "http" },
+								periodSeconds: 1,
+							},
+						},
+					],
+				},
+			},
+		});
+		const nodePort = await createNodePortFor([pod]);
+
+		await waitForPodReady(pod);
+		await waitFor(async () => {
+			const response = await fetchNodePort(nodePort, { path: "/readyz" });
+			expect(response.status).toBe(200);
+		});
+
+		const inFlightRequest = fetchNodePort(nodePort, {
+			path: "/shell?cmd=touch%20/tmp/request-started%3B%20sleep%201",
+		});
+		await waitFor(async () => {
+			const response = await fetchNodePort(nodePort, {
+				path: "/shell?cmd=test%20-f%20/tmp/request-started",
+			});
+			expect(JSON.parse(response.body ?? "{}")).not.toHaveProperty("error");
+		});
+
+		await core.deleteNamespacedPod({
+			name: podName,
+			namespace,
+			gracePeriodSeconds: 3,
+			body: { gracePeriodSeconds: 3 },
+		});
+
+		await waitFor(async () => {
+			const terminatingPod = await readPod(pod);
+			expect(terminatingPod.metadata?.deletionTimestamp).toBeDefined();
+			const slices = await discovery.listNamespacedEndpointSlice({ namespace });
+			expect(
+				slices.items
+					.flatMap((slice) => slice.endpoints)
+					.find((endpoint) => endpoint.targetRef?.name === podName)?.conditions,
+			).toMatchObject({ ready: false, terminating: true });
+		});
+
+		await waitFor(async () => {
+			let refused = false;
+			try {
+				const response = await fetchNodePort(nodePort, { path: "/readyz", retries: 0 });
+				refused = response.status >= 500;
+			} catch {
+				refused = true;
+			}
+			expect(refused).toBe(true);
+		});
+
+		const completedResponse = await inFlightRequest;
+		expect(completedResponse.status).toBe(200);
+	});
+
+	it("should route all new requests to remaining endpoints while one endpoint terminates", async () => {
+		const namespace = await getSuiteNamespace();
+		const app = "terminating-service-endpoint";
+		const terminatingPod = await core.createNamespacedPod({
+			namespace,
+			body: {
+				metadata: { name: "terminating-service-pod", labels: { app } },
+				spec: {
+					terminationGracePeriodSeconds: 3,
+					containers: [
+						{
+							name: "server",
+							image: "hashicorp/http-echo:1.0",
+							env: [{ name: "ECHO_TEXT", value: "terminating" }],
+							ports: [{ name: "http", containerPort: 5678 }],
+						},
+					],
+				},
+			},
+		});
+		const remainingPod = await core.createNamespacedPod({
+			namespace,
+			body: {
+				metadata: { name: "remaining-service-pod", labels: { app } },
+				spec: {
+					containers: [
+						{
+							name: "server",
+							image: "hashicorp/http-echo:1.0",
+							env: [{ name: "ECHO_TEXT", value: "remaining" }],
+							ports: [{ name: "http", containerPort: 5678 }],
+						},
+					],
+				},
+			},
+		});
+		const nodePort = await createNodePortFor([terminatingPod, remainingPod]);
+		await waitForPodReady(terminatingPod);
+		await waitForPodReady(remainingPod);
+
+		await core.deleteNamespacedPod({
+			name: "terminating-service-pod",
+			namespace,
+			gracePeriodSeconds: 3,
+			body: { gracePeriodSeconds: 3 },
+		});
+
+		await waitFor(async () => {
+			const slices = await discovery.listNamespacedEndpointSlice({ namespace });
+			expect(
+				slices.items
+					.flatMap((slice) => slice.endpoints)
+					.find((endpoint) => endpoint.targetRef?.name === "terminating-service-pod")?.conditions,
+			).toMatchObject({ ready: false, terminating: true });
+		});
+
+		await waitFor(async () => {
+			for (let attempt = 0; attempt < 4; attempt++) {
+				const response = await fetchNodePort(nodePort, { path: "/", retries: 0 });
+				expect(response.body?.trim()).toBe("remaining");
+			}
+		});
 	});
 
 	it("should load balance NodePort traffic across selected pods", async () => {
