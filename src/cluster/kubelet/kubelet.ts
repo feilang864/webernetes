@@ -147,6 +147,8 @@ const maxWaitForContainerRuntimeMs = 30 * 1000;
 const maxCrashLoopBackOffMs = 300 * 1000;
 // Models kubernetes/pkg/kubelet/kubelet.go initialCrashLoopBackOff.
 const initialCrashLoopBackOffMs = 10 * 1000;
+// Models kubernetes/pkg/kubelet/kubelet.go Kubelet.crashLoopBackOff's HasExpiredFunc.
+const crashLoopBackOffExpirationMs = 600 * 1000;
 // Webernetes exposes the scheduled restart time because Kubernetes does not
 // publish the kubelet's crash-loop backoff deadline in PodStatus.
 const crashLoopBackOffAnnotation = "webernetes.ngrok.com/crash-loop-backoff";
@@ -269,6 +271,21 @@ export class NoopPodStartupSLIObserver implements PodStartupSLIObserver {
 	deletePodStartupState(_podUid: string): void {}
 }
 
+// Models kubernetes/pkg/kubelet/kubelet.go newCrashLoopBackOff.
+function newCrashLoopBackOff(kubeCfg: KubeletConfiguration): [number, number] {
+	let boMax = maxCrashLoopBackOffMs;
+	let boInitial = initialCrashLoopBackOffMs;
+
+	// Webernetes exposes the configuration without Kubernetes feature gates.
+	if (kubeCfg.crashLoopBackOff.maxContainerRestartPeriodMs !== undefined) {
+		boMax = kubeCfg.crashLoopBackOff.maxContainerRestartPeriodMs;
+		if (boMax < boInitial) {
+			boInitial = boMax;
+		}
+	}
+	return [boMax, boInitial];
+}
+
 // Models kubernetes/pkg/kubelet/kubelet.go NewMainKubelet.
 export function newMainKubelet(
 	ctx: context.Context,
@@ -341,6 +358,10 @@ export function newMainKubelet(
 	const runtimeState = newRuntimeState(ctx, maxWaitForContainerRuntimeMs);
 	const workQueue = new BasicWorkQueue(clock);
 	const podCache = new PodStatusCache();
+	const [boMax, base] = newCrashLoopBackOff(kubeCfg);
+	const crashLoopBackOff = newBackOff(base, boMax, clock);
+	crashLoopBackOff.hasExpiredFunc = (eventTime, lastUpdate) =>
+		eventTime.getTime() - lastUpdate.getTime() > crashLoopBackOffExpirationMs;
 	const kubelet = new Kubelet({
 		ctx: kubeletCtx,
 		cancelContext,
@@ -366,7 +387,7 @@ export function newMainKubelet(
 		podCache,
 		recorder: kubeDeps.recorder,
 		workQueue,
-		crashLoopBackOff: newBackOff(initialCrashLoopBackOffMs, maxCrashLoopBackOffMs, clock),
+		crashLoopBackOff,
 		nodeIPs: normalizedNodeIPs,
 		nodeStatusMaxImages: kubeCfg.nodeStatusMaxImages,
 	});

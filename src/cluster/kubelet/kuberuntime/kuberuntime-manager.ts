@@ -618,6 +618,12 @@ export class KubeGenericRuntimeManager implements Runtime, CommandRunner {
 
 		const finishedAt = new Date(containerStatus.finishedAt ?? 0);
 		const key = getBackoffKey(pod, container);
+		// Webernetes permits a zero crash-loop backoff maximum. Do not create a
+		// BackoffError in that mode: it would schedule a wait and publish a
+		// CrashLoopBackOff annotation even though restart is immediate.
+		if (backOff.isDisabled()) {
+			return [false, "", undefined];
+		}
 		if (backOff.isInBackOffSince(key, finishedAt)) {
 			await this.recordContainerEvent(
 				ctx,

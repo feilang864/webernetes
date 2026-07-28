@@ -89,6 +89,11 @@ export interface ClusterOptions {
 	 * constructed. Defaults to 3.
 	 */
 	nodes?: number;
+	/**
+	 * Settings applied to each simulated kubelet. Unspecified settings retain
+	 * the simulator defaults.
+	 */
+	kubeletConfiguration?: Partial<KubeletConfiguration>;
 }
 
 export type {
@@ -175,6 +180,7 @@ export class Cluster extends EventEmitter {
 			maxContainerCount: -1,
 			nodeStatusMaxImages: 50,
 			clusterDomain: "cluster.local",
+			crashLoopBackOff: options.kubeletConfiguration?.crashLoopBackOff ?? {},
 		};
 		const serverDNSConfig = {
 			servers: [this.dnsServiceIp],

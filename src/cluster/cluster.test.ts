@@ -1,9 +1,11 @@
+// oxlint-disable typescript/no-non-null-assertion
 import { expect, it } from "vitest";
 
 import { select } from "../go/channel.js";
 import { both } from "../test/describe.js";
 import { waitFor } from "../test/wait.js";
 import { Cluster, type ClusterInformerEventType, type ClusterInformerResource } from "./cluster.js";
+import type { ProcessContext } from "./cri/index.js";
 import type { NetworkRequestEvent, NetworkResponseEvent } from "./cni/network.js";
 import { BaseImage } from "./images/base.js";
 import type { Kubelet } from "./kubelet/index.js";
@@ -15,6 +17,27 @@ type InformerObject = { metadata?: { name?: string } };
 class TestImage extends BaseImage {
 	static readonly imageName = "example/test";
 	static readonly imageVersion = "1.0";
+}
+
+class FailTwiceImage extends BaseImage {
+	static readonly imageName = "example/fail-twice";
+	static readonly imageVersion = "1.0";
+	static attempts = 0;
+
+	static reset(): void {
+		FailTwiceImage.attempts = 0;
+	}
+
+	override async exec(ctx: ProcessContext, argv: readonly string[]): Promise<number> {
+		if (argv[0] !== "fail-twice") {
+			return await super.exec(ctx, argv);
+		}
+		FailTwiceImage.attempts += 1;
+		if (FailTwiceImage.attempts <= 2) {
+			return 1;
+		}
+		return await ctx.waitUntilKilled();
+	}
 }
 
 async function probeResultChannelsAreOpen(kubelet: Kubelet): Promise<boolean> {
@@ -68,7 +91,6 @@ async function createInformerFieldSelectorFixture(
 				body: {
 					metadata,
 					spec: {
-						nodeName: "node-1",
 						containers: [{ name: "pause", image: "registry.k8s.io/pause:3.10" }],
 					},
 				},
@@ -121,6 +143,140 @@ async function createInformerFieldSelectorFixture(
 }
 
 both.describe("Cluster nodes", () => {
+	it("uses a non-zero default kubelet crash-loop restart delay", async () => {
+		FailTwiceImage.reset();
+		const cluster = new Cluster({ nodes: 1 });
+		try {
+			cluster.registerImage(FailTwiceImage);
+			await cluster.init();
+			await cluster.api.corev1.createNamespacedPod({
+				namespace: "default",
+				body: {
+					metadata: { name: "restart-with-default-delay" },
+					spec: {
+						restartPolicy: "Always",
+						containers: [
+							{
+								name: "app",
+								image: "example/fail-twice:1.0",
+								command: ["fail-twice"],
+							},
+						],
+					},
+				},
+			});
+			await waitFor(async () => {
+				const pod = await cluster.api.corev1.readNamespacedPod({
+					name: "restart-with-default-delay",
+					namespace: "default",
+				});
+				const finishedAt = pod.status?.containerStatuses?.[0]?.lastState?.terminated?.finishedAt;
+				const annotation = pod.metadata?.annotations?.["webernetes.ngrok.com/crash-loop-backoff"];
+				expect(FailTwiceImage.attempts).toBe(2);
+				expect(finishedAt).toBeDefined();
+				expect(annotation).toBeDefined();
+				const retryAt = JSON.parse(annotation ?? "{}") as Record<string, string>;
+				expect(new Date(retryAt.app ?? "").getTime() - new Date(finishedAt!).getTime()).toBe(
+					10_000,
+				);
+			});
+		} finally {
+			await cluster.close();
+			FailTwiceImage.reset();
+		}
+	});
+
+	it("restarts a finite crash loop immediately when kubelet backoff is disabled", async () => {
+		FailTwiceImage.reset();
+		const cluster = new Cluster({
+			nodes: 1,
+			kubeletConfiguration: {
+				crashLoopBackOff: { maxContainerRestartPeriodMs: 0 },
+			},
+		});
+		try {
+			cluster.registerImage(FailTwiceImage);
+			await cluster.init();
+			await cluster.api.corev1.createNamespacedPod({
+				namespace: "default",
+				body: {
+					metadata: { name: "restart-without-delay" },
+					spec: {
+						restartPolicy: "Always",
+						containers: [
+							{
+								name: "app",
+								image: "example/fail-twice:1.0",
+								command: ["fail-twice"],
+							},
+						],
+					},
+				},
+			});
+			await waitFor(async () => {
+				const pod = await cluster.api.corev1.readNamespacedPod({
+					name: "restart-without-delay",
+					namespace: "default",
+				});
+				const status = pod.status?.containerStatuses?.[0];
+				expect(FailTwiceImage.attempts).toBe(3);
+				expect(status?.restartCount).toBe(2);
+				expect(status?.state?.running).toBeDefined();
+				expect(
+					pod.metadata?.annotations?.["webernetes.ngrok.com/crash-loop-backoff"],
+				).toBeUndefined();
+			});
+		} finally {
+			await cluster.close();
+			FailTwiceImage.reset();
+		}
+	});
+
+	it("uses the configured kubelet crash-loop restart delay", async () => {
+		const maxContainerRestartPeriodMs = 5_000;
+		const cluster = new Cluster({
+			nodes: 1,
+			kubeletConfiguration: {
+				crashLoopBackOff: { maxContainerRestartPeriodMs },
+			},
+		});
+		try {
+			await cluster.init();
+			await cluster.api.corev1.createNamespacedPod({
+				namespace: "default",
+				body: {
+					metadata: { name: "restart-with-configured-delay" },
+					spec: {
+						restartPolicy: "Always",
+						containers: [
+							{
+								name: "app",
+								image: "busybox:1.36",
+								command: ["false"],
+							},
+						],
+					},
+				},
+			});
+			await waitFor(async () => {
+				const pod = await cluster.api.corev1.readNamespacedPod({
+					name: "restart-with-configured-delay",
+					namespace: "default",
+				});
+				const finishedAt = pod.status?.containerStatuses?.[0]?.lastState?.terminated?.finishedAt;
+				const annotation = pod.metadata?.annotations?.["webernetes.ngrok.com/crash-loop-backoff"];
+				expect(finishedAt).toBeDefined();
+				expect(annotation).toBeDefined();
+				const retryAt = JSON.parse(annotation ?? "{}") as Record<string, string>;
+				expect(new Date(retryAt.app ?? "").getTime() - new Date(finishedAt!).getTime()).toBe(
+					maxContainerRestartPeriodMs,
+				);
+			});
+		} finally {
+			await cluster.close();
+		}
+	});
+
 	it("assigns each cluster a unique incrementing ID", async () => {
 		const firstCluster = new Cluster();
 		const secondCluster = new Cluster();
@@ -463,7 +619,6 @@ both.describe("Cluster shutdown", () => {
 				body: {
 					metadata: { name: "shutdown-probed" },
 					spec: {
-						nodeName: "node-1",
 						containers: [
 							{
 								name: "agnhost",
@@ -486,7 +641,7 @@ both.describe("Cluster shutdown", () => {
 			});
 
 			await waitFor(() => {
-				expect(cluster.servers[0].kubelet.probeWorkerCount()).toBeGreaterThan(0);
+				expect(cluster.servers.some((server) => server.kubelet.probeWorkerCount() > 0)).toBe(true);
 			});
 
 			await cluster.close();
@@ -516,7 +671,6 @@ both.describe("Cluster shutdown", () => {
 				body: {
 					metadata: { name: "shutdown-exec-probed" },
 					spec: {
-						nodeName: "node-1",
 						containers: [
 							{
 								name: "busybox",
@@ -533,7 +687,7 @@ both.describe("Cluster shutdown", () => {
 			});
 
 			await waitFor(() => {
-				expect(cluster.servers[0].runtime.processCount()).toBeGreaterThan(1);
+				expect(cluster.servers.some((server) => server.runtime.processCount() > 1)).toBe(true);
 			});
 
 			await cluster.close();

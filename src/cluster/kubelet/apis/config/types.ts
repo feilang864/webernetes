@@ -15,4 +15,16 @@ export interface KubeletConfiguration {
 	maxPerPodContainerCount: number;
 	maxContainerCount: number;
 	nodeStatusMaxImages: number;
+	crashLoopBackOff: CrashLoopBackOffConfig;
+}
+
+// Models kubernetes/pkg/kubelet/apis/config/types.go CrashLoopBackOffConfig.
+export interface CrashLoopBackOffConfig {
+	/**
+	 * Maximum delay between restart attempts for containers in CrashLoopBackOff.
+	 *
+	 * Kubernetes accepts values from one second through five minutes. Webernetes
+	 * additionally accepts zero to disable restart delay.
+	 */
+	maxContainerRestartPeriodMs?: number;
 }

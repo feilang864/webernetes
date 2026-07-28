@@ -23,6 +23,11 @@ export class Backoff {
 		private readonly maxJitterFactor: number,
 	) {}
 
+	// Webernetes permits a zero crash-loop backoff maximum, unlike Kubernetes.
+	isDisabled(): boolean {
+		return this.maxDurationMs === 0;
+	}
+
 	// Models staging/src/k8s.io/client-go/util/flowcontrol/backoff.go Backoff.Get.
 	get(id: string): number {
 		return this.perItemBackoff.get(id)?.backoff ?? 0;

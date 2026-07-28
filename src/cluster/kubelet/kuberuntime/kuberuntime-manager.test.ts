@@ -1361,6 +1361,20 @@ both.describe("KubeGenericRuntimeManager.doBackOff", ({ ctx }) => {
 					new Date(((podStatus.containerStatuses[0] as ContainerStatus).finishedAt ?? 0) + 1000),
 				),
 		},
+		{
+			name: "backoff disabled",
+			podStatus: (clock: Clock) => ({
+				...emptyPodStatus(clock),
+				containerStatuses: [
+					{
+						...containerStatus("foocontainer", "id1", "Exited"),
+						finishedAt: clock.nowMs(),
+					},
+				],
+			}),
+			backoff: (clock: Clock) => newBackOff(0, 0, clock),
+			expectedInBackOff: false,
+		},
 	] satisfies DoBackOffCase[])("$name", async (test) => {
 		const [, , manager] = createTestRuntimeManager(ctx);
 		const clock = getClock(ctx);

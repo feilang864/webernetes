@@ -29,6 +29,10 @@ export type {
 	NetworkResponseEvent,
 } from "./cluster/cluster.js";
 export type { NodePortRange } from "./cluster/storage/index.js";
+export type {
+	CrashLoopBackOffConfig,
+	KubeletConfiguration,
+} from "./cluster/kubelet/apis/config/index.js";
 export type { ImageConstructor, ImageDefinition } from "./cluster/cri/index.js";
 export type { ProcessContext } from "./cluster/cri/index.js";
 export type { ContainerTerminationLatencyEvent, LatencyProvider } from "./latency.js";
