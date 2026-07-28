@@ -661,8 +661,8 @@ kubernetes.describe("Services", ({ core, discovery, k8s, helpers, target }) => {
 			const slices = await discovery.listNamespacedEndpointSlice({ namespace });
 			expect(
 				slices.items
-					.flatMap((slice) => slice.endpoints)
-					.find((endpoint) => endpoint.targetRef?.name === podName)?.conditions,
+					.flatMap((slice) => slice.endpoints ?? [])
+					.find((endpoint) => endpoint?.targetRef?.name === podName)?.conditions,
 			).toMatchObject({ ready: false, terminating: true });
 		});
 
@@ -732,8 +732,8 @@ kubernetes.describe("Services", ({ core, discovery, k8s, helpers, target }) => {
 			const slices = await discovery.listNamespacedEndpointSlice({ namespace });
 			expect(
 				slices.items
-					.flatMap((slice) => slice.endpoints)
-					.find((endpoint) => endpoint.targetRef?.name === "terminating-service-pod")?.conditions,
+					.flatMap((slice) => slice.endpoints ?? [])
+					.find((endpoint) => endpoint?.targetRef?.name === "terminating-service-pod")?.conditions,
 			).toMatchObject({ ready: false, terminating: true });
 		});
 
