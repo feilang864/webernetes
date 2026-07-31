@@ -157,24 +157,31 @@ export class KubeProxy extends BaseImage {
 
 	private targetsForServicePort(service: k8s.V1Service, port: k8s.V1ServicePort): string[] {
 		const slices = this.endpointSlicesForService(service);
-		const targets: string[] = [];
+		const readyTargets: string[] = [];
+		const servingTerminatingTargets: string[] = [];
 		for (const slice of slices) {
 			for (const endpointPort of slice.ports ?? []) {
 				if ((endpointPort.name ?? "") !== (port.name ?? "") || endpointPort.port === undefined) {
 					continue;
 				}
 				for (const endpoint of slice.endpoints) {
-					if (endpoint.conditions?.ready === false) {
+					const address = endpoint.addresses[0];
+					if (!address) {
 						continue;
 					}
-					const address = endpoint.addresses[0];
-					if (address) {
-						targets.push(`${address}:${endpointPort.port}`);
+					const target = `${address}:${endpointPort.port}`;
+					if (endpoint.conditions?.ready !== false) {
+						readyTargets.push(target);
+					} else if (
+						endpoint.conditions?.serving !== false &&
+						endpoint.conditions?.terminating === true
+					) {
+						servingTerminatingTargets.push(target);
 					}
 				}
 			}
 		}
-		return targets;
+		return readyTargets.length > 0 ? readyTargets : servingTerminatingTargets;
 	}
 
 	private endpointSlicesForService(service: k8s.V1Service): k8s.V1EndpointSlice[] {

@@ -1,5 +1,5 @@
 import { expect, it } from "vitest";
-import type { V1Pod, V1Service } from "../gen/models/index.js";
+import type { DiscoveryV1EndpointPort, V1Endpoint, V1Pod, V1Service } from "../gen/models/index.js";
 import { kubernetes } from "../../test/harnesses/kubernetes.js";
 import { apiErrorCode, apiStatusMessage } from "../../test/harnesses/helpers.js";
 import { expectRecentCreationTimestamp, expectResourceUid } from "./assertions.js";
@@ -33,13 +33,13 @@ kubernetes.describe("Services", ({ core, discovery, k8s, helpers, target }) => {
 		});
 	}
 
-	async function createEchoPod(name: string, text: string): Promise<void> {
-		await core.createNamespacedPod({
+	async function createEchoPod(name: string, text: string, app = "http-echo-lb"): Promise<V1Pod> {
+		return await core.createNamespacedPod({
 			namespace: await getSuiteNamespace(),
 			body: {
 				metadata: {
 					name,
-					labels: { app: "http-echo-lb" },
+					labels: { app },
 				},
 				spec: {
 					containers: [
@@ -51,6 +51,28 @@ kubernetes.describe("Services", ({ core, discovery, k8s, helpers, target }) => {
 						},
 					],
 				},
+			},
+		});
+	}
+
+	async function createManualEndpointSlice(
+		name: string,
+		serviceName: string,
+		endpoints: V1Endpoint[],
+		ports: DiscoveryV1EndpointPort[],
+	): Promise<void> {
+		await discovery.createNamespacedEndpointSlice({
+			namespace: await getSuiteNamespace(),
+			body: {
+				apiVersion: "discovery.k8s.io/v1",
+				kind: "EndpointSlice",
+				metadata: {
+					name,
+					labels: { "kubernetes.io/service-name": serviceName },
+				},
+				addressType: "IPv4",
+				endpoints,
+				ports,
 			},
 		});
 	}
@@ -603,7 +625,7 @@ kubernetes.describe("Services", ({ core, discovery, k8s, helpers, target }) => {
 		);
 	});
 
-	it("should drain in-flight requests while refusing new requests to a terminating endpoint", async () => {
+	it("should route new requests to a serving terminating endpoint", async () => {
 		const namespace = await getSuiteNamespace();
 		const podName = "draining-service-endpoint";
 		const pod = await core.createNamespacedPod({
@@ -663,22 +685,33 @@ kubernetes.describe("Services", ({ core, discovery, k8s, helpers, target }) => {
 				slices.items
 					.flatMap((slice) => slice.endpoints ?? [])
 					.find((endpoint) => endpoint?.targetRef?.name === podName)?.conditions,
-			).toMatchObject({ ready: false, terminating: true });
+			).toMatchObject({ ready: false, serving: true, terminating: true });
 		});
 
 		await waitFor(async () => {
+			const response = await fetchNodePort(nodePort, { path: "/readyz", retries: 0 });
+			expect(response.status).toBe(200);
+		});
+
+		const completedResponse = await inFlightRequest;
+		expect(completedResponse.status).toBe(200);
+
+		await waitFor(async () => {
+			let removed = false;
+			try {
+				await readPod(pod);
+			} catch {
+				removed = true;
+			}
+			expect(removed).toBe(true);
 			let refused = false;
 			try {
-				const response = await fetchNodePort(nodePort, { path: "/readyz", retries: 0 });
-				refused = response.status >= 500;
+				await fetchNodePort(nodePort, { path: "/readyz", retries: 0 });
 			} catch {
 				refused = true;
 			}
 			expect(refused).toBe(true);
 		});
-
-		const completedResponse = await inFlightRequest;
-		expect(completedResponse.status).toBe(200);
 	});
 
 	it("should route all new requests to remaining endpoints while one endpoint terminates", async () => {
@@ -742,6 +775,80 @@ kubernetes.describe("Services", ({ core, discovery, k8s, helpers, target }) => {
 				const response = await fetchNodePort(nodePort, { path: "/", retries: 0 });
 				expect(response.body?.trim()).toBe("remaining");
 			}
+		});
+	});
+
+	it("should fall back to all serving terminating endpoints", async () => {
+		const first = await waitForPodReady(
+			await createEchoPod("terminating-echo-one", "one", "manual-endpoint"),
+		);
+		const second = await waitForPodReady(
+			await createEchoPod("terminating-echo-two", "two", "manual-endpoint"),
+		);
+		const service = await createService({
+			metadata: { name: "all-terminating-endpoints" },
+			spec: { type: "NodePort", ports: [{ name: "http", port: 80, targetPort: "http" }] },
+		});
+		const nodePort = service.spec?.ports?.[0]?.nodePort;
+		const firstAddress = first.status?.podIP;
+		const secondAddress = second.status?.podIP;
+		if (nodePort === undefined || !firstAddress || !secondAddress) {
+			throw new Error("Expected NodePort Service and ready Pod addresses");
+		}
+		await createManualEndpointSlice(
+			"all-terminating-endpoints",
+			"all-terminating-endpoints",
+			[
+				{
+					addresses: [firstAddress],
+					conditions: { ready: false, serving: true, terminating: true },
+				},
+				{
+					addresses: [secondAddress],
+					conditions: { ready: false, terminating: true },
+				},
+			],
+			[{ name: "http", port: 5678, protocol: "TCP" }],
+		);
+
+		const responses = new Set<string>();
+		await waitFor(async () => {
+			for (let attempt = 0; attempt < 8; attempt++) {
+				responses.add(
+					(await fetchNodePort(nodePort, { path: "/", retries: 0 })).body?.trim() ?? "",
+				);
+			}
+			expect(responses).toEqual(new Set(["one", "two"]));
+		});
+	});
+
+	it("should not fall back to a non-serving terminating endpoint", async () => {
+		const pod = await waitForPodReady(
+			await createEchoPod("non-serving-echo", "unreachable", "manual-endpoint"),
+		);
+		const service = await createService({
+			metadata: { name: "non-serving-terminating-endpoint" },
+			spec: { type: "NodePort", ports: [{ name: "http", port: 80, targetPort: "http" }] },
+		});
+		const nodePort = service.spec?.ports?.[0]?.nodePort;
+		const address = pod.status?.podIP;
+		if (nodePort === undefined || !address) {
+			throw new Error("Expected NodePort Service and ready Pod address");
+		}
+		await createManualEndpointSlice(
+			"non-serving-terminating-endpoint",
+			"non-serving-terminating-endpoint",
+			[{ addresses: [address], conditions: { ready: false, serving: false, terminating: true } }],
+			[{ name: "http", port: 5678, protocol: "TCP" }],
+		);
+		await waitFor(async () => {
+			let refused = false;
+			try {
+				await fetchNodePort(nodePort, { path: "/", retries: 0 });
+			} catch {
+				refused = true;
+			}
+			expect(refused).toBe(true);
 		});
 	});
 
