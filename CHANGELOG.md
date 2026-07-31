@@ -1,5 +1,11 @@
 # @ngrok/webernetes
 
+## 0.5.2
+
+### Patch Changes
+
+- [`17cc8bf`](https://github.com/ngrok/webernetes/commit/17cc8bf22d457c1582e263f7a19ea776fbdff7f4) Thanks [@samwho](https://github.com/samwho)! - Route Service traffic to serving, terminating EndpointSlice endpoints when no ready endpoints are available.
+
 ## 0.5.1
 
 ### Patch Changes
