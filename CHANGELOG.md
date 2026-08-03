@@ -1,5 +1,11 @@
 # @ngrok/webernetes
 
+## 0.5.3
+
+### Patch Changes
+
+- [`88584d8`](https://github.com/ngrok/webernetes/commit/88584d8e131ea161dafee73df3af7fe92b8e6f0e) Thanks [@samwho](https://github.com/samwho)! - Match kubelet probe behavior when `ChangeContainerStatusOnKubeletRestart` is disabled. Preserve probe results only for containers that predate the kubelet start, while replacement containers receive the normal initial readiness, liveness, and startup probe states.
+
 ## 0.5.2
 
 ### Patch Changes
