@@ -13,7 +13,7 @@ import {
 	parseContainerID,
 	shouldAllContainersRestart,
 } from "../container/index.js";
-import type { ProbeManagerImpl } from "./prober-manager.js";
+import { kubeletRestartGracePeriod, type ProbeManagerImpl } from "./prober-manager.js";
 import type { ProberResult, ProbeType, ResultsManager } from "./results/index.js";
 
 export class ProbeWorker {
@@ -134,7 +134,22 @@ export class ProbeWorker {
 				this.resultsManager.remove(this.containerId);
 			}
 			this.containerId = parseContainerID(c.containerID);
-			await this.resultsManager.set(this.containerId, this.initialValue, this.pod);
+
+			// Webernetes intentionally models ChangeContainerStatusOnKubeletRestart as disabled.
+			// Preserve probe state only for a container that was already running
+			// before this kubelet instance. A container started after the kubelet is
+			// a normal replacement and must receive the probe type's initial value.
+			let isRestart = false;
+			const containerStartTime = c.state?.running?.startedAt;
+			if (
+				containerStartTime !== undefined &&
+				containerStartTime < kubeletRestartGracePeriod(this.probeManager.startedAt)
+			) {
+				isRestart = true;
+			}
+			if (!isRestart) {
+				await this.resultsManager.set(this.containerId, this.initialValue, this.pod);
+			}
 			this.onHold = false;
 		}
 

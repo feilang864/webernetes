@@ -1,6 +1,6 @@
 import { expect, it } from "vitest";
 import type { CoreV1Event, V1Container, V1Pod } from "../gen/models/index.js";
-import { kubernetes } from "../../test/harnesses/kubernetes.js";
+import { k3s, kubernetes } from "../../test/harnesses/kubernetes.js";
 
 const busyboxImage = "busybox:1.36";
 const pauseImage = "registry.k8s.io/pause:3.10";
@@ -397,6 +397,110 @@ kubernetes.describe("Probes", ({ discovery, helpers }) => {
 			expect(containerStatus(pod, "server").ready).toBe(true);
 			expect(conditionStatus(pod, "Ready")).toBe("True");
 		});
+	});
+});
+
+k3s.describe("Probe lifecycle observation", ({ helpers }) => {
+	const { containerStatus, createPod, exec, readPod, waitFor } = helpers;
+
+	it("executes readiness and liveness for a replacement before its startup worker observes the new container", async () => {
+		const pod = await createPod({
+			metadata: { name: "startup-gates-replacement-readiness" },
+			spec: {
+				restartPolicy: "Always",
+				terminationGracePeriodSeconds: 0,
+				volumes: [{ name: "state", emptyDir: {} }],
+				containers: [
+					{
+						name: "test",
+						image: busyboxImage,
+						command: [
+							"sh",
+							"-c",
+							[
+								"generation=0",
+								"test ! -f /state/generation || generation=$(cat /state/generation)",
+								"generation=$((generation + 1))",
+								'echo "$generation" > /state/generation',
+								'echo "container:$generation" >> /state/probes',
+								"exec sleep 3600",
+							].join("\n"),
+						],
+						volumeMounts: [{ name: "state", mountPath: "/state" }],
+						startupProbe: {
+							exec: {
+								command: [
+									"sh",
+									"-c",
+									'generation=$(cat /state/generation); echo "startup:$generation" >> /state/probes; test "$generation" = 1 || test -f "/state/allow-startup-$generation"',
+								],
+							},
+							periodSeconds: 5,
+							failureThreshold: 100,
+						},
+						livenessProbe: {
+							exec: {
+								command: [
+									"sh",
+									"-c",
+									'generation=$(cat /state/generation); echo "liveness:$generation" >> /state/probes; test "$generation" != 1 || test ! -f /state/fail-liveness-1',
+								],
+							},
+							periodSeconds: 1,
+							failureThreshold: 1,
+						},
+						readinessProbe: {
+							exec: {
+								command: [
+									"sh",
+									"-c",
+									'generation=$(cat /state/generation); echo "readiness:$generation" >> /state/probes',
+								],
+							},
+							periodSeconds: 1,
+							failureThreshold: 1,
+						},
+					},
+				],
+			},
+		});
+
+		let firstContainerID = "";
+		await waitFor(async () => {
+			const status = containerStatus(await readPod(pod), "test");
+			expect(status.started).toBe(true);
+			expect(status.ready).toBe(true);
+			expect(status.containerID).toBeDefined();
+			firstContainerID = status.containerID ?? "";
+		});
+
+		const failResult = await exec(pod, "test", ["touch", "/state/fail-liveness-1"]);
+		expect(failResult.exitCode).toBe(0);
+
+		let secondContainerID = "";
+		await waitFor(async () => {
+			const status = containerStatus(await readPod(pod), "test");
+			expect(status.containerID).toBeDefined();
+			expect(status.containerID).not.toBe(firstContainerID);
+			secondContainerID = status.containerID ?? "";
+		});
+		expect(secondContainerID).not.toBe(firstContainerID);
+
+		let observations = "";
+		await waitFor(async () => {
+			const result = await exec(pod, "test", ["cat", "/state/probes"]);
+			expect(result.exitCode).toBe(0);
+			expect(result.stdout).toContain("startup:2");
+			observations = result.stdout;
+		});
+
+		const startup = observations.indexOf("startup:2");
+		const readiness = observations.indexOf("readiness:2");
+		const liveness = observations.indexOf("liveness:2");
+		expect(readiness).toBeGreaterThanOrEqual(0);
+		expect(liveness).toBeGreaterThanOrEqual(0);
+		expect(readiness).toBeLessThan(startup);
+		expect(liveness).toBeLessThan(startup);
 	});
 });
 

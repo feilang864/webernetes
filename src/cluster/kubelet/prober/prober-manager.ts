@@ -309,6 +309,7 @@ export function probeTypeString(probeType: ProbeType): string {
 }
 
 // Models kubernetes/pkg/kubelet/prober/prober_manager.go kubeletRestartGracePeriod.
-function kubeletRestartGracePeriod(start: Date): Date {
+// Exported only because worker.ts is a separate TypeScript module; upstream files share a Go package.
+export function kubeletRestartGracePeriod(start: Date): Date {
 	return new Date(start.getTime() - 10_000);
 }

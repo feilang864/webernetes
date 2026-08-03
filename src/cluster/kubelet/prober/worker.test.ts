@@ -750,42 +750,37 @@ both.describe("TestStartupProbeDisabledByStarted", ({ ctx }) => {
 
 // Models kubernetes/pkg/kubelet/prober/worker_test.go TestChangeContainerStatusOnKubeletRestart.
 both.describe("TestChangeContainerStatusOnKubeletRestart", ({ ctx }) => {
-	// Upstream rows for disabled feature gates and restartable init containers are outside the
-	// simulator's current feature-gate and init-container scope.
+	// Upstream rows for the enabled feature gate and restartable init containers are outside the
+	// simulator's current feature-gate and init-container scope. Webernetes models the disabled
+	// ChangeContainerStatusOnKubeletRestart behavior.
 	it.each([
 		{
-			name: "feature enabled, is restart, readiness",
-			featureEnabled: true,
+			name: "feature disabled, is restart, readiness",
+			featureEnabled: false,
 			isRestart: true,
 			probeType: readiness,
-			initialValue: "failure" as const,
-			expectSet: true,
+			expectSet: false,
 			isSidecar: false,
-			expectedResult: "failure" as const,
 		},
 		{
-			name: "feature enabled, is restart, liveness",
-			featureEnabled: true,
+			name: "feature disabled, is restart, liveness",
+			featureEnabled: false,
 			isRestart: true,
 			probeType: liveness,
-			initialValue: "success" as const,
-			expectSet: true,
+			expectSet: false,
 			isSidecar: false,
-			expectedResult: "success" as const,
 		},
 		{
-			name: "feature enabled, is restart, startup",
-			featureEnabled: true,
+			name: "feature disabled, is restart, startup",
+			featureEnabled: false,
 			isRestart: true,
 			probeType: startup,
-			initialValue: "unknown" as const,
-			expectSet: true,
+			expectSet: false,
 			isSidecar: false,
-			expectedResult: "unknown" as const,
 		},
 		{
-			name: "feature enabled, not restart, readiness",
-			featureEnabled: true,
+			name: "feature disabled, not restart, readiness",
+			featureEnabled: false,
 			isRestart: false,
 			probeType: readiness,
 			initialValue: "failure" as const,
@@ -794,8 +789,8 @@ both.describe("TestChangeContainerStatusOnKubeletRestart", ({ ctx }) => {
 			expectedResult: "failure" as const,
 		},
 		{
-			name: "feature enabled, not restart, liveness",
-			featureEnabled: true,
+			name: "feature disabled, not restart, liveness",
+			featureEnabled: false,
 			isRestart: false,
 			probeType: liveness,
 			initialValue: "success" as const,
@@ -804,8 +799,8 @@ both.describe("TestChangeContainerStatusOnKubeletRestart", ({ ctx }) => {
 			expectedResult: "success" as const,
 		},
 		{
-			name: "feature enabled, not restart, startup",
-			featureEnabled: true,
+			name: "feature disabled, not restart, startup",
+			featureEnabled: false,
 			isRestart: false,
 			probeType: startup,
 			initialValue: "unknown" as const,
@@ -825,7 +820,6 @@ both.describe("TestChangeContainerStatusOnKubeletRestart", ({ ctx }) => {
 			m.startedAt.getTime() + (tc.isRestart ? -5 * 60_000 : 5 * 60_000),
 		);
 		const w = newTestWorker(m, tc.probeType, { initialDelaySeconds: 1000 });
-		expect(w.initialValue).toBe(tc.initialValue);
 		await m.statusManager.setPodStatus(w.pod, podStatus);
 		const containerID = buildContainerID("test", "container-id");
 
