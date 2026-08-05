@@ -52,6 +52,7 @@ export class ProbeManagerImpl implements ProbeManager {
 		runner: CommandRunner | undefined,
 		recorder: EventRecorder | undefined,
 		network: ClusterNetwork,
+		readonly manuallyTriggerReadinessProbeOnPodReconcile = true,
 	) {
 		this.livenessManager = livenessManager;
 		this.readinessManager = readinessManager;
@@ -192,7 +193,9 @@ export class ProbeManagerImpl implements ProbeManager {
 				const w = this.getWorker(pod.metadata?.uid ?? "", c.name, "readiness");
 				const exists = w !== undefined;
 				ready = !exists;
-				if (exists) {
+				// Webernetes can disable this upstream behavior so reconciliation does
+				// not change the configured readiness-probe cadence.
+				if (exists && this.manuallyTriggerReadinessProbeOnPodReconcile) {
 					w.triggerManualRun();
 				}
 

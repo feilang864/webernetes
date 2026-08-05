@@ -452,6 +452,7 @@ export function newMainKubelet(
 		kubelet.runner,
 		kubeDeps.recorder,
 		kubeDeps.network,
+		kubeCfg.manuallyTriggerReadinessProbeOnPodReconcile,
 	);
 	kubelet.pleg = new GenericPLEG(
 		kubeletCtx,

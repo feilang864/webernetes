@@ -143,6 +143,31 @@ async function createInformerFieldSelectorFixture(
 }
 
 both.describe("Cluster nodes", () => {
+	it.each([
+		["defaults to enabled", undefined, true],
+		["can be disabled", false, false],
+	] as const)(
+		"%s for manual readiness probes on pod reconcile",
+		async (_description, configured, expected) => {
+			const cluster = new Cluster({
+				nodes: 1,
+				kubeletConfiguration:
+					configured === undefined
+						? undefined
+						: { manuallyTriggerReadinessProbeOnPodReconcile: configured },
+			});
+			try {
+				const probeManager = cluster.servers[0]!.kubelet.probeManager;
+				if (!(probeManager instanceof ProbeManagerImpl)) {
+					throw new Error("expected kubelet probe manager implementation");
+				}
+				expect(probeManager.manuallyTriggerReadinessProbeOnPodReconcile).toBe(expected);
+			} finally {
+				await cluster.close();
+			}
+		},
+	);
+
 	it("uses a non-zero default kubelet crash-loop restart delay", async () => {
 		FailTwiceImage.reset();
 		const cluster = new Cluster({ nodes: 1 });

@@ -181,6 +181,8 @@ export class Cluster extends EventEmitter {
 			nodeStatusMaxImages: 50,
 			clusterDomain: "cluster.local",
 			crashLoopBackOff: options.kubeletConfiguration?.crashLoopBackOff ?? {},
+			manuallyTriggerReadinessProbeOnPodReconcile:
+				options.kubeletConfiguration?.manuallyTriggerReadinessProbeOnPodReconcile ?? true,
 		};
 		const serverDNSConfig = {
 			servers: [this.dnsServiceIp],

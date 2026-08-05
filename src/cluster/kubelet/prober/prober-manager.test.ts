@@ -2,7 +2,7 @@
  * SPDX-License-Identifier: Apache-2.0
  * Derived from Kubernetes, translated and modified for Webernetes.
  */
-import { expect, it } from "vitest";
+import { expect, it, vi } from "vitest";
 
 import {
 	type V1ContainerStatus,
@@ -186,6 +186,45 @@ both.describe("TestCleanupRepeated", ({ ctx }) => {
 
 // Models kubernetes/pkg/kubelet/prober/prober_manager_test.go TestUpdatePodStatus.
 both.describe("TestUpdatePodStatus", ({ ctx }) => {
+	it("triggers a manual readiness run by default", () => {
+		const m = newTestManager(ctx);
+		const c = runningContainerStatus("probed_container_pending");
+		const w = newTestWorker(m, "readiness", {});
+		const triggerManualRun = vi.spyOn(w, "triggerManualRun");
+		m.workers.set({ podUid: testPodUID, containerName: c.name, probeType: "readiness" }, w);
+
+		m.updatePodStatus(
+			ctx,
+			{
+				metadata: { uid: testPodUID },
+				spec: { containers: [{ name: c.name }] },
+			},
+			{ containerStatuses: [c] },
+		);
+
+		expect(triggerManualRun).toHaveBeenCalledOnce();
+	});
+
+	it("does not trigger a manual readiness run when disabled", () => {
+		const m = newTestManager(ctx, false);
+		const c = runningContainerStatus("probed_container_pending");
+		const w = newTestWorker(m, "readiness", {});
+		const triggerManualRun = vi.spyOn(w, "triggerManualRun");
+		m.workers.set({ podUid: testPodUID, containerName: c.name, probeType: "readiness" }, w);
+
+		m.updatePodStatus(
+			ctx,
+			{
+				metadata: { uid: testPodUID },
+				spec: { containers: [{ name: c.name }] },
+			},
+			{ containerStatuses: [c] },
+		);
+
+		expect(c.ready).toBe(false);
+		expect(triggerManualRun).not.toHaveBeenCalled();
+	});
+
 	it("updates readiness from cached regular-container probe results", async () => {
 		const m = newTestManager(ctx);
 

@@ -16,6 +16,11 @@ export interface KubeletConfiguration {
 	maxContainerCount: number;
 	nodeStatusMaxImages: number;
 	crashLoopBackOff: CrashLoopBackOffConfig;
+	/**
+	 * Webernetes-specific control for immediate readiness probes during pod
+	 * reconciliation. Defaults to true to preserve Kubernetes behavior.
+	 */
+	manuallyTriggerReadinessProbeOnPodReconcile: boolean;
 }
 
 // Models kubernetes/pkg/kubelet/apis/config/types.go CrashLoopBackOffConfig.

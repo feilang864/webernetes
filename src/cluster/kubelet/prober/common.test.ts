@@ -163,7 +163,10 @@ export function setTestProbe(pod: V1Pod, probeType: ProbeType, probeSpec: V1Prob
 }
 
 // Models kubernetes/pkg/kubelet/prober/common_test.go newTestManager.
-export function newTestManager(ctx: context.Context): ProbeManagerImpl {
+export function newTestManager(
+	ctx: context.Context,
+	manuallyTriggerReadinessProbeOnPodReconcile = true,
+): ProbeManagerImpl {
 	const clock = getClock(ctx);
 	if (!clock.isPaused()) {
 		clock.pause();
@@ -196,6 +199,7 @@ export function newTestManager(ctx: context.Context): ProbeManagerImpl {
 		undefined,
 		new FakeRecorder(),
 		new ClusterNetwork(),
+		manuallyTriggerReadinessProbeOnPodReconcile,
 	);
 	manager.prober.exec = new FakeExecProber("success");
 	return manager;
