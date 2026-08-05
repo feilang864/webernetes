@@ -1,5 +1,11 @@
 # @ngrok/webernetes
 
+## 0.5.4
+
+### Patch Changes
+
+- [`e1d3d80`](https://github.com/ngrok/webernetes/commit/e1d3d805eff038da4bb646710fe9522ae4e91ba8) Thanks [@samwho](https://github.com/samwho)! - Add the `manuallyTriggerReadinessProbeOnPodReconcile` kubelet configuration option. It defaults to `true` to preserve Kubernetes behavior and can be disabled to keep pod reconciliation from triggering immediate readiness probes.
+
 ## 0.5.3
 
 ### Patch Changes
