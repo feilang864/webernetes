@@ -1,4 +1,4 @@
-import { afterEach, expect, it } from "vitest";
+import { afterEach, beforeEach, expect, it } from "vitest";
 
 import { Channel, type ReceiveChannel, select } from "./channel.js";
 import type { Clock } from "../clock.js";
@@ -8,6 +8,13 @@ import { both } from "../test/describe.js";
 
 // These tests mirror the Go ticker tests from src/time/tick_test.go at:
 // https://github.com/golang/go/blob/58efaf3859e6a6f9988e69afc59c0792888ca41a/src/time/tick_test.go
+//
+// Deviation from upstream: Go's tests run against the wall clock and assert on
+// elapsed wall time, with retries and per-platform slop to absorb scheduler
+// noise. These suites run the simulator Clock paused and advance simulated time
+// through `advance`/`clock.step`, so every tick lands on its scheduled time.
+// Go's timing assertions are kept, but they now check the ticker fired on the
+// intervals it was programmed with rather than sampling the host event loop.
 //
 // For TestChan, we only mirror Go's synctimerchan behavior. That is the
 // asynctimerchan=0 path and the default Go 1.23+ behavior: timer/ticker channels
@@ -29,6 +36,10 @@ import { both } from "../test/describe.js";
 //   drain paths, and GODEBUG matrix.
 both.describe("after", ({ ctx }) => {
 	const clock = getClock(ctx);
+
+	beforeEach(() => {
+		clock.pause();
+	});
 
 	afterEach(() => {
 		clock.clear();
@@ -65,7 +76,7 @@ both.describe("after", ({ ctx }) => {
 
 		await expect(maybeReceive(ch)).resolves.toBeUndefined();
 
-		await clock.wait(10);
+		await advance(clock, 10);
 		const tick = await maybeReceive(ch);
 
 		expect(tick).toBeDefined();
@@ -97,7 +108,7 @@ both.describe("after", ({ ctx }) => {
 	it("sends only one value", async () => {
 		const ch = time.after(ctx, 1);
 
-		await clock.wait(1);
+		await advance(clock, 1);
 		await expect(ch.receive()).resolves.toMatchObject({ ok: true });
 		await expect(maybeReceive(ch)).resolves.toBeUndefined();
 	});
@@ -105,6 +116,10 @@ both.describe("after", ({ ctx }) => {
 
 both.describe("tick", ({ ctx }) => {
 	const clock = getClock(ctx);
+
+	beforeEach(() => {
+		clock.pause();
+	});
 
 	afterEach(() => {
 		clock.clear();
@@ -135,9 +150,9 @@ both.describe("tick", ({ ctx }) => {
 		const start = clock.nowMs();
 		const ch = time.tick(ctx, 10);
 
-		await clock.wait(10);
+		await advance(clock, 10);
 		const first = await ch.receive();
-		await clock.wait(10);
+		await advance(clock, 10);
 		const second = await ch.receive();
 
 		expect(first.ok).toBe(true);
@@ -175,6 +190,10 @@ both.describe("tick", ({ ctx }) => {
 both.describe("Timer", ({ ctx }) => {
 	const clock = getClock(ctx);
 
+	beforeEach(() => {
+		clock.pause();
+	});
+
 	afterEach(() => {
 		clock.clear();
 	});
@@ -194,7 +213,7 @@ both.describe("Timer", ({ ctx }) => {
 		expect(tim.reset(1)).toBe(true);
 		await assertTimerTick(tim, clock);
 
-		await clock.wait(sched);
+		await advance(clock, sched);
 		expect(tim.reset(10000)).toBe(false);
 		await expect(hasTimerTick(tim)).resolves.toBe(false);
 
@@ -207,13 +226,13 @@ both.describe("Timer", ({ ctx }) => {
 		const d = 10;
 		const tim = new time.Timer(ctx, 2 * d);
 
-		await clock.wait(d);
+		await advance(clock, d);
 		expect(tim.reset(3 * d)).toBe(true);
 
-		await clock.wait(2 * d);
+		await advance(clock, 2 * d);
 		await expect(hasTimerTick(tim)).resolves.toBe(false);
 
-		await clock.wait(2 * d);
+		await advance(clock, 2 * d);
 		await assertTimerTick(tim, clock);
 
 		expect(tim.reset(50)).toBe(false);
@@ -233,11 +252,11 @@ both.describe("Timer", ({ ctx }) => {
 			await tim.C.receive();
 			done = true;
 		})();
-		await clock.wait(sched);
+		await advance(clock, sched);
 		expect(done).toBe(false);
 
 		tim.reset(20000);
-		await clock.wait(sched);
+		await advance(clock, sched);
 		expect(done).toBe(false);
 
 		tim.reset(1);
@@ -277,11 +296,11 @@ both.describe("Timer", ({ ctx }) => {
 				.case(stop, () => undefined);
 			done2 = true;
 		})();
-		await clock.wait(sched);
+		await advance(clock, sched);
 		await notDone(done);
 
 		tim.reset(sched / 2);
-		await clock.wait(sched);
+		await advance(clock, sched);
 		await waitDone(done, clock);
 
 		tim.stop();
@@ -312,7 +331,7 @@ both.describe("Timer", ({ ctx }) => {
 			})();
 		}
 
-		await clock.wait(sched);
+		await advance(clock, sched);
 		stop.close();
 		await waitDone(done, clock);
 		await waitDone(done, clock);
@@ -324,7 +343,7 @@ both.describe("Timer", ({ ctx }) => {
 		const tim = new time.Timer(ctx, 10000);
 
 		tim.reset(1);
-		await clock.wait(10);
+		await advance(clock, 10);
 		expect(tim.stop()).toBe(true);
 		await expect(hasTimerTick(tim)).resolves.toBe(false);
 
@@ -332,7 +351,7 @@ both.describe("Timer", ({ ctx }) => {
 		await expect(hasTimerTick(tim)).resolves.toBe(false);
 		expect(tim.reset(1)).toBe(true);
 		await assertTimerTick(tim, clock);
-		await clock.wait(10);
+		await advance(clock, 10);
 		await expect(hasTimerTick(tim)).resolves.toBe(false);
 		expect(tim.reset(1000)).toBe(false);
 		await expect(hasTimerTick(tim)).resolves.toBe(false);
@@ -347,7 +366,7 @@ both.describe("Timer", ({ ctx }) => {
 		const startedAt = clock.nowMs();
 		const tim = new time.Timer(ctx, 0);
 
-		await clock.wait(0);
+		await advance(clock, 0);
 		const tick = await assertTimerTick(tim, clock);
 
 		expect(tick.getTime()).toBeGreaterThanOrEqual(startedAt);
@@ -356,6 +375,10 @@ both.describe("Timer", ({ ctx }) => {
 
 both.describe("Ticker", ({ ctx }) => {
 	const clock = getClock(ctx);
+
+	beforeEach(() => {
+		clock.pause();
+	});
 
 	afterEach(() => {
 		clock.clear();
@@ -374,11 +397,15 @@ both.describe("Ticker", ({ ctx }) => {
 			const ticker = new time.Ticker(ctx, delta);
 			const t0 = clock.nowMs();
 			for (let range = 0; range < count / 2; range++) {
+				// Upstream blocks on the receive while wall time runs. The paused
+				// clock has to be advanced one interval to produce each tick.
+				clock.step(delta);
 				const { ok } = await ticker.C.receive();
 				expect(ok).toBe(true);
 			}
 			ticker.reset(delta * 2);
 			for (let range = 0; range < count - count / 2; range++) {
+				clock.step(delta * 2);
 				const { ok } = await ticker.C.receive();
 				expect(ok).toBe(true);
 			}
@@ -394,7 +421,7 @@ both.describe("Ticker", ({ ctx }) => {
 				continue;
 			}
 
-			await clock.wait(2 * delta);
+			await advance(clock, 2 * delta);
 			if (await hasTick(ticker)) {
 				errs.push("Ticker did not shut down");
 				continue;
@@ -410,9 +437,9 @@ both.describe("Ticker", ({ ctx }) => {
 		const ticker = new time.Ticker(ctx, 20);
 		const t0 = clock.nowMs();
 
-		await clock.wait(30);
+		await advance(clock, 30);
 		const first = await ticker.C.receive();
-		await clock.wait(100);
+		await advance(clock, 100);
 		const second = await ticker.C.receive();
 		ticker.stop();
 
@@ -442,7 +469,7 @@ both.describe("Ticker", ({ ctx }) => {
 		tim.reset(1);
 		await assertTick(tim, clock);
 
-		await clock.wait(sched);
+		await advance(clock, sched);
 		tim.reset(10000);
 		await expect(hasTick(tim)).resolves.toBe(false);
 
@@ -455,6 +482,7 @@ both.describe("Ticker", ({ ctx }) => {
 		const delta = 20;
 		for (let range = 0; range < 3; range++) {
 			const ticker = new time.Ticker(ctx, delta);
+			clock.step(delta);
 			const { ok } = await ticker.C.receive();
 			expect(ok).toBe(true);
 			ticker.stop();
@@ -485,7 +513,7 @@ both.describe("Ticker", ({ ctx }) => {
 		const tim = new time.Ticker(ctx, 10000);
 
 		tim.reset(1);
-		await clock.wait(10);
+		await advance(clock, 10);
 		tim.stop();
 
 		await expect(hasTick(tim)).resolves.toBe(false);
@@ -500,9 +528,9 @@ both.describe("Ticker", ({ ctx }) => {
 		await expect(hasTick(tim)).resolves.toBe(false);
 		tim.reset(1);
 		await assertTick(tim, clock);
-		await clock.wait(10);
+		await advance(clock, 10);
 		await assertTick(tim, clock);
-		await clock.wait(10);
+		await advance(clock, 10);
 		tim.reset(1000);
 		await expect(hasTick(tim)).resolves.toBe(false);
 		tim.stop();
@@ -521,11 +549,11 @@ both.describe("Ticker", ({ ctx }) => {
 			await tim.C.receive();
 			done = true;
 		})();
-		await clock.wait(sched);
+		await advance(clock, sched);
 		expect(done).toBe(false);
 
 		tim.reset(20000);
-		await clock.wait(sched);
+		await advance(clock, sched);
 		expect(done).toBe(false);
 
 		tim.reset(1);
@@ -565,11 +593,11 @@ both.describe("Ticker", ({ ctx }) => {
 				.case(stop, () => undefined);
 			done2 = true;
 		})();
-		await clock.wait(sched);
+		await advance(clock, sched);
 		await notDone(done);
 
 		tim.reset(sched / 2);
-		await clock.wait(sched);
+		await advance(clock, sched);
 		await waitDone(done, clock);
 
 		tim.stop();
@@ -602,7 +630,7 @@ both.describe("Ticker", ({ ctx }) => {
 			})();
 		}
 
-		await clock.wait(sched);
+		await advance(clock, sched);
 		stop.close();
 		await waitDone(done, clock);
 		await waitDone(done, clock);
@@ -614,7 +642,7 @@ both.describe("Ticker", ({ ctx }) => {
 		for (let range = 0; range < 10; range++) {
 			const start = clock.nowMs();
 			const c = new time.Ticker(ctx, 10);
-			await clock.wait(500);
+			await advance(clock, 500);
 			const tick = await assertTick(c, clock);
 			c.stop();
 			const dt = tick.getTime() - start;
@@ -626,6 +654,17 @@ both.describe("Ticker", ({ ctx }) => {
 	});
 });
 
+// Local adaptation. Go's tests let wall time pass and assert against elapsed
+// wall time. These suites run the simulator Clock paused and advance simulated
+// time instead, so a tick lands on its scheduled time rather than on whenever
+// the host event loop got around to it. Every `await clock.wait(d)` upstream
+// becomes `await advance(clock, d)`.
+async function advance(clock: Clock, ms: number): Promise<void> {
+	const waited = clock.wait(ms);
+	clock.step(ms);
+	await waited;
+}
+
 async function assertTick(tim: time.Ticker, clock: Clock): Promise<Date> {
 	const tick = await maybeTick(tim);
 	if (tick) {
@@ -633,7 +672,7 @@ async function assertTick(tim: time.Ticker, clock: Clock): Promise<Date> {
 	}
 
 	for (let range = 0; range < 100; range++) {
-		await clock.wait(10);
+		await advance(clock, 10);
 		const tick = await maybeTick(tim);
 		if (tick) {
 			return tick;
@@ -650,7 +689,7 @@ async function assertTimerTick(tim: time.Timer, clock: Clock): Promise<Date> {
 	}
 
 	for (let range = 0; range < 100; range++) {
-		await clock.wait(10);
+		await advance(clock, 10);
 		const tick = await maybeTimerTick(tim);
 		if (tick) {
 			return tick;
@@ -690,7 +729,7 @@ async function waitDone(done: Channel<boolean>, clock: Clock): Promise<void> {
 	}
 
 	for (let range = 0; range < 100; range++) {
-		await clock.wait(10);
+		await advance(clock, 10);
 		if ((await maybeReceive(done)) !== undefined) {
 			return;
 		}
@@ -710,7 +749,7 @@ async function waitUntil(clock: Clock, condition: () => boolean): Promise<void> 
 		if (condition()) {
 			return;
 		}
-		await clock.wait(10);
+		await advance(clock, 10);
 	}
 
 	throw new Error("condition was not met");
