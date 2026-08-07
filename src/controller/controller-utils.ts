@@ -667,11 +667,11 @@ export class FakePodControl implements PodControlInterface {
 					`not creating pod, limit ${this.createLimit} already reached (create call ${this.createCallCount})`,
 				);
 			}
-			const template = structuredClone(spec);
+			const template = deepClone(spec);
 			template.metadata ??= {};
 			template.metadata.generateName = generateNamePrefix;
 			this.templates.push(template);
-			this.controllerRefs.push(structuredClone(controllerRef));
+			this.controllerRefs.push(deepClone(controllerRef));
 			if (this.err) {
 				return this.err;
 			}
@@ -772,7 +772,7 @@ export function getPodFromTemplate(
 			generateName: prefix,
 			finalizers: desiredFinalizers,
 		},
-		spec: structuredClone(template.spec ?? { containers: [] }),
+		spec: deepClone(template.spec ?? { containers: [] }),
 	};
 	if (controllerRef) {
 		pod.metadata ??= {};
@@ -972,6 +972,7 @@ export function computeHash(template: k8s.V1PodTemplateSpec, collisionCount?: nu
 	}
 	return safeEncodeString(String(podTemplateSpecHasher.sum32()));
 }
+import { deepClone } from "../deep-clone.js";
 
 // Models kubernetes/pkg/controller/controller_utils.go nextPodAvailabilityCheck.
 export function nextPodAvailabilityCheck(

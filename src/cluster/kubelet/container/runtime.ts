@@ -77,7 +77,7 @@ export class RuntimeHandler {
 	}
 
 	clone(): RuntimeHandler {
-		return new RuntimeHandler(structuredClone(this));
+		return new RuntimeHandler(deepClone(this));
 	}
 
 	toString(): string {
@@ -652,3 +652,4 @@ export function toAPIPod(pod: Pod): V1Pod {
 		},
 	};
 }
+import { deepClone } from "../../../deep-clone.js";

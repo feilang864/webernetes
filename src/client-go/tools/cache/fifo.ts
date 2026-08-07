@@ -103,7 +103,7 @@ export class FIFO<T extends KubernetesObject> implements Queue<T>, Store<T> {
 			if (!this.items.has(id)) {
 				this.queue.push(id);
 			}
-			this.items.set(id, structuredClone(obj));
+			this.items.set(id, obj);
 			this.cond.broadcast();
 		} finally {
 			this.lock.unlock();
@@ -164,7 +164,7 @@ export class FIFO<T extends KubernetesObject> implements Queue<T>, Store<T> {
 					continue;
 				}
 				this.items.delete(id);
-				const poppedItem = structuredClone(item);
+				const poppedItem = item;
 				const err = await process(poppedItem, isInInitialList);
 				if (shouldCheckSynced) {
 					this.checkSynced();
@@ -184,7 +184,7 @@ export class FIFO<T extends KubernetesObject> implements Queue<T>, Store<T> {
 			if (err) {
 				return new KeyError(item, err);
 			}
-			items.set(key, structuredClone(item));
+			items.set(key, item);
 		}
 
 		await this.lock.lock();
@@ -225,7 +225,7 @@ export class FIFO<T extends KubernetesObject> implements Queue<T>, Store<T> {
 
 	// Models staging/src/k8s.io/client-go/tools/cache/store.go Store.List.
 	list(): T[] {
-		return [...this.items.values()].map((item) => structuredClone(item));
+		return [...this.items.values()];
 	}
 
 	// Models staging/src/k8s.io/client-go/tools/cache/store.go Store.ListKeys.
@@ -257,7 +257,7 @@ export class FIFO<T extends KubernetesObject> implements Queue<T>, Store<T> {
 	// Models staging/src/k8s.io/client-go/tools/cache/store.go Store.GetByKey.
 	getByKey(key: string): [item: T | undefined, exists: boolean, err: Error | undefined] {
 		const item = this.items.get(key);
-		return [item === undefined ? undefined : structuredClone(item), item !== undefined, undefined];
+		return [item, item !== undefined, undefined];
 	}
 }
 

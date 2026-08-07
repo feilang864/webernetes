@@ -377,6 +377,7 @@ export function podsDifferSemantically(existing: V1Pod, ref: V1Pod): boolean {
 	}
 	return true;
 }
+import { deepClone } from "../../../deep-clone.js";
 
 // Models kubernetes/pkg/kubelet/config/config.go checkAndUpdatePod.
 export function checkAndUpdatePod(
@@ -419,5 +420,5 @@ export function checkAndUpdatePod(
 
 // Models kubernetes/pkg/kubelet/config/config.go copyPods.
 function copyPods(sourcePods: V1Pod[]): V1Pod[] {
-	return sourcePods.map((source) => structuredClone(source));
+	return sourcePods.map((source) => deepClone(source));
 }

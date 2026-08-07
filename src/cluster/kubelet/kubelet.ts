@@ -2471,12 +2471,12 @@ export class Kubelet implements RuntimeHelper, PodDeletionSafetyProvider {
 				imageID: "",
 				ready: false,
 				restartCount: 0,
-				state: structuredClone(defaultWaitingState),
+				state: deepClone(defaultWaitingState),
 			};
 			const oldStatus = oldStatuses.get(container.name);
 			if (oldStatus) {
 				if (oldStatus.state?.terminated) {
-					status = structuredClone(oldStatus);
+					status = deepClone(oldStatus);
 				} else {
 					// Apply some values from the old statuses as the default values.
 					status.restartCount = oldStatus.restartCount;
@@ -2692,6 +2692,7 @@ export class Kubelet implements RuntimeHelper, PodDeletionSafetyProvider {
 		return undefined;
 	}
 }
+import { deepClone } from "../../deep-clone.js";
 
 // Models kubernetes/pkg/kubelet/kubelet.go preserveDataFromBeforeStopping.
 function preserveDataFromBeforeStopping(

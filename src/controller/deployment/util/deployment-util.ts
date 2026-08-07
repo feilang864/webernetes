@@ -493,13 +493,21 @@ export function isRollingUpdate(deployment: k8s.V1Deployment): boolean {
 }
 
 // Models kubernetes/pkg/controller/deployment/util/deployment_util.go EqualIgnoreHash.
+// Repository constraint: upstream deep copies both templates and deletes the hash label from each
+// copy before comparing. `deepEqual` ignores a field path directly, which reaches the same result
+// without copying. Go's generated DeepCopy is cheap; a deep copy of a pod template in the browser is
+// not, and `findNewReplicaSet` calls this once per ReplicaSet on every Deployment sync.
+const equalIgnoreHashIgnoredFields: readonly string[] = [
+	`metadata.labels.${defaultDeploymentUniqueLabelKey}`,
+];
+
 export function equalIgnoreHash(
 	template1: k8s.V1PodTemplateSpec | undefined,
 	template2: k8s.V1PodTemplateSpec | undefined,
 ): boolean {
-	const template1Copy = templateWithoutHash(template1 ?? {});
-	const template2Copy = templateWithoutHash(template2 ?? {});
-	return deepEqual(template1Copy, template2Copy);
+	return deepEqual(template1 ?? {}, template2 ?? {}, {
+		ignoredFields: equalIgnoreHashIgnoredFields,
+	});
 }
 
 // Models kubernetes/pkg/controller/deployment/util/deployment_util.go FindNewReplicaSet.
@@ -798,12 +806,4 @@ export function compareReplicaSetsByRevision(
 		return compareReplicaSetsByCreationTimestamp(left, right);
 	}
 	return leftRevision - rightRevision;
-}
-
-function templateWithoutHash(template: k8s.V1PodTemplateSpec): k8s.V1PodTemplateSpec {
-	const copy = structuredClone(template);
-	if (copy.metadata?.labels) {
-		delete copy.metadata.labels[defaultDeploymentUniqueLabelKey];
-	}
-	return copy;
 }

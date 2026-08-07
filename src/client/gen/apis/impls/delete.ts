@@ -50,7 +50,7 @@ export async function deleteResource<T extends Storable>(
 		const nextFinalizers = deletionFinalizers(finalizers, deleteOptions.propagationPolicy);
 		const finalizersChanged = !stringSetsEqual(finalizers, nextFinalizers);
 		if (shortened !== undefined || finalizersChanged) {
-			const updated = structuredClone(existing);
+			const updated = deepClone(existing);
 			updated.metadata ??= {};
 			if (shortened !== undefined) {
 				updated.metadata.deletionGracePeriodSeconds = shortened;
@@ -79,7 +79,7 @@ export async function deleteResource<T extends Storable>(
 		return existing;
 	}
 
-	const updated = structuredClone(existing);
+	const updated = deepClone(existing);
 	updated.metadata ??= {};
 	updated.metadata.deletionTimestamp = getClock(ctx).now();
 	if (gracePeriodSeconds !== undefined) {
@@ -144,12 +144,13 @@ export function normalizeDeleteOptions(
 }
 
 export function removeFinalizer<T extends Storable>(resource: T, finalizer: string): T {
-	const updated = structuredClone(resource);
+	const updated = deepClone(resource);
 	const finalizers = (updated.metadata?.finalizers ?? []).filter((value) => value !== finalizer);
 	updated.metadata ??= {};
 	updated.metadata.finalizers = finalizers.length > 0 ? finalizers : undefined;
 	return updated;
 }
+import { deepClone } from "../../../../deep-clone.js";
 
 function validateDeleteOptionsBody(body: V1DeleteOptions | undefined): void {
 	if (body === undefined) {

@@ -32,6 +32,8 @@
 //   use cases this fake is designed for.
 
 import { Buffer } from "buffer";
+
+import { deepClone } from "../deep-clone.js";
 import { EventEmitter } from "events";
 import { type Clock } from "../clock.js";
 import { getClock } from "../clock-context.js";
@@ -58,6 +60,12 @@ export interface ResponseHeader {
 
 export interface KeyValue {
 	key: Buffer;
+	/**
+	 * JSON bytes for this value.
+	 *
+	 * When the value was stored through the object path, this is serialized from {@link object} on
+	 * first read and then reused. Prefer {@link object} on hot paths so no JSON is produced at all.
+	 */
 	value: Buffer;
 	create_revision: string;
 	mod_revision: string;
@@ -169,7 +177,8 @@ export interface Operation {
 
 interface StoredValue {
 	key: string;
-	value: Buffer;
+	value?: Buffer;
+	object?: unknown;
 	createRevision: number;
 	modRevision: number;
 	version: number;
@@ -178,6 +187,7 @@ interface StoredValue {
 interface StoredRevision {
 	key: string;
 	value?: Buffer;
+	object?: unknown;
 	createRevision: number;
 	modRevision: number;
 	version: number;
@@ -209,6 +219,8 @@ export interface DeleteOptions {
 export interface PutOptions {
 	key: string;
 	value?: Buffer;
+	/** Decoded value to store, set by {@link PutBuilder.json} instead of `value`. */
+	object?: unknown;
 	prevKv: boolean;
 	ignoreValue: boolean;
 }
@@ -721,12 +733,16 @@ class FakeState {
 		if (options.ignoreValue && !existing) {
 			throw new EtcdError("etcdserver: key not found", "errInvalidArgument");
 		}
+		const retainExisting = options.ignoreValue && existing !== undefined;
 		const nextValue: StoredValue = {
 			key,
-			value:
-				options.ignoreValue && existing
-					? Buffer.from(existing.value)
-					: Buffer.from(options.value ?? emptyBuffer),
+			// A touch keeps whichever representation the existing value already had.
+			value: retainExisting
+				? existing?.value && Buffer.from(existing.value)
+				: options.object === undefined
+					? Buffer.from(options.value ?? emptyBuffer)
+					: undefined,
+			object: retainExisting ? existing?.object : options.object,
 			createRevision: existing?.createRevision ?? revision,
 			modRevision: revision,
 			version: (existing?.version ?? 0) + 1,
@@ -736,7 +752,8 @@ class FakeState {
 			key,
 			{
 				key,
-				value: Buffer.from(nextValue.value),
+				value: nextValue.value ? Buffer.from(nextValue.value) : undefined,
+				object: nextValue.object,
 				createRevision: nextValue.createRevision,
 				modRevision: revision,
 				version: nextValue.version,
@@ -842,7 +859,7 @@ class FakeState {
 
 		switch (compare.target) {
 			case "Value":
-				left = current?.value.toString("latin1") ?? "";
+				left = current ? storedValueBytes(current).toString("latin1") : "";
 				right = compare.value?.toString("latin1") ?? "";
 				break;
 			case "Create":
@@ -914,7 +931,8 @@ class FakeState {
 		}
 		return {
 			key: resolved.key,
-			value: resolved.value ? Buffer.from(resolved.value) : Buffer.alloc(0),
+			value: resolved.value ? Buffer.from(resolved.value) : undefined,
+			object: resolved.object,
 			createRevision: resolved.createRevision,
 			modRevision: resolved.modRevision,
 			version: resolved.version,
@@ -1278,6 +1296,11 @@ export class SingleRangeBuilder extends RangeBuilder<string | null> {
 
 	/** Runs the built request and parses the returned key as JSON, or returns `null` if it isn't found. */
 	public async json(): Promise<unknown> {
+		const kv = (await this.exec()).kvs[0];
+		const stored = kv ? keyValueObject(kv) : undefined;
+		if (stored !== undefined) {
+			return deepClone(stored);
+		}
 		// @ts-expect-error this mimics the microsoft/etcd3 behaviour
 		return await this.string().then(JSON.parse);
 	}
@@ -1461,6 +1484,19 @@ export class PutBuilder extends PromiseWrap<PutResponse> {
 		} else {
 			this.request.value = Buffer.from(String(value));
 		}
+		return this;
+	}
+
+	/**
+	 * Stores a decoded value instead of JSON bytes.
+	 *
+	 * The simulator keeps everything in memory, so serializing on write and parsing on read is pure
+	 * overhead for the resource paths. The stored object is copied, so later mutation of `value` by
+	 * the caller cannot change what is stored, matching what `JSON.stringify` used to guarantee.
+	 */
+	public json(value: unknown): this {
+		this.request.object = deepClone(value);
+		this.request.value = undefined;
 		return this;
 	}
 
@@ -1942,12 +1978,12 @@ class WatcherImpl extends EventEmitter implements Watcher {
 			}
 
 			const unprefixed = unprefixKey(rawEventKey, this.namespace);
-			const kv: KeyValue = { ...record.event.kv, key: Buffer.from(unprefixed) };
+			const kv: KeyValue = reKeyKeyValue(record.event.kv, unprefixed);
 			let prev_kv: KeyValue | null = null;
 			if (this.options.prevKv && record.event.prev_kv) {
 				const rawPrevKey = record.event.prev_kv.key.toString();
 				const unprefixedPrev = unprefixKey(rawPrevKey, this.namespace);
-				prev_kv = { ...record.event.prev_kv, key: Buffer.from(unprefixedPrev) };
+				prev_kv = reKeyKeyValue(record.event.prev_kv, unprefixedPrev);
 			}
 			matched.push({
 				type: record.event.type,
@@ -2127,22 +2163,109 @@ function passesRangeFilters(value: StoredValue, options: RangeOptions): boolean 
 	return true;
 }
 
+/**
+ * Returns the JSON bytes for a stored value, serializing the object form on first demand.
+ *
+ * Values written through the object path never produce bytes unless a byte reader asks, which is why
+ * the result is cached back onto the stored value.
+ */
+/**
+ * Decoded values for key/values produced by this etcd, keyed by the key/value itself.
+ *
+ * `KeyValue` cannot carry this directly. Shared tests type their client as `Etcd | Etcd3` and pass
+ * the same handlers to both, so the exported shape has to stay structurally identical to the real
+ * client's. A side table keeps the object path available to this package's own readers without
+ * widening the public type.
+ */
+const keyValueObjects = new WeakMap<KeyValue, unknown>();
+
+/**
+ * Returns the decoded value stored for a key/value, or `undefined` when it holds only bytes.
+ *
+ * The result is the stored reference. Copy it before mutating.
+ *
+ * @example
+ * const stored = keyValueObject(response.kvs[0]);
+ */
+export function keyValueObject(kv: KeyValue): unknown {
+	return keyValueObjects.get(kv);
+}
+
+function storedValueBytes(value: StoredValue): Buffer {
+	value.value ??= Buffer.from(JSON.stringify(value.object ?? null));
+	return value.value;
+}
+
+/**
+ * Builds a public key/value whose `value` bytes are produced only if something reads them.
+ *
+ * `object` carries the stored reference so hot readers can skip JSON entirely.
+ */
 function toPublicKv(value: StoredValue, namespace: string, keysOnly = false): KeyValue {
 	const key = value.key.startsWith(namespace) ? value.key.slice(namespace.length) : value.key;
-	return {
+	const kv: KeyValue = {
 		key: Buffer.from(key),
-		value: keysOnly ? Buffer.alloc(0) : Buffer.from(value.value),
+		value: emptyBuffer,
 		create_revision: String(value.createRevision),
 		mod_revision: String(value.modRevision),
 		version: String(value.version),
 		lease: "",
 	};
+	if (keysOnly) {
+		return kv;
+	}
+	if (value.object !== undefined) {
+		keyValueObjects.set(kv, value.object);
+	}
+	defineLazyKeyValueBytes(kv, value);
+	return kv;
+}
+
+/**
+ * Returns a copy of a key/value under a different key, without reading its bytes.
+ *
+ * A spread would invoke the lazy `value` accessor and serialize the object for every watcher, which
+ * is the cost the object path exists to avoid.
+ */
+function reKeyKeyValue(kv: KeyValue, key: string): KeyValue {
+	const copy: KeyValue = {
+		key: Buffer.from(key),
+		value: emptyBuffer,
+		create_revision: kv.create_revision,
+		mod_revision: kv.mod_revision,
+		version: kv.version,
+		lease: kv.lease,
+	};
+	const stored = keyValueObjects.get(kv);
+	if (stored !== undefined) {
+		keyValueObjects.set(copy, stored);
+	}
+	const descriptor = Object.getOwnPropertyDescriptor(kv, "value");
+	if (descriptor?.get) {
+		Object.defineProperty(copy, "value", descriptor);
+	} else {
+		copy.value = kv.value;
+	}
+	return copy;
+}
+
+/** Replaces `kv.value` with a memoizing accessor over the stored value's bytes. */
+function defineLazyKeyValueBytes(kv: KeyValue, value: StoredValue): void {
+	let bytes: Buffer | undefined;
+	Object.defineProperty(kv, "value", {
+		configurable: true,
+		enumerable: true,
+		get(): Buffer {
+			bytes ??= Buffer.from(storedValueBytes(value));
+			return bytes;
+		},
+	});
 }
 
 function cloneStoredValue(value: StoredValue): StoredValue {
 	return {
 		...value,
-		value: Buffer.from(value.value),
+		value: value.value ? Buffer.from(value.value) : undefined,
 	};
 }
 
@@ -2153,7 +2276,8 @@ function currentValue(revisions: StoredRevision[]): StoredValue | undefined {
 	}
 	return {
 		key: last.key,
-		value: last.value ? Buffer.from(last.value) : Buffer.alloc(0),
+		value: last.value ? Buffer.from(last.value) : undefined,
+		object: last.object,
 		createRevision: last.createRevision,
 		modRevision: last.modRevision,
 		version: last.version,
@@ -2208,7 +2332,7 @@ function makeSortKey(value: StoredValue, target: SortTarget): SortKey {
 		case "Version":
 			return { primary: value.version, key: value.key };
 		case "Value":
-			return { primary: value.value.toString("latin1"), key: value.key };
+			return { primary: storedValueBytes(value).toString("latin1"), key: value.key };
 		case "Key":
 		default:
 			return { primary: value.key, key: value.key };

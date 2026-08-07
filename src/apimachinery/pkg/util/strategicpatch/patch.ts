@@ -1,5 +1,6 @@
 // Models kubernetes/staging/src/k8s.io/apimachinery/pkg/util/strategicpatch/patch.go JSONMap.
 export type JSONMap = Record<string, unknown>;
+import { deepClone } from "../../../../deep-clone.js";
 
 const directiveMarker = "$patch";
 const deleteDirective = "delete";
@@ -17,7 +18,7 @@ export function strategicMergePatch<T extends object>(
 	if (!isJSONMap(patch)) {
 		throw new Error("Strategic merge patch body must be an object");
 	}
-	return strategicMergeMapPatch(structuredClone(original) as JSONMap, patch) as T;
+	return strategicMergeMapPatch(deepClone(original) as JSONMap, patch) as T;
 }
 
 // Models kubernetes/staging/src/k8s.io/apimachinery/pkg/util/strategicpatch/patch.go StrategicMergeMapPatch.
@@ -61,11 +62,11 @@ function mergeMap(original: JSONMap, patch: JSONMap, path: string[] = []): JSONM
 			const mergeKey = patchMergeKeyForPath([...path, key]);
 			original[key] = mergeKey
 				? mergeSlice(originalV, patchV, mergeKey, [...path, key])
-				: structuredClone(patchV);
+				: deepClone(patchV);
 			continue;
 		}
 
-		original[key] = structuredClone(patchV);
+		original[key] = deepClone(patchV);
 	}
 	return original;
 }
@@ -80,7 +81,7 @@ function mergeSlice(
 	path: string[],
 ): unknown[] {
 	if (!canMergeMapSlice(original) || !canMergeMapSlice(patch)) {
-		return structuredClone(patch);
+		return deepClone(patch);
 	}
 	const [originalWithoutSpecialElements, patchWithoutSpecialElements] =
 		mergeSliceWithSpecialElements(original, patch, mergeKey);
@@ -142,7 +143,7 @@ function mergeSliceWithoutSpecialElements(
 		if (found) {
 			original[originalKey] = mergeMap(originalMap, v, path);
 		} else {
-			original.push(structuredClone(v));
+			original.push(deepClone(v));
 		}
 	}
 	return original;

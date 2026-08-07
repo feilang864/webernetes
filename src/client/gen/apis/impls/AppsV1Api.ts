@@ -460,6 +460,7 @@ export class AppsV1Api implements AppsV1ApiInterface {
 		});
 	}
 }
+import { deepClone } from "../../../../deep-clone.js";
 
 interface ListRequest {
 	_continue?: string;
@@ -572,7 +573,7 @@ function mergePatch<T extends object>(target: T, patch: unknown): T {
 	if (!isPatchObject(patch)) {
 		throw new Error("Merge patch body must be an object");
 	}
-	return applyPatchObject(structuredClone(target), patch);
+	return applyPatchObject(deepClone(target), patch);
 }
 
 function applyPatchObject<T extends object>(target: T, patch: PatchObject): T {
@@ -586,7 +587,7 @@ function applyPatchObject<T extends object>(target: T, patch: PatchObject): T {
 			result[key] = applyPatchObject(result[key], value);
 			continue;
 		}
-		result[key] = structuredClone(value);
+		result[key] = deepClone(value);
 	}
 	return target;
 }

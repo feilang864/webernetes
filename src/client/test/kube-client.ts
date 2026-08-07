@@ -265,7 +265,7 @@ async function ensureNamespaceObject(
 		if (!isNotFoundError(error)) {
 			throw error;
 		}
-		await client.corev1.createNamespace({ body: structuredClone(namespace) });
+		await client.corev1.createNamespace({ body: deepClone(namespace) });
 	}
 }
 
@@ -278,48 +278,48 @@ async function createTestObject(
 	if (apiVersion === "apps/v1" && kind === "Deployment") {
 		await client.appsv1.createNamespacedDeployment({
 			namespace: namespacedTestObjectNamespace(object),
-			body: structuredClone(object as V1Deployment),
+			body: deepClone(object as V1Deployment),
 		});
 		return;
 	}
 	if (apiVersion === "apps/v1" && kind === "ReplicaSet") {
 		await client.appsv1.createNamespacedReplicaSet({
 			namespace: namespacedTestObjectNamespace(object),
-			body: structuredClone(object as V1ReplicaSet),
+			body: deepClone(object as V1ReplicaSet),
 		});
 		return;
 	}
 	if (apiVersion === "v1" && kind === "Event") {
 		await client.corev1.createNamespacedEvent({
 			namespace: namespacedTestObjectNamespace(object),
-			body: structuredClone(object as CoreV1Event),
+			body: deepClone(object as CoreV1Event),
 		});
 		return;
 	}
 	if (apiVersion === "v1" && kind === "Node") {
 		await client.corev1.createNode({
-			body: structuredClone(object as V1Node),
+			body: deepClone(object as V1Node),
 		});
 		return;
 	}
 	if (apiVersion === "v1" && kind === "Pod") {
 		await client.corev1.createNamespacedPod({
 			namespace: namespacedTestObjectNamespace(object),
-			body: structuredClone(object as V1Pod),
+			body: deepClone(object as V1Pod),
 		});
 		return;
 	}
 	if (apiVersion === "v1" && kind === "Service") {
 		await client.corev1.createNamespacedService({
 			namespace: namespacedTestObjectNamespace(object),
-			body: structuredClone(object as V1Service),
+			body: deepClone(object as V1Service),
 		});
 		return;
 	}
 	if (apiVersion === "discovery.k8s.io/v1" && kind === "EndpointSlice") {
 		await client.discoveryv1.createNamespacedEndpointSlice({
 			namespace: namespacedTestObjectNamespace(object),
-			body: structuredClone(object as V1EndpointSlice),
+			body: deepClone(object as V1EndpointSlice),
 		});
 		return;
 	}
@@ -357,6 +357,7 @@ function namespacedTestObjectNamespace(object: TestKubeClientObject): string {
 export function clientAction(verb: string, resource: string, subresource?: string): ClientAction {
 	return subresource === undefined ? { verb, resource } : { verb, resource, subresource };
 }
+import { deepClone } from "../../deep-clone.js";
 
 function matchesReactor(pattern: string, value: string): boolean {
 	return pattern === "*" || pattern === value;

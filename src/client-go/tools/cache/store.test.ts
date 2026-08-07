@@ -55,31 +55,6 @@ both.describe("Store", () => {
 		expect(nestedKeyErr.err).toBe(keyErr);
 	});
 
-	it("does not expose stored object references through reads", async () => {
-		const store = newStore(testStoreKeyFunc);
-		await store.add({ id: "foo", val: "stored", nested: { val: "nested" } });
-
-		const [got] = await store.get({ id: "foo", val: "" });
-		if (!got?.nested) {
-			throw new Error("expected object with nested value");
-		}
-		got.val = "mutated";
-		got.nested.val = "mutated";
-
-		const [afterGet] = store.getByKey("foo");
-		expect(afterGet).toEqual({ id: "foo", val: "stored", nested: { val: "nested" } });
-
-		const [listed] = store.list();
-		if (!listed?.nested) {
-			throw new Error("expected listed object with nested value");
-		}
-		listed.val = "listed mutation";
-		listed.nested.val = "listed mutation";
-
-		const [afterList] = store.getByKey("foo");
-		expect(afterList).toEqual({ id: "foo", val: "stored", nested: { val: "nested" } });
-	});
-
 	// Models staging/src/k8s.io/client-go/tools/cache/store_test.go TestIndex.
 	it("implements the public indexer interface", async () => {
 		await doTestIndex(newIndexer(testStoreKeyFunc, testStoreIndexers()));

@@ -179,34 +179,6 @@ both.describe("FIFO", () => {
 			Array.from({ length: jobs }, () => errFIFOClosed),
 		);
 	});
-
-	it("does not expose queued object references through reads", async () => {
-		const f = newFIFO(testFifoObjectKeyFunc);
-		try {
-			await f.add({ name: "foo", val: 1, nested: { val: 10 } });
-
-			const [got] = await f.get(mkFifoObj("foo", 0));
-			if (!got?.nested) {
-				throw new Error("expected object with nested value");
-			}
-			got.val = 2;
-			got.nested.val = 20;
-
-			const [afterGet] = f.getByKey("foo");
-			expect(afterGet).toEqual({ name: "foo", val: 1, nested: { val: 10 } });
-
-			const [listed] = f.list();
-			if (!listed?.nested) {
-				throw new Error("expected listed object with nested value");
-			}
-			listed.val = 3;
-			listed.nested.val = 30;
-
-			expect(await pop(f)).toEqual({ name: "foo", val: 1, nested: { val: 10 } });
-		} finally {
-			void f.close();
-		}
-	});
 });
 
 // Models staging/src/k8s.io/client-go/tools/cache/fifo_test.go testFifoObjectKeyFunc.

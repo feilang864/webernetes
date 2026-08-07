@@ -194,9 +194,8 @@ export class ThreadSafeMap<T> implements ThreadSafeStore<T> {
 	// Models staging/src/k8s.io/client-go/tools/cache/thread_safe_store.go threadSafeMap.updateLocked.
 	private updateLocked(key: string, obj: T): void {
 		const oldObject = this.items.get(key);
-		const storedObj = structuredClone(obj);
-		this.items.set(key, storedObj);
-		this.storeIndex.updateIndices(oldObject, storedObj, key);
+		this.items.set(key, obj);
+		this.storeIndex.updateIndices(oldObject, obj, key);
 	}
 
 	// Models staging/src/k8s.io/client-go/tools/cache/thread_safe_store.go threadSafeMap.Delete.
@@ -256,12 +255,12 @@ export class ThreadSafeMap<T> implements ThreadSafeStore<T> {
 	// Models staging/src/k8s.io/client-go/tools/cache/thread_safe_store.go threadSafeMap.Get.
 	get(key: string): [item: T | undefined, exists: boolean] {
 		const item = this.items.get(key);
-		return [item === undefined ? undefined : structuredClone(item), item !== undefined];
+		return [item, item !== undefined];
 	}
 
 	// Models staging/src/k8s.io/client-go/tools/cache/thread_safe_store.go threadSafeMap.List.
 	list(): T[] {
-		return [...this.items.values()].map((item) => structuredClone(item));
+		return [...this.items.values()];
 	}
 
 	// Models staging/src/k8s.io/client-go/tools/cache/thread_safe_store.go threadSafeMap.ListKeys.
@@ -271,7 +270,7 @@ export class ThreadSafeMap<T> implements ThreadSafeStore<T> {
 
 	// Models staging/src/k8s.io/client-go/tools/cache/thread_safe_store.go threadSafeMap.Replace.
 	replace(items: Map<string, T>, resourceVersion: string): Error | undefined {
-		this.items = new Map([...items].map(([key, item]) => [key, structuredClone(item)]));
+		this.items = new Map(items);
 		this.rv = resourceVersion;
 		this.storeIndex.reset();
 		for (const [key, item] of this.items) {
@@ -290,7 +289,7 @@ export class ThreadSafeMap<T> implements ThreadSafeStore<T> {
 		for (const storeKey of storeKeySet) {
 			const item = this.items.get(storeKey);
 			if (item) {
-				list.push(structuredClone(item));
+				list.push(item);
 			}
 		}
 		return [list, undefined];
@@ -306,7 +305,7 @@ export class ThreadSafeMap<T> implements ThreadSafeStore<T> {
 		for (const key of set) {
 			const item = this.items.get(key);
 			if (item) {
-				list.push(structuredClone(item));
+				list.push(item);
 			}
 		}
 		return [list, undefined];

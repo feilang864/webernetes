@@ -22,6 +22,7 @@
     "src",
     "!src/**/AGENTS.md",
     "!src/**/*.test.ts",
+    "!src/**/*.bench.ts",
     "!src/**/*test-helpers.ts",
     "!src/**/testing/**",
     "!src/test/**",

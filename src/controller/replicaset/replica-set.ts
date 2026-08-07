@@ -441,8 +441,13 @@ export class ReplicaSetController {
 	}
 
 	// Models kubernetes/pkg/controller/replicaset/replica_set.go worker.
+	// Repository constraint: the upstream loop relies on goroutine preemption, which the browser does
+	// not have. `newWorkerSlice` adds the yield that keeps a reconcile burst off one task.
 	async worker(ctx: context.Context): Promise<void> {
-		while (await this.processNextWorkItem(ctx)) {}
+		const yieldSlice = newWorkerSlice(this.clock);
+		while (await this.processNextWorkItem(ctx)) {
+			await yieldSlice();
+		}
 	}
 
 	// Models kubernetes/pkg/controller/replicaset/replica_set.go processNextWorkItem.
@@ -600,7 +605,7 @@ export class ReplicaSetController {
 			manageReplicasErr = await this.manageReplicas(ctx, activePods, rs);
 		}
 
-		const rsForStatus = structuredClone(rs);
+		const rsForStatus = deepClone(rs);
 		const now = this.clock.now();
 		const newStatus = calculateStatus(
 			rsForStatus,
@@ -790,6 +795,8 @@ export function getPodKeys(pods: k8s.V1Pod[]): string[] {
 	}
 	return podKeys;
 }
+import { deepClone } from "../../deep-clone.js";
+import { newWorkerSlice } from "../worker-slice.js";
 
 // Models kubernetes/pkg/controller/replicaset/replica_set.go controllerUIDIndex.
 function replicaSetControllerUIDIndexFunc(

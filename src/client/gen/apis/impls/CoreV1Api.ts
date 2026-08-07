@@ -640,6 +640,7 @@ export class CoreV1Api implements CoreV1ApiInterface {
 		});
 	}
 }
+import { deepClone } from "../../../../deep-clone.js";
 
 type PatchObject = { [key: string]: PatchValue };
 type PatchValue = PatchObject | PatchValue[] | string | number | boolean | null;
@@ -705,7 +706,7 @@ function mergePatch<T extends object>(target: T, patch: unknown): T {
 		// merge patch only; add JSON Patch here if shared tests or user code need it.
 		throw new Error("Merge patch body must be an object");
 	}
-	return applyPatchObject(structuredClone(target), patch);
+	return applyPatchObject(deepClone(target), patch);
 }
 
 function applyPatchObject<T extends object>(target: T, patch: PatchObject): T {
@@ -721,7 +722,7 @@ function applyPatchObject<T extends object>(target: T, patch: PatchObject): T {
 			continue;
 		}
 
-		result[key] = structuredClone(value);
+		result[key] = deepClone(value);
 	}
 	return target;
 }

@@ -10,6 +10,7 @@
     "node_modules",
     "dist",
     "**/*.test.ts",
+    "**/*.bench.ts",
     "**/*test-helpers.ts",
     "src/**/testing/**",
     "src/test/**",

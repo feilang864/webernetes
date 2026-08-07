@@ -2,7 +2,7 @@ import { V1ObjectMeta } from "../../client/index.js";
 import { Conflict, NotFound } from "../../client/errors.js";
 import { getClock } from "../../clock-context.js";
 import type * as context from "../../go/context.js";
-import type { Etcd } from "../etcd.js";
+import { keyValueObject, type Etcd, type KeyValue } from "../etcd.js";
 import { parseStoredObject } from "./serialization.js";
 import { Watcher } from "./watch.js";
 
@@ -51,6 +51,20 @@ export class Store<T extends Storable> {
 		protected readonly etcd: Etcd,
 		private readonly opts: StoreOpts,
 	) {}
+
+	/**
+	 * Decodes one stored key/value into an object the caller owns.
+	 *
+	 * Resources are written through the object path, so this normally copies the stored object and
+	 * touches no JSON at all. The byte branch stays for values written as raw bytes.
+	 */
+	private decodeKeyValue(kv: KeyValue): T {
+		const stored = keyValueObject(kv);
+		if (stored !== undefined) {
+			return deepClone(stored) as T;
+		}
+		return parseStoredObject<T>(kv.value.toString());
+	}
 
 	protected async validateCreate(_: T): Promise<void> {}
 
@@ -111,10 +125,20 @@ export class Store<T extends Storable> {
 	}
 
 	private withResourceVersion(obj: T, resourceVersion: string): T {
-		const withResourceVersion = structuredClone(obj);
-		withResourceVersion.metadata ??= {};
-		withResourceVersion.metadata.resourceVersion = resourceVersion;
-		return withResourceVersion;
+		const withResourceVersion = deepClone(obj);
+		return this.assignResourceVersion(withResourceVersion, resourceVersion);
+	}
+
+	/**
+	 * Sets `resourceVersion` on an object the caller already owns exclusively.
+	 *
+	 * Use this instead of {@link withResourceVersion} when the object was just decoded and no other
+	 * reference to it exists. Read paths run on every controller sync, so the copy there is waste.
+	 */
+	private assignResourceVersion(obj: T, resourceVersion: string): T {
+		obj.metadata ??= {};
+		obj.metadata.resourceVersion = resourceVersion;
+		return obj;
 	}
 
 	private defaultTypeMeta(obj: T): void {
@@ -138,15 +162,16 @@ export class Store<T extends Storable> {
 		name: string,
 		namespace?: string,
 	): Promise<{ obj: T; resourceVersion: string } | undefined> {
-		const response = await this.etcd.get(this.key(name, namespace)).exec();
+		const k = this.key(name, namespace);
+		const response = await this.etcd.get(k).exec();
 		const kv = response.kvs[0];
 		if (!kv) {
 			return undefined;
 		}
 
-		const obj = parseStoredObject<T>(kv.value.toString());
 		return {
-			obj: this.withResourceVersion(obj, kv.mod_revision),
+			// `decodeKeyValue` returns an object the caller owns, so set the version in place.
+			obj: this.assignResourceVersion(this.decodeKeyValue(kv), kv.mod_revision),
 			resourceVersion: kv.mod_revision,
 		};
 	}
@@ -156,7 +181,7 @@ export class Store<T extends Storable> {
 	}
 
 	async create(input: T): Promise<T> {
-		const obj = structuredClone(input);
+		const obj = deepClone(input);
 		if (!obj.metadata) {
 			throw new Error(`Object must have metadata`);
 		}
@@ -211,7 +236,7 @@ export class Store<T extends Storable> {
 
 			const response = await this.etcd
 				.if(k, "Version", "==", 0)
-				.then(this.etcd.put(k).value(JSON.stringify(obj)))
+				.then(this.etcd.put(k).json(obj))
 				.commit();
 			if (!response.succeeded) {
 				throw new Error(`Object with name ${obj.metadata.name} already exists`);
@@ -228,7 +253,7 @@ export class Store<T extends Storable> {
 	}
 
 	async update(name: string, input: T, options: StoreUpdateOptions = {}): Promise<T> {
-		const obj = structuredClone(input);
+		const obj = deepClone(input);
 		if (!obj.metadata) {
 			throw new Error(`Object must have metadata`);
 		}
@@ -271,7 +296,7 @@ export class Store<T extends Storable> {
 
 			const response = await this.etcd
 				.if(k, "Mod", "==", Number(existing.resourceVersion))
-				.then(this.etcd.put(k).value(JSON.stringify(obj)))
+				.then(this.etcd.put(k).json(obj))
 				.commit();
 			if (!response.succeeded) {
 				throw new Conflict(
@@ -332,10 +357,9 @@ export class Store<T extends Storable> {
 		const response = await builder.exec();
 		return {
 			resourceVersion: response.header.revision,
-			items: response.kvs.map((kv) => {
-				const obj = parseStoredObject<T>(kv.value.toString());
-				return this.withResourceVersion(obj, kv.mod_revision);
-			}),
+			items: response.kvs.map((kv) =>
+				this.assignResourceVersion(this.decodeKeyValue(kv), kv.mod_revision),
+			),
 		};
 	}
 
@@ -348,6 +372,7 @@ export class Store<T extends Storable> {
 		return new Watcher<T>(builder.watcher());
 	}
 }
+import { deepClone } from "../../deep-clone.js";
 
 function hasDeletionTimestamp(value: unknown): boolean {
 	if (typeof value !== "object" || value === null || !("metadata" in value)) {

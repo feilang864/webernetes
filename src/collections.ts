@@ -114,7 +114,7 @@ export class KeyFnMap<K, V> implements Iterable<[K, V]> {
 	constructor(
 		private readonly keyString: (key: K) => string = stableJSONStringify,
 		entries?: Iterable<readonly [K, V]>,
-		private readonly cloneKey: (key: K) => K = (key) => structuredClone(key),
+		private readonly cloneKey: (key: K) => K = (key) => deepClone(key),
 	) {
 		for (const [key, value] of entries || []) {
 			this.set(key, value);
@@ -168,6 +168,7 @@ export class KeyFnMap<K, V> implements Iterable<[K, V]> {
 		return this.entries();
 	}
 }
+import { deepClone } from "./deep-clone.js";
 
 function stableJSONStringify(value: unknown): string {
 	return JSON.stringify(sortJSONValue(value));

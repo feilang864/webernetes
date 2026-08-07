@@ -28,6 +28,7 @@ export type ClusterApplyResource =
 export type ClusterApplyResult<T extends readonly ClusterApplyResource[]> = {
 	-readonly [K in keyof T]: T[K];
 };
+import { deepClone } from "../deep-clone.js";
 
 export async function applyResources<const T extends readonly ClusterApplyResource[]>(
 	cluster: Cluster,
@@ -258,7 +259,7 @@ function resourceKey(resource: KubernetesObject): string {
 }
 
 function prepareDesiredResource<T extends KubernetesObject>(resource: T, namespaced: boolean): T {
-	const desired = structuredClone(resource);
+	const desired = deepClone(resource);
 	desired.apiVersion ??= "v1";
 	desired.metadata ??= {};
 	if (namespaced) {
@@ -304,7 +305,7 @@ function createApplyPatch(existing: KubernetesObject, desired: KubernetesObject)
 }
 
 function withLastApplied<T extends KubernetesObject>(resource: T): T {
-	const annotated = structuredClone(resource);
+	const annotated = deepClone(resource);
 	annotated.metadata ??= {};
 	annotated.metadata.annotations ??= {};
 	annotated.metadata.annotations[LAST_APPLIED_ANNOTATION] = lastAppliedValue(resource);
@@ -329,7 +330,7 @@ function previousLastApplied(resource: KubernetesObject): KubernetesObject | und
 }
 
 function lastAppliedValue(resource: KubernetesObject): string {
-	const applied = structuredClone(resource);
+	const applied = deepClone(resource);
 	const annotations = applied.metadata?.annotations;
 	if (annotations) {
 		delete annotations[LAST_APPLIED_ANNOTATION];
@@ -373,7 +374,7 @@ function createThreeWayMergePatch(
 		}
 
 		if (!deepEqual(desiredValue, previousValue)) {
-			patch[key] = structuredClone(desiredValue);
+			patch[key] = deepClone(desiredValue);
 		}
 	}
 

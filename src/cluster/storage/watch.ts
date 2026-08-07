@@ -1,5 +1,6 @@
 import { EventEmitter } from "events";
-import { Watcher as EtcdWatcher } from "../etcd.js";
+import { keyValueObject, Watcher as EtcdWatcher, type KeyValue } from "../etcd.js";
+import { deepClone } from "../../deep-clone.js";
 import { parseStoredObject } from "./serialization.js";
 
 export type EventType = "ADDED" | "MODIFIED" | "DELETED";
@@ -15,7 +16,7 @@ export class Watcher<T> extends EventEmitter {
 		super();
 
 		this.watcher.on("put", (event, prev) => {
-			const value = parseStoredObject<T>(event.value.toString());
+			const value = decodeWatchedValue<T>(event);
 			this.withResourceVersion(value, event.mod_revision);
 			if (prev) {
 				this.emit("event", "MODIFIED", value);
@@ -25,7 +26,7 @@ export class Watcher<T> extends EventEmitter {
 		});
 
 		this.watcher.on("delete", (event) => {
-			const value = parseStoredObject<T>(event.value.toString());
+			const value = decodeWatchedValue<T>(event);
 			this.withResourceVersion(value, event.mod_revision);
 			this.emit("event", "DELETED", value);
 		});
@@ -58,4 +59,19 @@ export class Watcher<T> extends EventEmitter {
 		object.metadata ??= {};
 		object.metadata.resourceVersion = resourceVersion;
 	}
+}
+
+/**
+ * Decodes one watched key/value into an object this watcher owns.
+ *
+ * `Etcd.publish` hands the same key/value to every watcher, so decoding from bytes here parsed
+ * identical JSON once per watcher. Copying the stored object instead keeps each watcher's value
+ * independent without re-parsing.
+ */
+function decodeWatchedValue<T>(event: KeyValue): T {
+	const stored = keyValueObject(event);
+	if (stored !== undefined) {
+		return deepClone(stored) as T;
+	}
+	return parseStoredObject<T>(event.value.toString());
 }

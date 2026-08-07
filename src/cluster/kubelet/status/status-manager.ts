@@ -160,7 +160,7 @@ export class StatusManagerImpl implements StatusManager {
 		if (!status) {
 			return undefined;
 		}
-		return structuredClone(status.status);
+		return deepClone(status.status);
 	}
 
 	// Models kubernetes/pkg/kubelet/status/status_manager.go SetPodStatus.
@@ -168,7 +168,7 @@ export class StatusManagerImpl implements StatusManager {
 		let notification: PodStatusNotification | undefined;
 		try {
 			return await this.podStatusesLock.withLock(async () => {
-				status = structuredClone(status);
+				status = deepClone(status);
 				status.observedGeneration = podutil.calculatePodStatusObservedGeneration(pod);
 
 				const [changed, notif] = this.updateStatusInternal(
@@ -178,10 +178,7 @@ export class StatusManagerImpl implements StatusManager {
 					false,
 				);
 				notification = notif;
-				return [
-					structuredClone(this.podStatuses.get(podStatusKey(pod))?.status ?? status),
-					changed,
-				];
+				return [deepClone(this.podStatuses.get(podStatusKey(pod))?.status ?? status), changed];
 			});
 		} finally {
 			if (notification) {
@@ -218,7 +215,7 @@ export class StatusManagerImpl implements StatusManager {
 					return;
 				}
 
-				const status = structuredClone(oldStatus.status);
+				const status = deepClone(oldStatus.status);
 				containerStatus = this.findContainerStatus(status, containerId);
 				if (!containerStatus) {
 					return;
@@ -298,7 +295,7 @@ export class StatusManagerImpl implements StatusManager {
 					return;
 				}
 
-				const status = structuredClone(oldStatus.status);
+				const status = deepClone(oldStatus.status);
 				containerStatus = this.findContainerStatus(status, containerId);
 				if (!containerStatus) {
 					return;
@@ -338,7 +335,7 @@ export class StatusManagerImpl implements StatusManager {
 				if (isCached) {
 					oldStatus = cachedStatus.status;
 				}
-				const status = structuredClone(oldStatus);
+				const status = deepClone(oldStatus);
 
 				if (hasPodInitialized(pod)) {
 					for (const containerStatus of status.containerStatuses ?? []) {
@@ -455,7 +452,7 @@ export class StatusManagerImpl implements StatusManager {
 		let oldStatus: V1PodStatus;
 		const isCached = cachedStatus !== undefined;
 		if (isCached) {
-			oldStatus = structuredClone(cachedStatus.status);
+			oldStatus = deepClone(cachedStatus.status);
 			if (!kubetypes.isStaticPod(pod)) {
 				if (cachedStatus.podIsFinished && !podIsFinished) {
 					podIsFinished = true;
@@ -464,9 +461,9 @@ export class StatusManagerImpl implements StatusManager {
 		} else {
 			const mirrorPod = this.podManager.getMirrorPodByPod(pod);
 			if (mirrorPod) {
-				oldStatus = structuredClone(mirrorPod.status ?? {});
+				oldStatus = deepClone(mirrorPod.status ?? {});
 			} else {
-				oldStatus = structuredClone(pod.status ?? {});
+				oldStatus = deepClone(pod.status ?? {});
 			}
 		}
 
@@ -500,7 +497,7 @@ export class StatusManagerImpl implements StatusManager {
 		}
 
 		const newStatus: VersionedPodStatus = {
-			status: structuredClone(status),
+			status: deepClone(status),
 			version: (cachedStatus?.version ?? 0) + 1,
 			podName: name,
 			podNamespace: pod.metadata?.namespace,
@@ -519,11 +516,11 @@ export class StatusManagerImpl implements StatusManager {
 		this.podStatuses.set(key, newStatus);
 		this.podStatusChannel.trySend(undefined);
 
-		const podCopy = structuredClone(pod);
-		podCopy.status = structuredClone(status);
+		const podCopy = deepClone(pod);
+		podCopy.status = deepClone(status);
 		const notification: PodStatusNotification = {
 			pod: podCopy,
-			status: structuredClone(status),
+			status: deepClone(status),
 			isAdded: !isCached && pod.metadata?.deletionTimestamp === undefined,
 			podIsFinished,
 		};
@@ -718,7 +715,7 @@ export class StatusManagerImpl implements StatusManager {
 			pod = mirrorPod;
 		}
 
-		const podStatus = structuredClone(pod.status ?? {});
+		const podStatus = deepClone(pod.status ?? {});
 		normalizeStatus(pod, podStatus);
 		return !isPodStatusByKubeletEqual(podStatus, status);
 	}
@@ -753,8 +750,8 @@ export function mergePodStatus(
 	newPodStatus: V1PodStatus,
 	couldHaveRunningContainers: boolean,
 ): V1PodStatus {
-	newPodStatus = structuredClone(newPodStatus);
-	oldPodStatus = structuredClone(oldPodStatus);
+	newPodStatus = deepClone(newPodStatus);
+	oldPodStatus = deepClone(oldPodStatus);
 
 	let podConditions: V1PodCondition[] = [];
 	for (const c of oldPodStatus.conditions ?? []) {
@@ -879,8 +876,8 @@ function initializedContainers(containers: V1ContainerStatus[] | undefined): V1C
 
 // Models kubernetes/pkg/kubelet/status/status_manager.go isPodStatusByKubeletEqual.
 export function isPodStatusByKubeletEqual(oldStatus: V1PodStatus, status: V1PodStatus): boolean {
-	const oldCopy = structuredClone(oldStatus);
-	const statusCopy = structuredClone(status);
+	const oldCopy = deepClone(oldStatus);
+	const statusCopy = deepClone(status);
 
 	const newConditions = new Map<string, V1PodCondition>();
 	const oldConditions = new Map<string, V1PodCondition>();
@@ -1013,6 +1010,7 @@ export function normalizeStatus(pod: V1Pod, status: V1PodStatus): V1PodStatus {
 
 	return status;
 }
+import { deepClone } from "../../../deep-clone.js";
 
 function podStatusKey(pod: V1Pod): string {
 	return pod.metadata?.uid ?? `${pod.metadata?.namespace ?? "default"}/${pod.metadata?.name ?? ""}`;

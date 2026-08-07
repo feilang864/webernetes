@@ -415,8 +415,13 @@ export class DeploymentController {
 	}
 
 	// Models kubernetes/pkg/controller/deployment/deployment_controller.go worker.
+	// Repository constraint: the upstream loop relies on goroutine preemption, which the browser does
+	// not have. `newWorkerSlice` adds the yield that keeps a reconcile burst off one task.
 	private async worker(ctx: context.Context): Promise<void> {
-		while (await this.processNextWorkItem(ctx)) {}
+		const yieldSlice = newWorkerSlice(this.clock);
+		while (await this.processNextWorkItem(ctx)) {
+			await yieldSlice();
+		}
 	}
 
 	// Models kubernetes/pkg/controller/deployment/deployment_controller.go processNextWorkItem.
@@ -467,7 +472,7 @@ export class DeploymentController {
 				return undefined;
 			}
 
-			const d = structuredClone(deployment);
+			const d = deepClone(deployment);
 			if (deepEqual(d.spec?.selector ?? {}, {})) {
 				await this.eventRecorder.eventf(
 					d,
@@ -911,7 +916,7 @@ export class DeploymentController {
 		const existingNewRS = findNewReplicaSet(d, rsList);
 		const newRevision = String(maxRevision(oldRSs) + 1);
 		if (existingNewRS) {
-			const rsCopy = structuredClone(existingNewRS);
+			const rsCopy = deepClone(existingNewRS);
 			const annotationsUpdated = setNewReplicaSetAnnotations(
 				d,
 				rsCopy,
@@ -962,7 +967,7 @@ export class DeploymentController {
 			return [undefined, undefined];
 		}
 
-		const newRSTemplate = structuredClone(d.spec?.template ?? {});
+		const newRSTemplate = deepClone(d.spec?.template ?? {});
 		const podTemplateSpecHash = computeHash(newRSTemplate, d.status?.collisionCount);
 		newRSTemplate.metadata ??= {};
 		newRSTemplate.metadata.labels ??= {};
@@ -1113,7 +1118,7 @@ export class DeploymentController {
 		let err: Error | undefined;
 		if (sizeNeedsUpdate || annotationsNeedUpdate) {
 			const oldScale = rs.spec.replicas ?? 1;
-			const rsCopy = structuredClone(rs);
+			const rsCopy = deepClone(rs);
 			rsCopy.spec ??= {
 				selector: deployment.spec?.selector ?? {},
 			};
@@ -1341,7 +1346,7 @@ export class DeploymentController {
 			unavailableReplicas,
 			collisionCount: deployment.status?.collisionCount,
 			terminatingReplicas: getTerminatingReplicaCountForReplicaSets(allReplicaSets),
-			conditions: structuredClone(deployment.status?.conditions ?? []),
+			conditions: deepClone(deployment.status?.conditions ?? []),
 		};
 		if (availableReplicas >= (deployment.spec?.replicas ?? 1) - maxUnavailable(deployment)) {
 			setDeploymentCondition(
@@ -1755,6 +1760,8 @@ export class DeploymentController {
 		return [totalScaledDown, undefined];
 	}
 }
+import { deepClone } from "../../deep-clone.js";
+import { newWorkerSlice } from "../worker-slice.js";
 
 function deploymentKey(deployment: k8s.V1Deployment): string | undefined {
 	const [key, err] = keyFunc(deployment);
