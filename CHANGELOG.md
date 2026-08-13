@@ -1,5 +1,11 @@
 # @ngrok/webernetes
 
+## 0.6.1
+
+### Patch Changes
+
+- [`0524409`](https://github.com/ngrok/webernetes/commit/05244090cf50987cec44ed6245091ea3b77a1f4f) Thanks [@samwho](https://github.com/samwho)! - Add `syncOnAnnotationOnlyChanges` to optionally skip kubelet pod syncs for annotation-only updates and reconciles.
+
 ## 0.6.0
 
 ### Minor Changes
