@@ -4,6 +4,7 @@ import type { K8s, KubeConfig } from "../../client/types.js";
 import type { ClusterApplyResource, ClusterApplyResult } from "../../cluster/apply.js";
 import * as context from "../../go/context.js";
 import { withLatencyProvider } from "../../latency.js";
+import { MathRNG } from "../../rng.js";
 import { newTestRng } from "../rng.js";
 import { withRng } from "../../rng-context.js";
 import { createKubernetesHelpers } from "./helpers.js";
@@ -30,9 +31,8 @@ export function createKubernetesRuntimeContext({
 		resources: T,
 	): Promise<ClusterApplyResult<T>>;
 }): KubernetesRuntimeContext {
-	const ctx = withLatencyProvider(
-		withRng(withClock(context.background(), new Clock()), newTestRng()),
-	);
+	const rng = target === "simulator" ? newTestRng() : new MathRNG();
+	const ctx = withLatencyProvider(withRng(withClock(context.background(), new Clock()), rng));
 	const apps = lazyApiClient(() => kubeConfig.makeApiClient(k8s.AppsV1Api));
 	const core = lazyApiClient(() => kubeConfig.makeApiClient(k8s.CoreV1Api));
 	const discovery = lazyApiClient(() => kubeConfig.makeApiClient(k8s.DiscoveryV1Api));
