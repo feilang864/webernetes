@@ -470,6 +470,7 @@ export function newTestKubeletWithImageList(
 		nodeName: testKubeletHostname,
 		kubeClient: fakeKubeClient,
 		resyncIntervalMs: 60 * 1000,
+		syncOnAnnotationOnlyChanges: true,
 		dnsConfigurer: new Configurer({
 			recorder,
 			nodeRef: {

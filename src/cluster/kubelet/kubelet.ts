@@ -18,6 +18,7 @@ import { Mutex } from "../../go/sync/mutex.js";
 import * as time from "../../go/time.js";
 import * as expansion from "../../third_party/forked/golang/expansion/index.js";
 import { getClock } from "../../clock-context.js";
+import { deepEqual } from "../../deep-equal.js";
 import type { Backoff } from "../../client-go/util/flowcontrol/backoff.js";
 import { newBackOff } from "../../client-go/util/flowcontrol/backoff.js";
 import type { DnsConfig, ImageManagerService, RuntimeService } from "../cri/index.js";
@@ -204,6 +205,7 @@ interface KubeletOptions {
 	nodeName: string;
 	kubeClient: KubeClient;
 	resyncIntervalMs: number;
+	syncOnAnnotationOnlyChanges: boolean;
 	dnsConfigurer: Configurer;
 	serviceLister: ServiceLister | undefined;
 	serviceHasSynced: () => boolean;
@@ -235,6 +237,23 @@ interface KubeletOptions {
 }
 
 const masterServices = new Set(["kubernetes"]);
+
+// Webernetes-specific: API updates also change resourceVersion, so ignore it
+// while determining whether annotations are the only meaningful change.
+function isAnnotationOnlyPodChange(oldPod: V1Pod | undefined, pod: V1Pod): boolean {
+	if (
+		!oldPod ||
+		deepEqual(oldPod.metadata?.annotations, pod.metadata?.annotations, {
+			ignoreUndefined: true,
+		})
+	) {
+		return false;
+	}
+	return deepEqual(oldPod, pod, {
+		ignoredFields: ["metadata.annotations", "metadata.resourceVersion"],
+		ignoreUndefined: true,
+	});
+}
 
 // Models kubernetes/pkg/kubelet/kubelet.go makePodSourceConfig.
 function makePodSourceConfig(
@@ -369,6 +388,7 @@ export function newMainKubelet(
 		nodeName,
 		kubeClient,
 		resyncIntervalMs: kubeCfg.syncFrequencyMs,
+		syncOnAnnotationOnlyChanges: kubeCfg.syncOnAnnotationOnlyChanges,
 		dnsConfigurer,
 		serviceLister,
 		serviceHasSynced,
@@ -545,6 +565,7 @@ export class Kubelet implements RuntimeHelper, PodDeletionSafetyProvider {
 	readonly clock: Clock;
 	private readonly kubeClient: KubeClient;
 	private readonly resyncIntervalMs: number;
+	readonly syncOnAnnotationOnlyChanges: boolean;
 	private readonly dnsConfigurer: Configurer;
 	// Package-visible for upstream-parity tests that mirror kubelet_pods_test.go.
 	serviceLister: ServiceLister | undefined;
@@ -623,6 +644,7 @@ export class Kubelet implements RuntimeHelper, PodDeletionSafetyProvider {
 		this.nodeName = options.nodeName;
 		this.kubeClient = options.kubeClient;
 		this.resyncIntervalMs = options.resyncIntervalMs;
+		this.syncOnAnnotationOnlyChanges = options.syncOnAnnotationOnlyChanges;
 		this.dnsConfigurer = options.dnsConfigurer;
 		this.serviceLister = options.serviceLister;
 		this.serviceHasSynced = options.serviceHasSynced;
@@ -1393,15 +1415,14 @@ export class Kubelet implements RuntimeHelper, PodDeletionSafetyProvider {
 	async handlePodUpdates(ctx: context.Context, pods: V1Pod[]): Promise<void> {
 		const start = this.clock.now();
 		for (const pod of pods) {
-			// Upstream uses oldPod in some vertical scaling code paths that we don't
-			// have.
-			const _oldPod = this.podManager.getPodByUid(pod.metadata?.uid ?? "");
+			const oldPod = this.podManager.getPodByUid(pod.metadata?.uid ?? "");
+			const skipSync = !this.syncOnAnnotationOnlyChanges && isAnnotationOnlyPodChange(oldPod, pod);
 			this.podManager.updatePod(pod);
 			const [resolvedPod, mirrorPod, wasMirror] = this.podManager.getPodAndMirrorPod(pod);
 			if (wasMirror && !resolvedPod) {
 				continue;
 			}
-			if (!resolvedPod) {
+			if (!resolvedPod || skipSync) {
 				continue;
 			}
 			await this.podWorkers.updatePod(ctx, {
@@ -1445,7 +1466,8 @@ export class Kubelet implements RuntimeHelper, PodDeletionSafetyProvider {
 	async handlePodReconcile(ctx: context.Context, pods: V1Pod[]): Promise<void> {
 		const start = this.clock.now();
 		for (const pod of pods) {
-			const _oldPod = this.podManager.getPodByUid(pod.metadata?.uid ?? "");
+			const oldPod = this.podManager.getPodByUid(pod.metadata?.uid ?? "");
+			const skipSync = !this.syncOnAnnotationOnlyChanges && isAnnotationOnlyPodChange(oldPod, pod);
 			this.podManager.updatePod(pod);
 			const [resolvedPod, mirrorPod, wasMirror] = this.podManager.getPodAndMirrorPod(pod);
 			if (wasMirror && !resolvedPod) {
@@ -1455,7 +1477,7 @@ export class Kubelet implements RuntimeHelper, PodDeletionSafetyProvider {
 				continue;
 			}
 
-			if (needToReconcilePodReadiness(resolvedPod)) {
+			if (!skipSync && needToReconcilePodReadiness(resolvedPod)) {
 				await this.podWorkers.updatePod(ctx, {
 					pod: resolvedPod,
 					mirrorPod,

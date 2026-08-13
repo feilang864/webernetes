@@ -17,6 +17,11 @@ export interface KubeletConfiguration {
 	nodeStatusMaxImages: number;
 	crashLoopBackOff: CrashLoopBackOffConfig;
 	/**
+	 * Webernetes-specific control for syncing pods when annotations are the only
+	 * meaningful fields changed. Defaults to true to preserve Kubernetes behavior.
+	 */
+	syncOnAnnotationOnlyChanges: boolean;
+	/**
 	 * Webernetes-specific control for immediate readiness probes during pod
 	 * reconciliation. Defaults to true to preserve Kubernetes behavior.
 	 */

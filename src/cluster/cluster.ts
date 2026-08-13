@@ -190,6 +190,8 @@ export class Cluster extends EventEmitter {
 			nodeStatusMaxImages: 50,
 			clusterDomain: "cluster.local",
 			crashLoopBackOff: options.kubeletConfiguration?.crashLoopBackOff ?? {},
+			syncOnAnnotationOnlyChanges:
+				options.kubeletConfiguration?.syncOnAnnotationOnlyChanges ?? true,
 			manuallyTriggerReadinessProbeOnPodReconcile:
 				options.kubeletConfiguration?.manuallyTriggerReadinessProbeOnPodReconcile ?? true,
 			probeInitialDelayOnKubeletRestartMs:

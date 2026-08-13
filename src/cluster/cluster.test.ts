@@ -5,6 +5,7 @@ import { select } from "../go/channel.js";
 import { both } from "../test/describe.js";
 import { waitFor } from "../test/wait.js";
 import { Cluster, type ClusterInformerEventType, type ClusterInformerResource } from "./cluster.js";
+import type { V1Pod } from "../client/index.js";
 import type { ProcessContext } from "./cri/index.js";
 import type { NetworkRequestEvent, NetworkResponseEvent } from "./cni/network.js";
 import { BaseImage } from "./images/base.js";
@@ -144,6 +145,77 @@ async function createInformerFieldSelectorFixture(
 }
 
 both.describe("Cluster nodes", () => {
+	it.each([
+		["defaults to enabled", undefined, true],
+		["can be disabled", false, false],
+	] as const)(
+		"%s for syncing annotation-only pod changes",
+		async (_description, configured, expected) => {
+			const cluster = new Cluster({
+				nodes: 1,
+				kubeletConfiguration:
+					configured === undefined ? undefined : { syncOnAnnotationOnlyChanges: configured },
+			});
+			try {
+				expect(cluster.servers[0]!.kubelet.syncOnAnnotationOnlyChanges).toBe(expected);
+			} finally {
+				await cluster.close();
+			}
+		},
+	);
+
+	it("skips pod worker syncs for annotation-only updates and reconciles when disabled", async () => {
+		const cluster = new Cluster({
+			nodes: 1,
+			kubeletConfiguration: { syncOnAnnotationOnlyChanges: false },
+		});
+		try {
+			const kubelet = cluster.servers[0]!.kubelet;
+			const oldPod: V1Pod = {
+				metadata: {
+					uid: "annotation-only",
+					name: "annotation-only",
+					namespace: "default",
+					resourceVersion: "1",
+					annotations: { demo: "before" },
+					labels: { app: "demo" },
+				},
+				spec: {
+					containers: [{ name: "app" }],
+					readinessGates: [{ conditionType: "demo.ngrok.com/ready" }],
+				},
+				status: { conditions: [{ type: "Ready", status: "True" }] },
+			};
+			const annotationUpdate: V1Pod = structuredClone(oldPod);
+			annotationUpdate.metadata!.resourceVersion = "2";
+			annotationUpdate.metadata!.annotations = { demo: "after" };
+
+			const updates: string[] = [];
+			kubelet.podWorkers.updatePod = async (_ctx, options) => {
+				updates.push(options.updateType);
+			};
+
+			kubelet.podManager.setPods([oldPod]);
+			await kubelet.handlePodUpdates(cluster.ctx, [annotationUpdate]);
+			expect(updates).toEqual([]);
+			expect(kubelet.podManager.getPodByUid("annotation-only")?.metadata?.annotations).toEqual({
+				demo: "after",
+			});
+
+			kubelet.podManager.setPods([oldPod]);
+			await kubelet.handlePodReconcile(cluster.ctx, [annotationUpdate]);
+			expect(updates).toEqual([]);
+
+			const labelUpdate: V1Pod = structuredClone(annotationUpdate);
+			labelUpdate.metadata!.resourceVersion = "3";
+			labelUpdate.metadata!.labels = { app: "changed" };
+			await kubelet.handlePodUpdates(cluster.ctx, [labelUpdate]);
+			expect(updates).toEqual(["update"]);
+		} finally {
+			await cluster.close();
+		}
+	});
+
 	it.each([
 		["defaults to enabled", undefined, true],
 		["can be disabled", false, false],
