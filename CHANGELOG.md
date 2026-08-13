@@ -1,5 +1,15 @@
 # @ngrok/webernetes
 
+## 0.6.0
+
+### Minor Changes
+
+- [`83d8c91`](https://github.com/ngrok/webernetes/commit/83d8c911519cdc6a43e8192d9d284be72f88b2df) Thanks [@samwho](https://github.com/samwho)! - Add a seed option to `Cluster` for deterministic simulation randomness.
+
+### Patch Changes
+
+- [`353fda9`](https://github.com/ngrok/webernetes/commit/353fda9f9117f3afe60a3cd7f7fadaeebb139a23) Thanks [@samwho](https://github.com/samwho)! - Add `probeInitialDelayOnKubeletRestartMs` to configure the initial probe delay after kubelet restarts.
+
 ## 0.5.5
 
 ### Patch Changes
