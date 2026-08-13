@@ -21,6 +21,13 @@ export interface KubeletConfiguration {
 	 * reconciliation. Defaults to true to preserve Kubernetes behavior.
 	 */
 	manuallyTriggerReadinessProbeOnPodReconcile: boolean;
+	/**
+	 * Webernetes-specific control for probe worker timing after a kubelet
+	 * restart. When undefined, Kubernetes' randomized delay within the probe
+	 * period is used. Set a value to make restartable demonstrations predictable
+	 * instead of making users wait an arbitrary time for their first probe.
+	 */
+	probeInitialDelayOnKubeletRestartMs?: number;
 }
 
 // Models kubernetes/pkg/kubelet/apis/config/types.go CrashLoopBackOffConfig.

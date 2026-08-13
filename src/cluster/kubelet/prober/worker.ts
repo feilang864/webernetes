@@ -65,7 +65,13 @@ export class ProbeWorker {
 		const probeTickerPeriod = this.intervalMs;
 		const sinceStart = clock.nowMs() - this.probeManager.startedAt.getTime();
 		if (probeTickerPeriod > sinceStart) {
-			const delay = time.after(ctx, Math.random() * probeTickerPeriod);
+			// Webernetes-only deviation: Kubernetes randomizes this delay to spread
+			// probe load after a kubelet restart. A configured delay makes
+			// restartable demonstrations predictable rather than forcing users to
+			// wait an arbitrary time for the first probe.
+			const initialDelay =
+				this.probeManager.probeInitialDelayOnKubeletRestartMs ?? Math.random() * probeTickerPeriod;
+			const delay = time.after(ctx, initialDelay);
 			const selected = await select()
 				.case(ctx.done(), () => "stop")
 				.case(this.stopCh, () => "stop")

@@ -53,6 +53,7 @@ export class ProbeManagerImpl implements ProbeManager {
 		recorder: EventRecorder | undefined,
 		network: ClusterNetwork,
 		readonly manuallyTriggerReadinessProbeOnPodReconcile = true,
+		readonly probeInitialDelayOnKubeletRestartMs: number | undefined = undefined,
 	) {
 		this.livenessManager = livenessManager;
 		this.readinessManager = readinessManager;

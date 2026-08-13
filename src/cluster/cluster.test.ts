@@ -168,6 +168,35 @@ both.describe("Cluster nodes", () => {
 		},
 	);
 
+	it("defaults probe initial delay on kubelet restart to undefined", async () => {
+		const cluster = new Cluster({ nodes: 1 });
+		try {
+			const probeManager = cluster.servers[0]!.kubelet.probeManager;
+			if (!(probeManager instanceof ProbeManagerImpl)) {
+				throw new Error("expected kubelet probe manager implementation");
+			}
+			expect(probeManager.probeInitialDelayOnKubeletRestartMs).toBeUndefined();
+		} finally {
+			await cluster.close();
+		}
+	});
+
+	it("passes probe initial delay on kubelet restart to the probe manager", async () => {
+		const cluster = new Cluster({
+			nodes: 1,
+			kubeletConfiguration: { probeInitialDelayOnKubeletRestartMs: 0 },
+		});
+		try {
+			const probeManager = cluster.servers[0]!.kubelet.probeManager;
+			if (!(probeManager instanceof ProbeManagerImpl)) {
+				throw new Error("expected kubelet probe manager implementation");
+			}
+			expect(probeManager.probeInitialDelayOnKubeletRestartMs).toBe(0);
+		} finally {
+			await cluster.close();
+		}
+	});
+
 	it("uses a non-zero default kubelet crash-loop restart delay", async () => {
 		FailTwiceImage.reset();
 		const cluster = new Cluster({ nodes: 1 });

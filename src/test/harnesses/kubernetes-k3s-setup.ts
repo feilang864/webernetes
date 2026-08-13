@@ -11,6 +11,7 @@ let containerPromise: Promise<StartedK3sContainer> | undefined;
 export const K3S_IMAGE = "rancher/k3s:v1.36.1-k3s1";
 export const K3S_CONTAINER_NAME = "k8s-web-simulator-k3s-1-36";
 export const K3S_SETUP_TIMEOUT_MS = 180_000;
+const K3S_NODE_READY_TIMEOUT_SECONDS = K3S_SETUP_TIMEOUT_MS / 1_000;
 
 export const K3S_START_LOCK_DIR = join(tmpdir(), `${K3S_CONTAINER_NAME}.lock`);
 export const K3S_SETUP_MARKER_ROOT = join(tmpdir(), `${K3S_CONTAINER_NAME}.ready`);
@@ -170,7 +171,7 @@ async function waitForK3sNodeReady(container: StartedK3sContainer): Promise<void
 		"--for=condition=Ready",
 		"node",
 		"--all",
-		"--timeout=60s",
+		`--timeout=${K3S_NODE_READY_TIMEOUT_SECONDS}s`,
 	]);
 	if (result.exitCode !== 0) {
 		throw new Error(result.stderr || result.output || "Timed out waiting for k3s node readiness");

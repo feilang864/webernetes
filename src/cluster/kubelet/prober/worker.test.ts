@@ -3,7 +3,7 @@
  * Derived from Kubernetes, translated and modified for Webernetes.
  */
 /* eslint-disable jest/no-conditional-expect, jest/valid-expect */
-import { expect, it } from "vitest";
+import { expect, it, vi } from "vitest";
 
 import {
 	type V1Container,
@@ -403,6 +403,32 @@ both.describe("TestInitialDelay", ({ ctx }) => {
 	});
 });
 
+both.describe("Probe initial delay on kubelet restart", ({ ctx }) => {
+	it("uses the configured delay instead of a random delay", async () => {
+		const m = newTestManager(ctx, true, 500);
+		const w = newTestWorker(m, readiness, { periodSeconds: 1 });
+		await m.statusManager.setPodStatus(w.pod, getTestRunningStatus());
+		const random = vi.spyOn(Math, "random").mockReturnValue(0);
+		try {
+			const run = w.run(ctx);
+			await flushMicrotasks();
+			getClock(ctx).step(499);
+			await flushMicrotasks();
+			expect(w.resultsManager.get(testContainerID)).toBeUndefined();
+			expect(random).not.toHaveBeenCalled();
+
+			getClock(ctx).step(1);
+			await flushMicrotasks();
+			expect(w.resultsManager.get(testContainerID)).toBe("success");
+
+			w.stop();
+			await run;
+		} finally {
+			random.mockRestore();
+		}
+	});
+});
+
 // Models kubernetes/pkg/kubelet/prober/worker_test.go TestFailureThreshold.
 both.describe("TestFailureThreshold", ({ ctx }) => {
 	it("applies failure threshold", async () => {
@@ -566,6 +592,12 @@ both.describe("TestCleanUp", ({ ctx }) => {
 		}
 	});
 });
+
+async function flushMicrotasks(): Promise<void> {
+	for (let i = 0; i < 10; i++) {
+		await Promise.resolve();
+	}
+}
 
 // Models kubernetes/pkg/kubelet/prober/worker_test.go expectResult.
 function expectResult(w: ProbeWorker, expectedResult: ProberResult, msg: string): void {

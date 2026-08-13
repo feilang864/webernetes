@@ -183,6 +183,8 @@ export class Cluster extends EventEmitter {
 			crashLoopBackOff: options.kubeletConfiguration?.crashLoopBackOff ?? {},
 			manuallyTriggerReadinessProbeOnPodReconcile:
 				options.kubeletConfiguration?.manuallyTriggerReadinessProbeOnPodReconcile ?? true,
+			probeInitialDelayOnKubeletRestartMs:
+				options.kubeletConfiguration?.probeInitialDelayOnKubeletRestartMs,
 		};
 		const serverDNSConfig = {
 			servers: [this.dnsServiceIp],

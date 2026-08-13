@@ -166,6 +166,7 @@ export function setTestProbe(pod: V1Pod, probeType: ProbeType, probeSpec: V1Prob
 export function newTestManager(
 	ctx: context.Context,
 	manuallyTriggerReadinessProbeOnPodReconcile = true,
+	probeInitialDelayOnKubeletRestartMs: number | undefined = undefined,
 ): ProbeManagerImpl {
 	const clock = getClock(ctx);
 	if (!clock.isPaused()) {
@@ -200,6 +201,7 @@ export function newTestManager(
 		new FakeRecorder(),
 		new ClusterNetwork(),
 		manuallyTriggerReadinessProbeOnPodReconcile,
+		probeInitialDelayOnKubeletRestartMs,
 	);
 	manager.prober.exec = new FakeExecProber("success");
 	return manager;
