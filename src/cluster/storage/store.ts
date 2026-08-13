@@ -1,6 +1,7 @@
 import { V1ObjectMeta } from "../../client/index.js";
 import { Conflict, NotFound } from "../../client/errors.js";
 import { getClock } from "../../clock-context.js";
+import { getRng } from "../../rng-context.js";
 import type * as context from "../../go/context.js";
 import { keyValueObject, type Etcd, type KeyValue } from "../etcd.js";
 import { parseStoredObject } from "./serialization.js";
@@ -14,12 +15,12 @@ export interface StoreOpts {
 	kind?: string;
 }
 
-function generateName(prefix: string): string {
-	return `${prefix}${Math.random().toString(36).substring(2, 7)}`;
+function generateName(ctx: context.Context, prefix: string): string {
+	return `${prefix}${getRng(ctx).random().toString(36).substring(2, 7)}`;
 }
 
-function generateUid(): string {
-	return `${Math.random().toString(36).substring(2)}${Math.random().toString(36).substring(2)}`;
+function generateUid(ctx: context.Context): string {
+	return `${getRng(ctx).random().toString(36).substring(2)}${getRng(ctx).random().toString(36).substring(2)}`;
 }
 
 export interface Storable {
@@ -210,7 +211,7 @@ export class Store<T extends Storable> {
 
 		if (!obj.metadata.name && obj.metadata.generateName) {
 			while (true) {
-				obj.metadata.name = generateName(obj.metadata.generateName);
+				obj.metadata.name = generateName(this.ctx, obj.metadata.generateName);
 				if (await this.get(obj.metadata.name, obj.metadata.namespace)) {
 					continue;
 				}
@@ -221,7 +222,7 @@ export class Store<T extends Storable> {
 		if (!obj.metadata.name) {
 			throw new Error(`Object must have a name`);
 		}
-		obj.metadata.uid ??= generateUid();
+		obj.metadata.uid ??= generateUid(this.ctx);
 
 		const existing = await this.get(obj.metadata.name, obj.metadata.namespace);
 		if (existing) {

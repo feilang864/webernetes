@@ -11,6 +11,8 @@ import { newBackOff } from "../../../client-go/util/flowcontrol/backoff.js";
 import { Clock } from "../../../clock.js";
 import { withClock } from "../../../clock-context.js";
 import { background } from "../../../go/context.js";
+import { newTestRng } from "../../../test/rng.js";
+import { withRng } from "../../../rng-context.js";
 import { both } from "../../../test/describe.js";
 import { FakeRuntime } from "../container/testing/index.js";
 import { KubeletImageManager, applyDefaultImageTag, evalCRIPullErr } from "./image-manager.js";
@@ -156,7 +158,7 @@ function pullerTestEnv(c: PullerTestCase, _serialized: boolean, maxParallelImage
 	} satisfies V1Container;
 
 	const clock = newTestClock();
-	const ctx = withClock(background(), clock);
+	const ctx = withRng(withClock(background(), clock), newTestRng());
 	const fakeRuntime = new FakeRuntime();
 	fakeRuntime.imageList = [
 		{
@@ -181,7 +183,7 @@ function pullerTestEnv(c: PullerTestCase, _serialized: boolean, maxParallelImage
 		recorder: fakeRecorder,
 		imageService: fakeRuntime,
 		imagePullManager: pullManager,
-		imageBackOff: newBackOff(1000, 60_000, clock),
+		imageBackOff: newBackOff(ctx, 1000, 60_000),
 		podPullingTimeRecorder: fakePodPullingTimeRecorder,
 		maxParallelImagePulls,
 		qps: c.qps,

@@ -474,7 +474,7 @@ both.describe("KubeGenericRuntimeManager runtime state", ({ ctx }) => {
 			pod,
 			emptyPodStatus(),
 			[],
-			newBackOff(1000, 60_000, getClock(ctx)),
+			newBackOff(ctx, 1000, 60_000),
 			false,
 		);
 
@@ -525,7 +525,7 @@ both.describe("KubeGenericRuntimeManager runtime state", ({ ctx }) => {
 			},
 		};
 
-		const backOff = newBackOff(1000, 60_000, getClock(ctx));
+		const backOff = newBackOff(ctx, 1000, 60_000);
 		const result = await m.syncPod(ctx, pod, emptyPodStatus(), [], backOff, false);
 
 		expect(result.error()).toBeUndefined();
@@ -1320,7 +1320,7 @@ both.describe("KubeGenericRuntimeManager.doBackOff", ({ ctx }) => {
 				...emptyPodStatus(clock),
 				containerStatuses: [containerStatus("foocontainer", "id1", "Running")],
 			}),
-			backoff: (clock: Clock) => newBackOff(1000, 60_000, clock),
+			backoff: (_clock: Clock) => newBackOff(ctx, 1000, 60_000),
 			expectedInBackOff: false,
 		},
 		{
@@ -1334,7 +1334,7 @@ both.describe("KubeGenericRuntimeManager.doBackOff", ({ ctx }) => {
 					},
 				],
 			}),
-			backoff: (clock: Clock) => newBackOff(1000, 60_000, clock),
+			backoff: (_clock: Clock) => newBackOff(ctx, 1000, 60_000),
 			expectedInBackOff: false,
 		},
 		{
@@ -1348,7 +1348,7 @@ both.describe("KubeGenericRuntimeManager.doBackOff", ({ ctx }) => {
 					},
 				],
 			}),
-			backoff: (clock: Clock) => newBackOff(1000, 60_000, clock),
+			backoff: (_clock: Clock) => newBackOff(ctx, 1000, 60_000),
 			backoffUpdateFn: (backOff, pod, podStatus) => {
 				const container = pod.spec?.containers?.[0] as V1Container;
 				const status = podStatus.containerStatuses[0] as ContainerStatus;
@@ -1372,7 +1372,7 @@ both.describe("KubeGenericRuntimeManager.doBackOff", ({ ctx }) => {
 					},
 				],
 			}),
-			backoff: (clock: Clock) => newBackOff(0, 0, clock),
+			backoff: (_clock: Clock) => newBackOff(ctx, 0, 0),
 			expectedInBackOff: false,
 		},
 	] satisfies DoBackOffCase[])("$name", async (test) => {
@@ -1525,7 +1525,7 @@ both.describe("KubeGenericRuntimeManager.OnPodSandboxReady invocation", ({ ctx }
 			pod,
 			emptyPodStatus(),
 			[],
-			newBackOff(1000, 60_000, getClock(ctx)),
+			newBackOff(ctx, 1000, 60_000),
 			false,
 		);
 
@@ -1595,7 +1595,7 @@ both.describe("KubeGenericRuntimeManager.OnPodSandboxReady timing", ({ ctx }) =>
 			pod,
 			emptyPodStatus(),
 			[],
-			newBackOff(1000, 60_000, getClock(ctx)),
+			newBackOff(ctx, 1000, 60_000),
 			false,
 		);
 		expect(result.error()).toBeUndefined();

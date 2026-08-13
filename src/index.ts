@@ -1,5 +1,7 @@
 export { Clock } from "./clock.js";
 export { getClock, withClock } from "./clock-context.js";
+export { getRng, withRng } from "./rng-context.js";
+export { MathRNG, Xoshiro128StarStar } from "./rng.js";
 export { getCluster } from "./cluster/context.js";
 export { Cluster, KubeClient } from "./cluster/cluster.js";
 export { BaseImage } from "./cluster/images/base.js";
@@ -15,6 +17,7 @@ export {
 export * from "./client/index.js";
 export type { ClusterApplyResource, ClusterApplyResult } from "./cluster/apply.js";
 export type { Context } from "./go/context.js";
+export type { RNG } from "./rng.js";
 export type {
 	ClusterOptions,
 	ClusterInformerCallback,

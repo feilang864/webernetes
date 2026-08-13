@@ -5,6 +5,7 @@
 import { select, type ReadOnlyChannel } from "../../../../go/channel.js";
 import * as context from "../../../../go/context.js";
 import type { MaybePromise } from "../../../../promise.js";
+import { getRng } from "../../../../rng-context.js";
 import type { ConditionWithContextFunc } from "./delay.js";
 import { errWaitTimeout } from "./error.js";
 
@@ -47,11 +48,11 @@ class ChannelContext implements context.Context {
 }
 
 // Models staging/src/k8s.io/apimachinery/pkg/util/wait/wait.go Jitter.
-export function jitter(durationMs: number, maxFactor: number): number {
+export function jitter(ctx: context.Context, durationMs: number, maxFactor: number): number {
 	if (maxFactor <= 0) {
 		maxFactor = 1;
 	}
-	return durationMs + Math.random() * maxFactor * durationMs;
+	return durationMs + getRng(ctx).random() * maxFactor * durationMs;
 }
 
 // Models staging/src/k8s.io/apimachinery/pkg/util/wait/wait.go runConditionWithCrashProtectionWithContext.

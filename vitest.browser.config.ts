@@ -6,6 +6,7 @@ export default defineConfig({
 		exclude: ["@kubernetes/client-node", "@testcontainers/k3s", "testcontainers"],
 	},
 	test: {
+		env: { SEED: process.env.SEED },
 		include: ["src/**/*.test.ts"],
 		passWithNoTests: true,
 		testTimeout: 10_000,

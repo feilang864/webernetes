@@ -1,4 +1,5 @@
 import { getClock } from "./clock-context.js";
+import { getRng } from "./rng-context.js";
 import { isConflictError } from "./client/errors.js";
 import type * as context from "./go/context.js";
 
@@ -39,7 +40,7 @@ export async function retry<T>(
 			}
 			lastError = error;
 			if (attempt < retries) {
-				await clock.wait(backoffDelayMs(attempt, baseDelayMs, maxDelayMs, jitterRatio));
+				await clock.wait(backoffDelayMs(ctx, attempt, baseDelayMs, maxDelayMs, jitterRatio));
 			}
 		}
 	}
@@ -67,12 +68,13 @@ export async function retryConflicts<T>(
 }
 
 export function backoffDelayMs(
+	ctx: context.Context,
 	attempt: number,
 	baseDelayMs: number,
 	maxDelayMs: number,
 	jitterRatio: number,
 ): number {
 	const exponentialDelayMs = Math.min(maxDelayMs, baseDelayMs * 2 ** attempt);
-	const jitterMs = exponentialDelayMs * jitterRatio * (Math.random() * 2 - 1);
+	const jitterMs = exponentialDelayMs * jitterRatio * (getRng(ctx).random() * 2 - 1);
 	return Math.max(0, Math.round(exponentialDelayMs + jitterMs));
 }

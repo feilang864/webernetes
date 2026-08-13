@@ -47,8 +47,8 @@ both.describe("retry", ({ ctx }) => {
 	});
 
 	it("computes exponential backoff delays", () => {
-		expect(backoffDelayMs(0, 10, 100, 0)).toBe(10);
-		expect(backoffDelayMs(1, 10, 100, 0)).toBe(20);
-		expect(backoffDelayMs(4, 10, 100, 0)).toBe(100);
+		expect(backoffDelayMs(ctx, 0, 10, 100, 0)).toBe(10);
+		expect(backoffDelayMs(ctx, 1, 10, 100, 0)).toBe(20);
+		expect(backoffDelayMs(ctx, 4, 10, 100, 0)).toBe(100);
 	});
 });

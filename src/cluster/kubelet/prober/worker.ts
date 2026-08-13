@@ -4,6 +4,7 @@
  */
 import type { V1Container, V1Pod, V1Probe } from "../../../client/index.js";
 import { getClock } from "../../../clock-context.js";
+import { getRng } from "../../../rng-context.js";
 import { Channel, select } from "../../../go/channel.js";
 import type { Context } from "../../../go/context.js";
 import * as time from "../../../go/time.js";
@@ -70,7 +71,8 @@ export class ProbeWorker {
 			// restartable demonstrations predictable rather than forcing users to
 			// wait an arbitrary time for the first probe.
 			const initialDelay =
-				this.probeManager.probeInitialDelayOnKubeletRestartMs ?? Math.random() * probeTickerPeriod;
+				this.probeManager.probeInitialDelayOnKubeletRestartMs ??
+				getRng(ctx).random() * probeTickerPeriod;
 			const delay = time.after(ctx, initialDelay);
 			const selected = await select()
 				.case(ctx.done(), () => "stop")

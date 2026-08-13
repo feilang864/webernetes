@@ -5,9 +5,11 @@
 import type { V1Node, V1Pod, V1PodSpec } from "../../client/index.js";
 import { KubeConfig } from "../../client/index.js";
 import { Set as LabelSet } from "../../apimachinery/pkg/labels/labels.js";
-import type { Clock } from "../../clock.js";
-import { getClock } from "../../clock-context.js";
+import { Clock } from "../../clock.js";
+import { getClock, withClock } from "../../clock-context.js";
 import { Channel } from "../../go/channel.js";
+import { newTestRng } from "../../test/rng.js";
+import { withRng } from "../../rng-context.js";
 import * as context from "../../go/context.js";
 import { Mutex } from "../../go/sync/mutex.js";
 import { newBackOff } from "../../client-go/util/flowcontrol/backoff.js";
@@ -292,7 +294,7 @@ export function createPodWorkers(): [
 		processed.set(uid, [...(processed.get(uid) ?? []), update]);
 	};
 	const podWorkers = new PodWorkersImpl(
-		clock,
+		withRng(withClock(context.background(), new Clock()), newTestRng()),
 		new FakeQueue(),
 		60 * 1000,
 		1000,
@@ -330,6 +332,7 @@ export function createPodWorkers(): [
 		},
 		fakeCache,
 	);
+	podWorkers.clock = clock;
 	return [podWorkers, fakeRuntime, processed, clock];
 }
 
@@ -509,7 +512,7 @@ export function newTestKubeletWithImageList(
 		podCache,
 		recorder,
 		workQueue,
-		crashLoopBackOff: newBackOff(10 * 1000, 300 * 1000, fakeClock),
+		crashLoopBackOff: newBackOff(withClock(ctx, fakeClock), 10 * 1000, 300 * 1000),
 		nodeIPs: ["127.0.0.1", "::1"],
 		nodeStatusMaxImages: 50,
 	});

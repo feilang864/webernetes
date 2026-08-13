@@ -11,6 +11,7 @@ import { BaseImage } from "./images/base.js";
 import type { Kubelet } from "./kubelet/index.js";
 import { ProbeManagerImpl } from "./kubelet/prober/index.js";
 import { getLatencyProvider, newLatencyProvider } from "../latency.js";
+import { getRng } from "../rng-context.js";
 
 type InformerObject = { metadata?: { name?: string } };
 
@@ -366,6 +367,18 @@ both.describe("Cluster nodes", () => {
 			).toBe(0);
 		} finally {
 			await cluster.close();
+		}
+	});
+
+	it("seeds the random number generator on the cluster context", async () => {
+		const firstCluster = new Cluster({ seed: 1234 });
+		const secondCluster = new Cluster({ seed: 1234 });
+		const otherCluster = new Cluster({ seed: 5678 });
+		try {
+			expect(getRng(firstCluster.ctx).random()).toBe(getRng(secondCluster.ctx).random());
+			expect(getRng(firstCluster.ctx).random()).not.toBe(getRng(otherCluster.ctx).random());
+		} finally {
+			await Promise.all([firstCluster.close(), secondCluster.close(), otherCluster.close()]);
 		}
 	});
 

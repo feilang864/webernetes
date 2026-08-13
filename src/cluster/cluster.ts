@@ -27,6 +27,8 @@ import { applyResources, type ClusterApplyResource, type ClusterApplyResult } fr
 import type { KubeletConfiguration } from "./kubelet/apis/config/index.js";
 import { buildPodFullName } from "./kubelet/container/index.js";
 import { withClock } from "../clock-context.js";
+import { MathRNG, type RNG, Xoshiro128StarStar } from "../rng.js";
+import { withRng } from "../rng-context.js";
 import { type LatencyProvider, withLatencyProvider } from "../latency.js";
 import { withCluster } from "./context.js";
 import type {
@@ -69,6 +71,11 @@ export interface ClusterInformerResources {
 export type ClusterInformerResource = keyof ClusterInformerResources;
 
 export interface ClusterOptions {
+	/**
+	 * Seed for deterministic simulation randomness. When omitted, the cluster
+	 * uses Math.random().
+	 */
+	seed?: number;
 	/**
 	 * CIDR used by the service store when allocating Service clusterIP values.
 	 * Defaults to the simulator's Kubernetes service CIDR.
@@ -121,6 +128,7 @@ export class KubeClient implements k8s.KubeClient {
 export class Cluster extends EventEmitter {
 	readonly id: string;
 	readonly clock: Clock;
+	readonly rng: RNG;
 	readonly etcd: Etcd;
 	readonly kubeConfig: k8s.KubeConfig;
 	readonly api: KubeClient;
@@ -138,9 +146,10 @@ export class Cluster extends EventEmitter {
 		super();
 		this.id = `w8s-cluster-${nextClusterId++}`;
 		this.clock = new Clock();
+		this.rng = options.seed === undefined ? new MathRNG() : new Xoshiro128StarStar(options.seed);
 		const [ctx, cancelContext] = context.withCancel(context.background());
 		this.ctx = withCluster(
-			withLatencyProvider(withClock(ctx, this.clock), options.latencyProvider),
+			withLatencyProvider(withRng(withClock(ctx, this.clock), this.rng), options.latencyProvider),
 			this,
 		);
 		this.cancelContext = cancelContext;

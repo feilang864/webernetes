@@ -11,10 +11,12 @@ import type { PodStatus as PodRuntimeStatus } from "./container/index.js";
 import { networkNotReadyErrorMsg } from "./errors.js";
 import { isStaticPod, type SyncPodType } from "./types/pod-update.js";
 import type { WorkQueue } from "./util/queue/work-queue.js";
+import { getClock } from "../../clock-context.js";
 import type { PassiveClock } from "../../utils/clock/clock.js";
 import type { DeepPartial } from "../../utility-types.js";
 import { Mutex } from "../../go/sync/mutex.js";
 import type { MaybePromise } from "../../promise.js";
+import { getRng } from "../../rng-context.js";
 
 // Models kubernetes/pkg/kubelet/pod_workers.go workerResyncIntervalJitterFactor.
 const workerResyncIntervalJitterFactor = 0.5;
@@ -265,14 +267,14 @@ export class PodWorkersImpl implements PodWorkers {
 	private stopped = false;
 
 	constructor(
-		clock: PassiveClock,
+		private readonly ctx: context.Context,
 		readonly workQueue: WorkQueue,
 		resyncIntervalMs: number,
 		backOffPeriodMs: number,
 		public podSyncer: PodSyncer,
 		readonly podCache: kubecontainer.ROCache,
 	) {
-		this.clock = clock;
+		this.clock = getClock(ctx);
 		this.resyncIntervalMs = resyncIntervalMs;
 		this.backOffPeriodMs = backOffPeriodMs;
 	}
@@ -810,13 +812,13 @@ export class PodWorkersImpl implements PodWorkers {
 			case syncError === undefined:
 				this.workQueue.enqueue(
 					podUID,
-					jitter(this.resyncIntervalMs, workerResyncIntervalJitterFactor),
+					jitter(this.ctx, this.resyncIntervalMs, workerResyncIntervalJitterFactor),
 				);
 				break;
 			case errorMessage(syncError).includes(networkNotReadyErrorMsg):
 				this.workQueue.enqueue(
 					podUID,
-					jitter(backOffOnTransientErrorPeriodMs, workerBackOffPeriodJitterFactor),
+					jitter(this.ctx, backOffOnTransientErrorPeriodMs, workerBackOffPeriodJitterFactor),
 				);
 				break;
 			default:
@@ -830,7 +832,7 @@ export class PodWorkersImpl implements PodWorkers {
 				} else if (backoff > this.resyncIntervalMs) {
 					backoff = this.resyncIntervalMs;
 				}
-				this.workQueue.enqueue(podUID, jitter(backoff, workerBackOffPeriodJitterFactor));
+				this.workQueue.enqueue(podUID, jitter(this.ctx, backoff, workerBackOffPeriodJitterFactor));
 				break;
 		}
 
@@ -1099,11 +1101,11 @@ function podWorkerKey(pod: V1Pod): string {
 }
 
 // Models k8s.io/apimachinery/pkg/util/wait.Jitter for pod worker queue delays.
-function jitter(durationMs: number, maxFactor: number): number {
+function jitter(ctx: context.Context, durationMs: number, maxFactor: number): number {
 	if (maxFactor <= 0) {
 		maxFactor = 1;
 	}
-	const wait = durationMs + Math.random() * maxFactor * durationMs;
+	const wait = durationMs + getRng(ctx).random() * maxFactor * durationMs;
 	return wait;
 }
 

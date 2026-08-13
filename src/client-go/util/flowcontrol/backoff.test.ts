@@ -3,7 +3,7 @@ import { Clock } from "../../../clock.js";
 import { both } from "../../../test/describe.js";
 import { newBackOff } from "./backoff.js";
 
-both.describe("flowcontrol backoff", () => {
+both.describe("flowcontrol backoff", ({ ctx }) => {
 	let clock: Clock;
 
 	beforeEach(() => {
@@ -18,7 +18,7 @@ both.describe("flowcontrol backoff", () => {
 	});
 
 	it("tracks exponential backoff windows", async () => {
-		const backoff = newBackOff(10_000, 300_000, clock);
+		const backoff = newBackOff(ctx, 10_000, 300_000);
 		const id = "pod_image";
 
 		backoff.next(id, clock.now());
@@ -37,7 +37,7 @@ both.describe("flowcontrol backoff", () => {
 	});
 
 	it("caps backoff at the max duration", async () => {
-		const backoff = newBackOff(10_000, 300_000, clock);
+		const backoff = newBackOff(ctx, 10_000, 300_000);
 		const id = "pod_image";
 
 		for (let i = 0; i < 8; i++) {

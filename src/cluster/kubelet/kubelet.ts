@@ -359,7 +359,7 @@ export function newMainKubelet(
 	const workQueue = new BasicWorkQueue(clock);
 	const podCache = new PodStatusCache();
 	const [boMax, base] = newCrashLoopBackOff(kubeCfg);
-	const crashLoopBackOff = newBackOff(base, boMax, clock);
+	const crashLoopBackOff = newBackOff(ctx, base, boMax);
 	crashLoopBackOff.hasExpiredFunc = (eventTime, lastUpdate) =>
 		eventTime.getTime() - lastUpdate.getTime() > crashLoopBackOffExpirationMs;
 	const kubelet = new Kubelet({
@@ -399,7 +399,7 @@ export function newMainKubelet(
 		podStartupLatencyHelper: kubeDeps.podStartupLatencyTracker,
 	});
 	kubelet.podWorkers = new PodWorkersImpl(
-		clock,
+		ctx,
 		kubelet.workQueue,
 		kubeCfg.syncFrequencyMs,
 		backOffPeriodMs,
@@ -414,7 +414,7 @@ export function newMainKubelet(
 		runtimeHelper: kubelet,
 		events: kubeDeps.recorder,
 		livenessManager,
-		imageBackOff: newBackOff(imageBackOffPeriodMs, maxImageBackOffMs, clock),
+		imageBackOff: newBackOff(ctx, imageBackOffPeriodMs, maxImageBackOffMs),
 		registryPullQPS: kubeCfg.registryPullQPS,
 		registryBurst: kubeCfg.registryBurst,
 		maxParallelImagePulls: kubeCfg.serializeImagePulls ? 1 : kubeCfg.maxParallelImagePulls,

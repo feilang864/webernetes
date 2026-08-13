@@ -6,10 +6,11 @@ import { Cluster } from "../../cluster/index.js";
 import * as http from "../../cluster/cni/http.js";
 import * as fakeK8s from "../../client/index.js";
 import { createKubernetesRuntimeContext } from "./kubernetes-context.js";
+import { testSeed } from "../rng.js";
 import type { KubernetesSuiteFactory, NodePortRequest, NodePortResponse } from "./kubernetes.js";
 import type { K8s } from "../../client/types.js";
 
-const cluster = new Cluster();
+const cluster = new Cluster({ seed: testSeed() });
 let setupPromise: Promise<void> | undefined;
 
 const k8s: K8s = fakeK8s;

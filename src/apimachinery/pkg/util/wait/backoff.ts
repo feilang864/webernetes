@@ -49,6 +49,7 @@ export class Backoff {
 	// Models staging/src/k8s.io/apimachinery/pkg/util/wait/backoff.go Backoff.Step.
 	step(): number {
 		const [nextDuration, next, nextSteps] = delay(
+			this.ctx,
 			this.steps,
 			this.durationMs,
 			this.capMs,
@@ -70,7 +71,7 @@ export class Backoff {
 
 		return new DelayFunc(this.ctx, () => {
 			let nextDuration: number;
-			[nextDuration, durationMs, steps] = delay(steps, durationMs, capMs, factor, jitter);
+			[nextDuration, durationMs, steps] = delay(this.ctx, steps, durationMs, capMs, factor, jitter);
 			return nextDuration;
 		});
 	}
@@ -186,6 +187,7 @@ async function backoffUntilWithContext(
 
 // Models staging/src/k8s.io/apimachinery/pkg/util/wait/backoff.go delay.
 function delay(
+	ctx: context.Context,
 	steps: number,
 	durationMs: number,
 	capMs: number,
@@ -194,7 +196,7 @@ function delay(
 ): [durationMs: number, next: number, nextSteps: number] {
 	if (steps < 1) {
 		if (jitter > 0) {
-			return [jitterDuration(durationMs, jitter), durationMs, 0];
+			return [jitterDuration(ctx, durationMs, jitter), durationMs, 0];
 		}
 		return [durationMs, durationMs, 0];
 	}
@@ -212,7 +214,7 @@ function delay(
 	}
 
 	if (jitter > 0) {
-		durationMs = jitterDuration(durationMs, jitter);
+		durationMs = jitterDuration(ctx, durationMs, jitter);
 	}
 
 	return [durationMs, next, steps];

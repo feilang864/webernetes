@@ -5,7 +5,6 @@
 import { expect } from "vitest";
 import type { V1Container, V1Pod } from "../../../client/index.js";
 import { newBackOff } from "../../../client-go/util/flowcontrol/backoff.js";
-import { getClock } from "../../../clock-context.js";
 import * as context from "../../../go/context.js";
 import type {
 	ContainerConfig,
@@ -109,7 +108,6 @@ export function createTestRuntimeManagerWithErrors(
 	ctx: context.Context,
 	errors: TestRuntimeManagerErrors | undefined,
 ): TestRuntimeManagerFixture {
-	const clock = getClock(ctx);
 	const fakeRuntime = new TestRuntimeService(errors);
 	const fakeImage = new TestImageService();
 	const livenessManager = new ResultsManager();
@@ -128,7 +126,7 @@ export function createTestRuntimeManagerWithErrors(
 		},
 		internalLifecycle: testInternalLifecycle(),
 		livenessManager,
-		imageBackOff: newBackOff(10 * 1000, 300 * 1000, clock),
+		imageBackOff: newBackOff(ctx, 10 * 1000, 300 * 1000),
 		network: new ClusterNetwork(),
 		startupManager,
 	});

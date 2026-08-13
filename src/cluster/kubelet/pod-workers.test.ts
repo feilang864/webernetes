@@ -584,7 +584,6 @@ both.describe("completeWork_PendingUpdate", () => {
 
 both.describe("updatePod locking", ({ ctx }) => {
 	it("serializes updates while first-time terminal status checks await the pod cache", async () => {
-		const clock = newFakePassiveClock(new Date(1_000));
 		let releaseGet: (() => void) | undefined;
 		let getStarted = false;
 		const cache: ROCache = {
@@ -600,7 +599,7 @@ both.describe("updatePod locking", ({ ctx }) => {
 			},
 		};
 		const p = new PodWorkersImpl(
-			clock,
+			ctx,
 			new FakeQueue(),
 			60 * 1000,
 			1000,

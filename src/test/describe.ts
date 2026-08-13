@@ -6,6 +6,8 @@ import { Clock } from "../clock.js";
 import { getClock, withClock } from "../clock-context.js";
 import * as context from "../go/context.js";
 import { withLatencyProvider } from "../latency.js";
+import { newTestRng } from "./rng.js";
+import { withRng } from "../rng-context.js";
 
 export type TestEnvironment = "browser" | "node";
 export type SuiteOptions = number | TestOptions;
@@ -97,7 +99,7 @@ function createDescribeFn(
 
 function createBrowserTestContext(): BrowserTestContext {
 	return {
-		ctx: withLatencyProvider(withClock(context.background(), new Clock())),
+		ctx: withLatencyProvider(withRng(withClock(context.background(), new Clock()), newTestRng())),
 	};
 }
 

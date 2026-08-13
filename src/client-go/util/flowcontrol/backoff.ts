@@ -3,6 +3,10 @@
  * Derived from Kubernetes, translated and modified for Webernetes.
  */
 import type { Clock } from "../../../clock.js";
+import { getClock } from "../../../clock-context.js";
+import * as context from "../../../go/context.js";
+import { getRng } from "../../../rng-context.js";
+import type { RNG } from "../../../rng.js";
 
 interface BackoffEntry {
 	backoff: number;
@@ -21,6 +25,7 @@ export class Backoff {
 		private readonly defaultDurationMs: number,
 		private readonly maxDurationMs: number,
 		private readonly maxJitterFactor: number,
+		private readonly rng: RNG,
 	) {}
 
 	// Webernetes permits a zero crash-loop backoff maximum, unlike Kubernetes.
@@ -99,7 +104,7 @@ export class Backoff {
 
 	// Models staging/src/k8s.io/client-go/util/flowcontrol/backoff.go Backoff.jitter.
 	private jitter(delay: number): number {
-		return Math.random() * this.maxJitterFactor * delay;
+		return this.rng.random() * this.maxJitterFactor * delay;
 	}
 
 	// Models staging/src/k8s.io/client-go/util/flowcontrol/backoff.go Backoff.hasExpired.
@@ -112,16 +117,16 @@ export class Backoff {
 }
 
 // Models staging/src/k8s.io/client-go/util/flowcontrol/backoff.go NewBackOff.
-export function newBackOff(initialMs: number, maxMs: number, clock: Clock): Backoff {
-	return newBackOffWithJitter(initialMs, maxMs, 0, clock);
+export function newBackOff(ctx: context.Context, initialMs: number, maxMs: number): Backoff {
+	return new Backoff(getClock(ctx), initialMs, maxMs, 0, getRng(ctx));
 }
 
 // Models staging/src/k8s.io/client-go/util/flowcontrol/backoff.go NewBackOffWithJitter.
 export function newBackOffWithJitter(
+	ctx: context.Context,
 	initialMs: number,
 	maxMs: number,
 	maxJitterFactor: number,
-	clock: Clock,
 ): Backoff {
-	return new Backoff(clock, initialMs, maxMs, maxJitterFactor);
+	return new Backoff(getClock(ctx), initialMs, maxMs, maxJitterFactor, getRng(ctx));
 }
